@@ -822,7 +822,7 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400 text-xs"></i>
                             </div>
-                            <input type="text" oninput="handleTableSearch('guru', this.value)" class="bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full pl-10 p-2" placeholder="Cari Username...">
+                            <input type="text" oninput="handleTableSearch('guru', this.value)" class="bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full pl-10 p-2" placeholder="Cari Nama / NIP / Username...">
                         </div>
                     </div>
 
@@ -831,8 +831,12 @@
                           <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-semibold">
                               <tr>
                                   <th class="p-3 text-center w-10">No</th>
+                                  <th class="p-3">NIP</th>
+                                  <th class="p-3">Nama Lengkap</th>
                                   <th class="p-3">Username</th>
+                                  <th class="p-3">Jabatan</th>
                                   <th class="p-3">Wali Kelas</th>
+                                  <th class="p-3">No HP</th>
                                   <th class="p-3">Password</th>
                                   <th class="p-3 text-center">Aksi</th>
                               </tr>
@@ -1457,28 +1461,40 @@
         return { success: true, data: list };
       },
 
-      addGuru: async (token, username, password, kelas) => {
+      addGuru: async (token, guruData) => {
         const list = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
-        const cleanU = String(username).replace(/^'/, '');
-        const cleanP = String(password).replace(/^'/, '');
+        const cleanU = String(guruData.username).replace(/^'/, '');
         if (list.some(x => x.username.toLowerCase() === cleanU.toLowerCase())) {
           return { success: false, message: 'Username sudah digunakan!' };
         }
-        list.push({ username: cleanU, password: cleanP, role: 'guru', kelas: kelas || '' });
+        list.push({
+          username: cleanU,
+          password: String(guruData.password).replace(/^'/, ''),
+          role: 'guru',
+          nama: guruData.nama || cleanU,
+          nip: String(guruData.nip || '-').replace(/^'/, ''),
+          jabatan: guruData.jabatan || (guruData.kelas ? 'Wali Kelas ' + guruData.kelas : 'Guru Mata Pelajaran'),
+          kelas: guruData.kelas || '',
+          noHp: String(guruData.noHp || '-').replace(/^'/, '')
+        });
         localStorage.setItem(DB_KEYS.GURU, JSON.stringify(list));
         return { success: true, message: 'Guru berhasil ditambahkan' };
       },
 
-      updateGuru: async (token, oldUsername, username, password, kelas) => {
+      updateGuru: async (token, oldUsername, guruData) => {
         let list = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
         const cleanOld = String(oldUsername).replace(/^'/, '');
         const idx = list.findIndex(x => x.username.toLowerCase() === cleanOld.toLowerCase());
         if (idx !== -1) {
           list[idx] = {
-            username: String(username).replace(/^'/, ''),
-            password: String(password).replace(/^'/, ''),
+            username: String(guruData.username).replace(/^'/, ''),
+            password: String(guruData.password).replace(/^'/, ''),
             role: list[idx].role || 'guru',
-            kelas: kelas || ''
+            nama: guruData.nama || guruData.username,
+            nip: String(guruData.nip || '-').replace(/^'/, ''),
+            jabatan: guruData.jabatan || (guruData.kelas ? 'Wali Kelas ' + guruData.kelas : 'Guru Mata Pelajaran'),
+            kelas: guruData.kelas || '',
+            noHp: String(guruData.noHp || '-').replace(/^'/, '')
           };
           localStorage.setItem(DB_KEYS.GURU, JSON.stringify(list));
           return { success: true, message: 'Data guru berhasil diperbarui' };
@@ -3031,7 +3047,7 @@
         if (tableState.guru.fullData.length > 0) {
             processTableData('guru');
         } else {
-            document.getElementById('tbody-guru').innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data guru...</td></tr>';
+            document.getElementById('tbody-guru').innerHTML = '<tr><td colspan="9" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data guru...</td></tr>';
             const token = currentUser ? currentUser.token : '';
 
             google.script.run.withSuccessHandler(result => {
@@ -3039,12 +3055,12 @@
                     tableState.guru.fullData = result.data;
                     processTableData('guru');
                 } else {
-                    document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
+                    document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
                     showAlert('error', result.message);
                 }
             })
             .withFailureHandler(error => {
-                document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
+                document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
             })
             .getGuruList(token);
         }
@@ -3053,16 +3069,20 @@
     function renderGuruRows(data, startIdx) {
         const tbody = document.getElementById('tbody-guru');
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-400">Data guru tidak ditemukan.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-gray-400">Data guru tidak ditemukan.</td></tr>';
             return;
         }
         tbody.innerHTML = data.map((guru, i) => `
         <tr class="hover:bg-gray-50 transition border-b border-gray-100 group">
             <td class="p-4 text-center text-gray-500 text-sm">${startIdx + i + 1}</td>
-            <td class="p-4 text-sm font-bold text-gray-800">${guru.username}</td>
+            <td class="p-4 text-sm text-gray-600 font-mono">${guru.nip || '-'}</td>
+            <td class="p-4 text-sm font-bold text-gray-800">${guru.nama || guru.username}</td>
+            <td class="p-4 text-sm text-gray-600">${guru.username}</td>
+            <td class="p-4 text-sm text-gray-600">${guru.jabatan || '-'}</td>
             <td class="p-4 text-sm text-gray-600">
-                ${guru.kelas ? `<span class="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg text-xs font-bold">${guru.kelas}</span>` : '<span class="text-gray-400 italic text-xs">Semua Akses (Admin)</span>'}
+                ${guru.kelas ? `<span class="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg text-xs font-bold">${guru.kelas}</span>` : '<span class="text-gray-400 italic text-xs">-</span>'}
             </td>
+            <td class="p-4 text-sm text-gray-600">${guru.noHp || '-'}</td>
             <td class="p-4 text-sm text-gray-400 font-mono">••••••••</td>
             <td class="p-4 text-center">
                 <div class="flex justify-center space-x-2 opacity-80 group-hover:opacity-100">
@@ -3829,7 +3849,7 @@
         const isEdit = guru !== null;
         const inputClass = "w-full bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-xl focus:ring-purple-500 focus:border-purple-500 block p-3 transition-all mb-3";
         
-        let kelasOptions = '<option value="">-- Semua Kelas (Akses Penuh) --</option>';
+        let kelasOptions = '<option value="">-- Tidak Ada (Guru Mapel) --</option>';
         if (existingClasses && existingClasses.length > 0) {
             existingClasses.forEach(k => {
                 const selected = (guru && guru.kelas === k) ? 'selected' : '';
@@ -3838,24 +3858,53 @@
         }
 
         return `
-        <div class="bg-white rounded-3xl shadow-2xl p-7 max-w-sm w-full relative overflow-hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-7 max-w-md w-full relative overflow-hidden max-h-[90vh] overflow-y-auto">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
             <div class="text-center mb-5">
                 <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl shadow-sm"><i class="fas fa-chalkboard-teacher"></i></div>
-                <h3 class="font-bold text-lg text-gray-800">${isEdit ? 'Edit Akun Guru' : 'Tambah Akun Guru'}</h3>
+                <h3 class="font-bold text-lg text-gray-800">${isEdit ? 'Edit Data Guru' : 'Tambah Data Guru'}</h3>
+                <p class="text-gray-400 text-[10px] mt-1">Lengkapi seluruh data guru</p>
             </div>
             
             <form onsubmit="saveGuru(event, ${isEdit})">
-                <label class="block mb-1 text-[10px] font-bold text-gray-500 uppercase">Username</label>
-                <input name="username" value="${guru?.username || ''}" placeholder="Username" required class="${inputClass}">
-                
-                <label class="block mb-1 text-[10px] font-bold text-gray-500 uppercase">Password</label>
-                <input name="password" value="${guru?.password || ''}" placeholder="Password" required class="${inputClass}">
-                
-                <label class="block mb-1 text-[10px] font-bold text-gray-500 uppercase">Penugasan Kelas</label>
-                <select name="kelas" class="${inputClass}">
-                    ${kelasOptions}
-                </select>
+                <div class="grid grid-cols-2 gap-x-3">
+                    <div class="col-span-2">
+                        <label class="block mb-1 text-[10px] font-bold text-gray-500 uppercase">NIP</label>
+                        <input name="nip" value="${guru?.nip || ''}" placeholder="Nomor Induk Pegawai" class="${inputClass}">
+                    </div>
+                    
+                    <div class="col-span-2">
+                        <label class="block mb-1 text-[10px] font-bold text-gray-500 uppercase">Nama Lengkap & Gelar</label>
+                        <input name="nama" value="${guru?.nama || ''}" placeholder="Contoh: Drs. Usman, M.Pd" required class="${inputClass}">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-[10px] font-bold text-gray-500 uppercase">Username</label>
+                        <input name="username" value="${guru?.username || ''}" placeholder="Username login" required class="${inputClass}">
+                    </div>
+                    
+                    <div>
+                        <label class="block mb-1 text-[10px] font-bold text-gray-500 uppercase">Password</label>
+                        <input name="password" value="${guru?.password || ''}" placeholder="Password" required class="${inputClass}">
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="block mb-1 text-[10px] font-bold text-gray-500 uppercase">Jabatan</label>
+                        <input name="jabatan" value="${guru?.jabatan || ''}" placeholder="Contoh: Guru Matematika" class="${inputClass}">
+                    </div>
+                    
+                    <div>
+                        <label class="block mb-1 text-[10px] font-bold text-gray-500 uppercase">Penugasan Kelas</label>
+                        <select name="kelas" class="${inputClass}">
+                            ${kelasOptions}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-[10px] font-bold text-gray-500 uppercase">No Handphone</label>
+                        <input name="noHp" value="${guru?.noHp || ''}" placeholder="08xxxxxxxxxx" class="${inputClass}">
+                    </div>
+                </div>
                 
                 ${isEdit ? `<input type="hidden" name="oldUsername" value="${guru.username}">` : ''}
 
@@ -3877,9 +3926,15 @@
         btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Menyimpan...';
 
         const fd = new FormData(form);
-        const username = fd.get('username'); 
-        const password = fd.get('password');
-        const kelas = fd.get('kelas');
+        const guruData = {
+            username: fd.get('username'),
+            password: fd.get('password'),
+            nama: fd.get('nama'),
+            nip: fd.get('nip'),
+            jabatan: fd.get('jabatan'),
+            kelas: fd.get('kelas'),
+            noHp: fd.get('noHp')
+        };
         const token = currentUser ? currentUser.token : null;
 
         const onComplete = (r) => {
@@ -3889,7 +3944,7 @@
                 closeModal();
                 tableState.guru.fullData = [];
                 loadDataGuru();
-                showAlert('success', isEdit ? 'Data guru berhasil diperbarui' : 'Akun Guru berhasil dibuat');
+                showAlert('success', isEdit ? 'Data guru berhasil diperbarui' : 'Data Guru berhasil ditambahkan');
             } else {
                 showAlert('error', r ? r.message : 'Terjadi kesalahan');
             }
@@ -3906,12 +3961,12 @@
             google.script.run
                 .withSuccessHandler(onComplete)
                 .withFailureHandler(onFailure)
-                .updateGuru(token, oldUsername, username, password, kelas);
+                .updateGuru(token, oldUsername, guruData);
         } else {
             google.script.run
                 .withSuccessHandler(onComplete)
                 .withFailureHandler(onFailure)
-                .addGuru(token, username, password, kelas);
+                .addGuru(token, guruData);
         }
     }
 
