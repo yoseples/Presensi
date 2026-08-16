@@ -1476,6 +1476,10 @@
             nama: siswa.nama,
             nisn: siswa.nisn,
             kelas: siswa.kelas,
+            foto: siswa.foto || '',
+            jenisKelamin: siswa.jenisKelamin || '',
+            tanggalLahir: siswa.tanggalLahir || '',
+            alamat: siswa.alamat || '',
             token: 'tok_' + siswa.nisn
           };
         }
@@ -1494,6 +1498,7 @@
               jabatan: guru.jabatan || (guru.kelas ? 'Wali Kelas ' + guru.kelas : 'Guru Mata Pelajaran'),
               noHp: guru.noHp || '-',
               kelas: guru.kelas || '',
+              foto: guru.foto || '',
               token: 'tok_' + guru.username
             };
           } else {
@@ -1515,6 +1520,7 @@
               jabatan: tendik.jabatan || 'Staf Kependidikan',
               noHp: tendik.noHp || '-',
               kelas: tendik.jabatan || 'Tendik SMANSA',
+              foto: tendik.foto || '',
               token: 'tok_' + tendik.username
             };
           } else {
@@ -1712,6 +1718,39 @@
         }
 
         return { success: true, message: 'Username & Password berhasil diubah!' };
+      },
+
+      updateUserProfilePhoto: async (token, userId, fotoBase64) => {
+        const cleanId = String(userId || '').trim().toLowerCase();
+
+        // 1. Siswa
+        const siswaList = await getDB('siswa');
+        const sIdx = siswaList.findIndex(s => String(s.nisn).replace(/'/g, '').toLowerCase() === cleanId || String(s.nama || '').toLowerCase() === cleanId);
+        if (sIdx !== -1) {
+          siswaList[sIdx].foto = fotoBase64;
+          await setDB('siswa', siswaList);
+          return { success: true, message: 'Foto profil siswa berhasil diperbarui!' };
+        }
+
+        // 2. Guru
+        const guruList = await getDB('guru');
+        const gIdx = guruList.findIndex(g => String(g.username || '').toLowerCase() === cleanId || String(g.nip || '').toLowerCase() === cleanId);
+        if (gIdx !== -1) {
+          guruList[gIdx].foto = fotoBase64;
+          await setDB('guru', guruList);
+          return { success: true, message: 'Foto profil guru berhasil diperbarui!' };
+        }
+
+        // 3. Tendik
+        const tendikList = await getDB('tendik');
+        const tIdx = tendikList.findIndex(t => String(t.username || '').toLowerCase() === cleanId || String(t.nip || '').toLowerCase() === cleanId);
+        if (tIdx !== -1) {
+          tendikList[tIdx].foto = fotoBase64;
+          await setDB('tendik', tendikList);
+          return { success: true, message: 'Foto profil tendik berhasil diperbarui!' };
+        }
+
+        return { success: true, message: 'Foto profil berhasil disimpan!' };
       },
 
       getHariLibur: async () => {
@@ -3551,6 +3590,27 @@
         .updateAbsensiStatus(token, nisn, nama, kelas, newStatus);
     }
 
+    function switchCardSide(side) {
+        const elFront = document.getElementById('cardSideFront');
+        const elBack = document.getElementById('cardSideBack');
+        const btnFront = document.getElementById('btnCardSideFront');
+        const btnBack = document.getElementById('btnCardSideBack');
+
+        if (!elFront || !elBack) return;
+
+        if (side === 'front') {
+            elFront.classList.remove('hidden');
+            elBack.classList.add('hidden');
+            if (btnFront) btnFront.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md transition';
+            if (btnBack) btnBack.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+        } else {
+            elFront.classList.add('hidden');
+            elBack.classList.remove('hidden');
+            if (btnFront) btnFront.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+            if (btnBack) btnBack.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md transition';
+        }
+    }
+
     function downloadCardAsJPEG(elementId, filename) {
         const cardEl = document.getElementById(elementId);
         if (!cardEl) {
@@ -3585,6 +3645,42 @@
         });
     }
 
+    function downloadBothCardSides(frontId, backId, baseFilename) {
+        const elFront = document.getElementById(frontId);
+        const elBack = document.getElementById(backId);
+        if (!elFront || !elBack) return;
+
+        showLoading();
+        // Ensure both are temporarily visible for capture
+        const isBackHidden = elBack.classList.contains('hidden');
+        elBack.classList.remove('hidden');
+
+        html2canvas(elFront, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' }).then(cFront => {
+            const linkFront = document.createElement('a');
+            linkFront.download = baseFilename + '_Depan.jpeg';
+            linkFront.href = cFront.toDataURL('image/jpeg', 0.95);
+            document.body.appendChild(linkFront);
+            linkFront.click();
+            document.body.removeChild(linkFront);
+
+            html2canvas(elBack, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' }).then(cBack => {
+                if (isBackHidden) elBack.classList.add('hidden');
+                hideLoading();
+                const linkBack = document.createElement('a');
+                linkBack.download = baseFilename + '_Belakang.jpeg';
+                linkBack.href = cBack.toDataURL('image/jpeg', 0.95);
+                document.body.appendChild(linkBack);
+                linkBack.click();
+                document.body.removeChild(linkBack);
+                showAlert('success', 'Kedua sisi kartu (Depan & Belakang) berhasil diunduh!');
+            });
+        }).catch(err => {
+            if (isBackHidden) elBack.classList.add('hidden');
+            hideLoading();
+            showAlert('error', 'Gagal memproses kartu: ' + err);
+        });
+    }
+
     function loadQRCodeSiswa(nisnParam, namaParam, kelasParam) {
         stopAndBack(false);
         if (!currentUser) return;
@@ -3602,80 +3698,152 @@
         const namaSiswa = namaParam || currentUser.nama || currentUser.username || "Siswa SMANSA";
         const nisnSiswa = String(nisnParam || currentUser.nisn || currentUser.username || "1234567890").replace(/'/g, '');
         const kelasSiswa = kelasParam || currentUser.kelas || "X MIPA 1";
+        const fotoSiswa = (currentUser.nisn && String(currentUser.nisn).replace(/'/g, '') === nisnSiswa) ? currentUser.foto : '';
         const backFunction = (currentUser.role === 'admin') ? "loadDataSiswa()" : "loadSiswaDashboard()";
         const initial = namaSiswa.charAt(0).toUpperCase();
 
         container.innerHTML = `
-            <div class="flex flex-col justify-center items-center h-full py-8 animate-slide-up">
-                <!-- Elemen Kartu Siswa -->
-                <div id="cardSiswaWrapper" class="w-full max-w-[350px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 text-slate-800 relative font-sans transform hover:scale-[1.01] transition duration-300">
-                    <!-- Header Card -->
-                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%); padding: 18px 16px 14px; text-align: center; color: #ffffff; position: relative;">
+            <div class="flex flex-col justify-center items-center h-full py-6 animate-slide-up">
+                <!-- Toggle Sisi Kartu -->
+                <div class="flex items-center gap-2 mb-4 bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200">
+                    <button id="btnCardSideFront" onclick="switchCardSide('front')" class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md transition">
+                        <i class="fas fa-id-card mr-1.5"></i> Tampak Depan
+                    </button>
+                    <button id="btnCardSideBack" onclick="switchCardSide('back')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                        <i class="fas fa-redo mr-1.5"></i> Tampak Belakang
+                    </button>
+                </div>
+
+                <!-- 1. TAMPAK DEPAN KARTU SISWA -->
+                <div id="cardSideFront" class="w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
+                    <!-- Header Kop Resmi -->
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%); padding: 14px 16px 10px; color: #ffffff; position: relative;">
                         <div style="height: 3px; background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b); position: absolute; bottom: 0; left: 0; right: 0;"></div>
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
                             <img src="logo.png" onerror="this.src='favicon.png'" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-                            <div style="text-align: left;">
-                                <div style="font-size: 8px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #93c5fd; line-height: 1;">PEMERINTAH ACEH • DISDIK</div>
-                                <div style="font-size: 11px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
+                            <div style="text-align: center; flex: 1; padding: 0 8px;">
+                                <div style="font-size: 8px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #93c5fd; line-height: 1;">PEMERINTAH ACEH • DINAS PENDIDIKAN</div>
+                                <div style="font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
+                                <div style="font-size: 7.5px; color: #cbd5e1; line-height: 1;">Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara 24376</div>
+                            </div>
+                            <div style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                                <i class="fas fa-graduation-cap text-amber-400 text-lg"></i>
                             </div>
                         </div>
-                        <div style="display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 9999px; padding: 2px 10px; font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; color: #ffffff;">
-                            KARTU PELAJAR DIGITAL
+                        <div style="text-align: center; margin-top: 6px;">
+                            <span style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 9999px; padding: 1px 12px; font-size: 8.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff;">
+                                KARTU TANDA PELAJAR
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Card Body -->
-                    <div style="padding: 16px 18px 14px; text-align: center; background: #ffffff;">
-                        <!-- Avatar -->
-                        <div style="width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #ffffff; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; border: 3px solid #e0e7ff; box-shadow: 0 4px 10px rgba(30,58,138,0.2);">
-                            ${initial}
+                    <!-- Body Content -->
+                    <div style="padding: 14px 16px 12px; display: flex; gap: 14px; align-items: center; background: #ffffff;">
+                        <!-- Foto Siswa -->
+                        <div style="width: 90px; height: 115px; border-radius: 12px; overflow: hidden; border: 2px solid #3b82f6; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; background: linear-gradient(135deg, #1e3a8a, #3b82f6); display: flex; align-items: center; justify-content: center;">
+                            ${fotoSiswa ? `<img src="${fotoSiswa}" style="width: 100%; height: 100%; object-fit: cover;">` : `<span style="font-size: 32px; font-weight: 900; color: #ffffff;">${initial}</span>`}
                         </div>
 
-                        <!-- Name & Class -->
-                        <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 3px; line-height: 1.2;">${namaSiswa}</h3>
-                        <div style="display: inline-block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 9999px; padding: 2px 10px; font-size: 10px; font-weight: 700; margin-bottom: 10px;">
-                            Kelas ${kelasSiswa}
-                        </div>
-
-                        <!-- QR Code Frame -->
-                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 10px; display: inline-block; margin-bottom: 10px;">
-                            <div id="cardSiswaQrcode" style="display: flex; justify-content: center;"></div>
-                            <div style="font-size: 8px; font-weight: 700; color: #64748b; margin-top: 4px; letter-spacing: 0.05em;">SCAN UNTUK PRESENSI</div>
-                        </div>
-
-                        <!-- Info Grid -->
-                        <div style="background: #f1f5f9; border-radius: 12px; padding: 8px 12px; font-size: 10px; text-align: left; margin-bottom: 10px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                <span style="color: #64748b; font-weight: 600;">NISN:</span>
-                                <span style="color: #0f172a; font-weight: 800; font-family: monospace;">${nisnSiswa}</span>
+                        <!-- Data Siswa -->
+                        <div style="flex: 1; min-width: 0; text-align: left; font-size: 10px; line-height: 1.4;">
+                            <div style="font-size: 12px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${namaSiswa}
                             </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                <span style="color: #64748b; font-weight: 600;">Status Akun:</span>
-                                <span style="color: #16a34a; font-weight: 800;">TERVERIFIKASI AKTIF</span>
+                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">NISN</span>
+                                <span style="color: #1e3a8a; font-weight: 900; font-family: monospace;">: ${nisnSiswa}</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: #64748b; font-weight: 600;">Berlaku:</span>
-                                <span style="color: #0f172a; font-weight: 700;">Tahun Pelajaran 2025/2026</span>
+                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">Kelas</span>
+                                <span style="color: #0f172a; font-weight: 800;">: ${kelasSiswa}</span>
+                            </div>
+                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">Status</span>
+                                <span style="color: #16a34a; font-weight: 800;">: AKTIF</span>
+                            </div>
+                            <div style="display: flex; gap: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">Berlaku</span>
+                                <span style="color: #0f172a; font-weight: 700;">: Selama Menjadi Siswa</span>
                             </div>
                         </div>
 
-                        <!-- Address Footer -->
-                        <div style="font-size: 8px; color: #94a3b8; line-height: 1.3;">
-                            Jl. Medan - Banda Aceh, Lhoksukon, Aceh Utara<br>
-                            <span style="color: #cbd5e1; font-family: monospace;">ID PASS: SMANSA-SISWA-${nisnSiswa}</span>
+                        <!-- QR Code Absensi -->
+                        <div style="flex-shrink: 0; text-align: center;">
+                            <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 6px; display: inline-block;">
+                                <div id="cardSiswaQrcode" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"></div>
+                            </div>
+                            <div style="font-size: 7px; font-weight: 800; color: #1e3a8a; margin-top: 3px; letter-spacing: 0.05em;">SCAN ABSENSI</div>
                         </div>
+                    </div>
+
+                    <!-- Footer Bar -->
+                    <div style="background: #f1f5f9; border-top: 1px solid #e2e8f0; padding: 6px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; color: #64748b;">
+                        <span style="font-weight: 700;"><i class="fas fa-shield-alt text-blue-600 mr-1"></i> VERIFIED DIGITAL PASS</span>
+                        <span style="font-family: monospace; color: #94a3b8;">SMANSA-ID-${nisnSiswa}</span>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="w-full max-w-[350px] mt-4 flex gap-2">
-                    <button onclick="downloadCardAsJPEG('cardSiswaWrapper', 'Kartu_Pelajar_${nisnSiswa}')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-download"></i> Download JPEG
+                <!-- 2. TAMPAK BELAKANG KARTU SISWA -->
+                <div id="cardSideBack" class="hidden w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
+                    <!-- Header Kartu Belakang -->
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 12px 16px 8px; color: #ffffff; text-align: center; position: relative;">
+                        <div style="height: 3px; background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b); position: absolute; bottom: 0; left: 0; right: 0;"></div>
+                        <div style="font-size: 10px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;">TATA TERTIB & KETENTUAN KARTU PELAJAR</div>
+                        <div style="font-size: 8px; color: #93c5fd; font-weight: 700;">SMA NEGERI 1 LHOKSUKON</div>
+                    </div>
+
+                    <!-- Body Kartu Belakang -->
+                    <div style="padding: 12px 16px 10px; display: flex; gap: 14px; background: #ffffff;">
+                        <!-- Aturan -->
+                        <div style="flex: 1; font-size: 8px; color: #334155; line-height: 1.45; text-align: justify;">
+                            <ol style="margin: 0; padding-left: 12px;">
+                                <li>Kartu ini adalah identitas resmi siswa SMA Negeri 1 Lhoksukon.</li>
+                                <li>Wajib dibawa setiap hari sekolah untuk presensi digital kehadiran.</li>
+                                <li>Dilarang meminjamkan atau memindahtangankan kartu kepada siapapun.</li>
+                                <li>Bila kartu hilang/rusak segera melapor ke Tata Usaha (TU).</li>
+                                <li>Penemu kartu ini dimohon menyerahkan ke SMA Negeri 1 Lhoksukon.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Tanda Tangan & Stempel -->
+                        <div style="width: 145px; text-align: center; font-size: 7.5px; color: #1e293b; flex-shrink: 0; border-left: 1px dashed #cbd5e1; padding-left: 10px;">
+                            <div>Lhoksukon, Juli 2025</div>
+                            <div style="font-weight: 800; margin-top: 1px;">Kepala Sekolah,</div>
+                            
+                            <!-- Stempel & TTD Digital -->
+                            <div style="height: 48px; display: flex; align-items: center; justify-content: center; position: relative; margin: 2px 0;">
+                                <div style="position: absolute; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #ef4444; color: #ef4444; font-size: 5.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-transform: uppercase; transform: rotate(-15deg); opacity: 0.85;">
+                                    STEMPEL<br>SMANSA
+                                </div>
+                                <span style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 20px; color: #1e3a8a; font-weight: bold; transform: rotate(-5deg); z-index: 10;">Husen</span>
+                            </div>
+
+                            <div style="font-weight: 900; text-decoration: underline; color: #0f172a;">Drs. H. M. Husen, M.Pd</div>
+                            <div style="font-size: 6.5px; color: #64748b; font-family: monospace;">NIP. 19681231 199403 1 021</div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Kartu Belakang -->
+                    <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 5px 16px; text-align: center; font-size: 7.5px; color: #94a3b8;">
+                        Telp: (0645) 800123 • Website: https://absensi.smansalhoksukon.sch.id
+                    </div>
+                </div>
+
+                <!-- Tombol Aksi -->
+                <div class="w-full max-w-[480px] mt-4 flex flex-wrap gap-2">
+                    <button onclick="downloadCardAsJPEG('cardSideFront', 'Kartu_Pelajar_Depan_${nisnSiswa}')" class="flex-1 min-w-[130px] bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Depan (JPEG)
                     </button>
-                    <button onclick="window.print()" class="flex-1 bg-slate-900 hover:bg-black text-white py-3 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-print"></i> Cetak Kartu
+                    <button onclick="downloadCardAsJPEG('cardSideBack', 'Kartu_Pelajar_Belakang_${nisnSiswa}')" class="flex-1 min-w-[130px] bg-teal-600 hover:bg-teal-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Belakang (JPEG)
                     </button>
-                    <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-3 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
+                    <button onclick="downloadBothCardSides('cardSideFront', 'cardSideBack', 'Kartu_Pelajar_${nisnSiswa}')" class="flex-1 min-w-[130px] bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-file-archive"></i> Unduh 2 Sisi
+                    </button>
+                    <button onclick="window.print()" class="px-3 bg-slate-900 hover:bg-black text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-print"></i> Cetak
+                    </button>
+                    <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
                         Tutup
                     </button>
                 </div>
@@ -3688,15 +3856,15 @@
                     qrBox.innerHTML = "";
                     new QRCode(qrBox, {
                         text: String(nisnSiswa),
-                        width: 140,
-                        height: 140,
+                        width: 80,
+                        height: 80,
                         colorDark: "#0F172A",
                         colorLight: "#ffffff",
                         correctLevel : QRCode.CorrectLevel.H
                     });
                 }
             }
-        }, 100);
+        }, 80);
     }
 
     function loadQRCodeGuru(nipParam, namaParam, jabatanParam) {
@@ -3716,81 +3884,153 @@
         const namaGuru = namaParam || currentUser.nama || currentUser.username || "Guru SMANSA";
         const nipGuru = String(nipParam || currentUser.nip || currentUser.username || "-").replace(/'/g, '');
         const jabatanGuru = jabatanParam || currentUser.jabatan || (currentUser.kelas ? 'Wali Kelas ' + currentUser.kelas : 'Guru Mata Pelajaran');
+        const fotoGuru = (currentUser.username && (currentUser.username === nipParam || currentUser.nip === nipParam)) ? currentUser.foto : (currentUser.foto || '');
         const qrContent = nipParam || currentUser.nip || currentUser.username || "GURU";
         const backFunction = (currentUser.role === 'admin') ? "loadDataGuru()" : "loadGuruDashboard()";
         const initial = namaGuru.charAt(0).toUpperCase();
 
         container.innerHTML = `
-            <div class="flex flex-col justify-center items-center h-full py-8 animate-slide-up">
-                <!-- Elemen Kartu Guru -->
-                <div id="cardGuruWrapper" class="w-full max-w-[350px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 text-slate-800 relative font-sans transform hover:scale-[1.01] transition duration-300">
-                    <!-- Header Card -->
-                    <div style="background: linear-gradient(135deg, #090d16 0%, #3b0764 55%, #6b21a8 100%); padding: 18px 16px 14px; text-align: center; color: #ffffff; position: relative;">
+            <div class="flex flex-col justify-center items-center h-full py-6 animate-slide-up">
+                <!-- Toggle Sisi Kartu -->
+                <div class="flex items-center gap-2 mb-4 bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200">
+                    <button id="btnCardSideFront" onclick="switchCardSide('front')" class="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-md transition">
+                        <i class="fas fa-id-card mr-1.5"></i> Tampak Depan
+                    </button>
+                    <button id="btnCardSideBack" onclick="switchCardSide('back')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                        <i class="fas fa-redo mr-1.5"></i> Tampak Belakang
+                    </button>
+                </div>
+
+                <!-- 1. TAMPAK DEPAN KARTU GURU -->
+                <div id="cardSideFront" class="w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
+                    <!-- Header Kop Resmi -->
+                    <div style="background: linear-gradient(135deg, #090d16 0%, #3b0764 55%, #6b21a8 100%); padding: 14px 16px 10px; color: #ffffff; position: relative;">
                         <div style="height: 3px; background: linear-gradient(90deg, #c084fc, #e879f9, #c084fc); position: absolute; bottom: 0; left: 0; right: 0;"></div>
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
                             <img src="logo.png" onerror="this.src='favicon.png'" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-                            <div style="text-align: left;">
-                                <div style="font-size: 8px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #d8b4fe; line-height: 1;">PEMERINTAH ACEH • DISDIK</div>
-                                <div style="font-size: 11px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
+                            <div style="text-align: center; flex: 1; padding: 0 8px;">
+                                <div style="font-size: 8px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #d8b4fe; line-height: 1;">PEMERINTAH ACEH • DINAS PENDIDIKAN</div>
+                                <div style="font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
+                                <div style="font-size: 7.5px; color: #e9d5ff; line-height: 1;">Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara 24376</div>
+                            </div>
+                            <div style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                                <i class="fas fa-chalkboard-teacher text-amber-400 text-lg"></i>
                             </div>
                         </div>
-                        <div style="display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 9999px; padding: 2px 10px; font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; color: #ffffff;">
-                            KARTU TANDA PENDIDIK / GURU
+                        <div style="text-align: center; margin-top: 6px;">
+                            <span style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 9999px; padding: 1px 12px; font-size: 8.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff;">
+                                KARTU TANDA PENDIDIK / GURU
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Card Body -->
-                    <div style="padding: 16px 18px 14px; text-align: center; background: #ffffff;">
-                        <!-- Avatar -->
-                        <div style="width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #581c87, #9333ea); color: #ffffff; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; border: 3px solid #f3e8ff; box-shadow: 0 4px 10px rgba(88,28,135,0.2);">
-                            ${initial}
+                    <!-- Body Content -->
+                    <div style="padding: 14px 16px 12px; display: flex; gap: 14px; align-items: center; background: #ffffff;">
+                        <!-- Foto Guru -->
+                        <div style="width: 90px; height: 115px; border-radius: 12px; overflow: hidden; border: 2px solid #9333ea; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; background: linear-gradient(135deg, #581c87, #9333ea); display: flex; align-items: center; justify-content: center;">
+                            ${fotoGuru ? `<img src="${fotoGuru}" style="width: 100%; height: 100%; object-fit: cover;">` : `<span style="font-size: 32px; font-weight: 900; color: #ffffff;">${initial}</span>`}
                         </div>
 
-                        <!-- Name & Position -->
-                        <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 3px; line-height: 1.2;">${namaGuru}</h3>
-                        <div style="display: inline-block; background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; border-radius: 9999px; padding: 2px 10px; font-size: 10px; font-weight: 700; margin-bottom: 10px;">
-                            ${jabatanGuru}
-                        </div>
-
-                        <!-- QR Code Frame -->
-                        <div style="background: #faf5ff; border: 1px solid #f3e8ff; border-radius: 16px; padding: 10px; display: inline-block; margin-bottom: 10px;">
-                            <div id="cardGuruQrcode" style="display: flex; justify-content: center;"></div>
-                            <div style="font-size: 8px; font-weight: 700; color: #7e22ce; margin-top: 4px; letter-spacing: 0.05em;">SCAN UNTUK PRESENSI GURU</div>
-                        </div>
-
-                        <!-- Info Grid -->
-                        <div style="background: #f8fafc; border-radius: 12px; padding: 8px 12px; font-size: 10px; text-align: left; margin-bottom: 10px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                <span style="color: #64748b; font-weight: 600;">NIP / ID:</span>
-                                <span style="color: #581c87; font-weight: 800; font-family: monospace;">${nipGuru}</span>
+                        <!-- Data Guru -->
+                        <div style="flex: 1; min-width: 0; text-align: left; font-size: 10px; line-height: 1.4;">
+                            <div style="font-size: 12px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${namaGuru}
                             </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                <span style="color: #64748b; font-weight: 600;">Status Akun:</span>
-                                <span style="color: #16a34a; font-weight: 800;">PENDIDIK AKTIF</span>
+                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">NIP / ID</span>
+                                <span style="color: #581c87; font-weight: 900; font-family: monospace;">: ${nipGuru}</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: #64748b; font-weight: 600;">Unit Kerja:</span>
-                                <span style="color: #0f172a; font-weight: 700;">SMA Negeri 1 Lhoksukon</span>
+                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">Jabatan</span>
+                                <span style="color: #0f172a; font-weight: 800;">: ${jabatanGuru}</span>
+                            </div>
+                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">Unit Kerja</span>
+                                <span style="color: #0f172a; font-weight: 700;">: SMAN 1 Lhoksukon</span>
+                            </div>
+                            <div style="display: flex; gap: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">Status</span>
+                                <span style="color: #16a34a; font-weight: 800;">: PENDIDIK AKTIF</span>
                             </div>
                         </div>
 
-                        <!-- Address Footer -->
-                        <div style="font-size: 8px; color: #94a3b8; line-height: 1.3;">
-                            Jl. Medan - Banda Aceh, Lhoksukon, Aceh Utara<br>
-                            <span style="color: #cbd5e1; font-family: monospace;">ID PASS: SMANSA-GURU-${nipGuru}</span>
+                        <!-- QR Code Absensi -->
+                        <div style="flex-shrink: 0; text-align: center;">
+                            <div style="background: #faf5ff; border: 1.5px solid #e9d5ff; border-radius: 12px; padding: 6px; display: inline-block;">
+                                <div id="cardGuruQrcode" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"></div>
+                            </div>
+                            <div style="font-size: 7px; font-weight: 800; color: #6b21a8; margin-top: 3px; letter-spacing: 0.05em;">SCAN PRESENSI</div>
                         </div>
+                    </div>
+
+                    <!-- Footer Bar -->
+                    <div style="background: #faf5ff; border-top: 1px solid #f3e8ff; padding: 6px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; color: #6b21a8;">
+                        <span style="font-weight: 700;"><i class="fas fa-shield-alt mr-1"></i> RESMI TENAGA PENDIDIK</span>
+                        <span style="font-family: monospace; color: #a855f7;">SMANSA-GURU-${nipGuru}</span>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="w-full max-w-[350px] mt-4 flex gap-2">
-                    <button onclick="downloadCardAsJPEG('cardGuruWrapper', 'Kartu_Guru_${nipGuru}')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-download"></i> Download JPEG
+                <!-- 2. TAMPAK BELAKANG KARTU GURU -->
+                <div id="cardSideBack" class="hidden w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
+                    <!-- Header Kartu Belakang -->
+                    <div style="background: linear-gradient(135deg, #090d16 0%, #3b0764 100%); padding: 12px 16px 8px; color: #ffffff; text-align: center; position: relative;">
+                        <div style="height: 3px; background: linear-gradient(90deg, #c084fc, #e879f9, #c084fc); position: absolute; bottom: 0; left: 0; right: 0;"></div>
+                        <div style="font-size: 10px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;">KETENTUAN KARTU TANDA PENDIDIK</div>
+                        <div style="font-size: 8px; color: #d8b4fe; font-weight: 700;">SMA NEGERI 1 LHOKSUKON</div>
+                    </div>
+
+                    <!-- Body Kartu Belakang -->
+                    <div style="padding: 12px 16px 10px; display: flex; gap: 14px; background: #ffffff;">
+                        <!-- Aturan -->
+                        <div style="flex: 1; font-size: 8px; color: #334155; line-height: 1.45; text-align: justify;">
+                            <ol style="margin: 0; padding-left: 12px;">
+                                <li>Kartu ini adalah identitas resmi Tenaga Pendidik SMA Negeri 1 Lhoksukon.</li>
+                                <li>Wajib digunakan untuk pencatatan presensi digital harian.</li>
+                                <li>Dilarang meminjamkan atau memindahtangankan kartu kepada siapapun.</li>
+                                <li>Bila kartu hilang/rusak segera melapor ke Bagian Kepegawaian TU.</li>
+                                <li>Penemu kartu ini dimohon menyerahkan ke SMA Negeri 1 Lhoksukon.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Tanda Tangan & Stempel -->
+                        <div style="width: 145px; text-align: center; font-size: 7.5px; color: #1e293b; flex-shrink: 0; border-left: 1px dashed #cbd5e1; padding-left: 10px;">
+                            <div>Lhoksukon, Juli 2025</div>
+                            <div style="font-weight: 800; margin-top: 1px;">Kepala Sekolah,</div>
+                            
+                            <!-- Stempel & TTD Digital -->
+                            <div style="height: 48px; display: flex; align-items: center; justify-content: center; position: relative; margin: 2px 0;">
+                                <div style="position: absolute; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #ef4444; color: #ef4444; font-size: 5.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-transform: uppercase; transform: rotate(-15deg); opacity: 0.85;">
+                                    STEMPEL<br>SMANSA
+                                </div>
+                                <span style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 20px; color: #581c87; font-weight: bold; transform: rotate(-5deg); z-index: 10;">Husen</span>
+                            </div>
+
+                            <div style="font-weight: 900; text-decoration: underline; color: #0f172a;">Drs. H. M. Husen, M.Pd</div>
+                            <div style="font-size: 6.5px; color: #64748b; font-family: monospace;">NIP. 19681231 199403 1 021</div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Kartu Belakang -->
+                    <div style="background: #faf5ff; border-top: 1px solid #f3e8ff; padding: 5px 16px; text-align: center; font-size: 7.5px; color: #a855f7;">
+                        Telp: (0645) 800123 • Website: https://absensi.smansalhoksukon.sch.id
+                    </div>
+                </div>
+
+                <!-- Tombol Aksi -->
+                <div class="w-full max-w-[480px] mt-4 flex flex-wrap gap-2">
+                    <button onclick="downloadCardAsJPEG('cardSideFront', 'Kartu_Guru_Depan_${nipGuru}')" class="flex-1 min-w-[130px] bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Depan (JPEG)
                     </button>
-                    <button onclick="window.print()" class="flex-1 bg-purple-900 hover:bg-purple-950 text-white py-3 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-print"></i> Cetak Kartu
+                    <button onclick="downloadCardAsJPEG('cardSideBack', 'Kartu_Guru_Belakang_${nipGuru}')" class="flex-1 min-w-[130px] bg-teal-600 hover:bg-teal-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Belakang (JPEG)
                     </button>
-                    <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-3 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
+                    <button onclick="downloadBothCardSides('cardSideFront', 'cardSideBack', 'Kartu_Guru_${nipGuru}')" class="flex-1 min-w-[130px] bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-file-archive"></i> Unduh 2 Sisi
+                    </button>
+                    <button onclick="window.print()" class="px-3 bg-slate-900 hover:bg-black text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-print"></i> Cetak
+                    </button>
+                    <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
                         Tutup
                     </button>
                 </div>
@@ -3803,15 +4043,15 @@
                     qrBox.innerHTML = "";
                     new QRCode(qrBox, {
                         text: String(qrContent),
-                        width: 140,
-                        height: 140,
+                        width: 80,
+                        height: 80,
                         colorDark: "#3B0764",
                         colorLight: "#ffffff",
                         correctLevel : QRCode.CorrectLevel.H
                     });
                 }
             }
-        }, 100);
+        }, 80);
     }
 
     function loadQRCodeTendik(nipParam, namaParam, jabatanParam) {
@@ -3831,81 +4071,153 @@
         const namaTendik = namaParam || currentUser.nama || currentUser.username || "Staf Tendik SMANSA";
         const nipTendik = String(nipParam || currentUser.nip || currentUser.username || "-").replace(/'/g, '');
         const jabatanTendik = jabatanParam || currentUser.jabatan || "Tenaga Kependidikan";
+        const fotoTendik = (currentUser.username && (currentUser.username === nipParam || currentUser.nip === nipParam)) ? currentUser.foto : (currentUser.foto || '');
         const qrContent = nipParam || currentUser.nip || currentUser.username || "TENDIK";
         const backFunction = (currentUser.role === 'admin') ? "loadDataTendik()" : "loadTendikDashboard()";
         const initial = namaTendik.charAt(0).toUpperCase();
 
         container.innerHTML = `
-            <div class="flex flex-col justify-center items-center h-full py-8 animate-slide-up">
-                <!-- Elemen Kartu Tendik -->
-                <div id="cardTendikWrapper" class="w-full max-w-[350px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 text-slate-800 relative font-sans transform hover:scale-[1.01] transition duration-300">
-                    <!-- Header Card -->
-                    <div style="background: linear-gradient(135deg, #0f172a 0%, #78350f 55%, #b45309 100%); padding: 18px 16px 14px; text-align: center; color: #ffffff; position: relative;">
+            <div class="flex flex-col justify-center items-center h-full py-6 animate-slide-up">
+                <!-- Toggle Sisi Kartu -->
+                <div class="flex items-center gap-2 mb-4 bg-white p-1.5 rounded-2xl shadow-sm border border-slate-200">
+                    <button id="btnCardSideFront" onclick="switchCardSide('front')" class="px-4 py-2 rounded-xl text-xs font-bold bg-amber-600 text-white shadow-md transition">
+                        <i class="fas fa-id-card mr-1.5"></i> Tampak Depan
+                    </button>
+                    <button id="btnCardSideBack" onclick="switchCardSide('back')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                        <i class="fas fa-redo mr-1.5"></i> Tampak Belakang
+                    </button>
+                </div>
+
+                <!-- 1. TAMPAK DEPAN KARTU TENDIK -->
+                <div id="cardSideFront" class="w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
+                    <!-- Header Kop Resmi -->
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #78350f 55%, #b45309 100%); padding: 14px 16px 10px; color: #ffffff; position: relative;">
                         <div style="height: 3px; background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24); position: absolute; bottom: 0; left: 0; right: 0;"></div>
-                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
                             <img src="logo.png" onerror="this.src='favicon.png'" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-                            <div style="text-align: left;">
-                                <div style="font-size: 8px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #fde68a; line-height: 1;">PEMERINTAH ACEH • DISDIK</div>
-                                <div style="font-size: 11px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
+                            <div style="text-align: center; flex: 1; padding: 0 8px;">
+                                <div style="font-size: 8px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #fde68a; line-height: 1;">PEMERINTAH ACEH • DINAS PENDIDIKAN</div>
+                                <div style="font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
+                                <div style="font-size: 7.5px; color: #fef3c7; line-height: 1;">Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara 24376</div>
+                            </div>
+                            <div style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+                                <i class="fas fa-user-tie text-amber-300 text-lg"></i>
                             </div>
                         </div>
-                        <div style="display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 9999px; padding: 2px 10px; font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; color: #ffffff;">
-                            KARTU TENAGA KEPENDIDIKAN
+                        <div style="text-align: center; margin-top: 6px;">
+                            <span style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 9999px; padding: 1px 12px; font-size: 8.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff;">
+                                KARTU TENAGA KEPENDIDIKAN
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Card Body -->
-                    <div style="padding: 16px 18px 14px; text-align: center; background: #ffffff;">
-                        <!-- Avatar -->
-                        <div style="width: 52px; height: 52px; border-radius: 16px; background: linear-gradient(135deg, #78350f, #d97706); color: #ffffff; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; border: 3px solid #fef3c7; box-shadow: 0 4px 10px rgba(120,53,15,0.2);">
-                            ${initial}
+                    <!-- Body Content -->
+                    <div style="padding: 14px 16px 12px; display: flex; gap: 14px; align-items: center; background: #ffffff;">
+                        <!-- Foto Tendik -->
+                        <div style="width: 90px; height: 115px; border-radius: 12px; overflow: hidden; border: 2px solid #d97706; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; background: linear-gradient(135deg, #78350f, #d97706); display: flex; align-items: center; justify-content: center;">
+                            ${fotoTendik ? `<img src="${fotoTendik}" style="width: 100%; height: 100%; object-fit: cover;">` : `<span style="font-size: 32px; font-weight: 900; color: #ffffff;">${initial}</span>`}
                         </div>
 
-                        <!-- Name & Position -->
-                        <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 3px; line-height: 1.2;">${namaTendik}</h3>
-                        <div style="display: inline-block; background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 9999px; padding: 2px 10px; font-size: 10px; font-weight: 700; margin-bottom: 10px;">
-                            ${jabatanTendik}
-                        </div>
-
-                        <!-- QR Code Frame -->
-                        <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 16px; padding: 10px; display: inline-block; margin-bottom: 10px;">
-                            <div id="cardTendikQrcode" style="display: flex; justify-content: center;"></div>
-                            <div style="font-size: 8px; font-weight: 700; color: #b45309; margin-top: 4px; letter-spacing: 0.05em;">SCAN UNTUK PRESENSI STAF</div>
-                        </div>
-
-                        <!-- Info Grid -->
-                        <div style="background: #f8fafc; border-radius: 12px; padding: 8px 12px; font-size: 10px; text-align: left; margin-bottom: 10px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                <span style="color: #64748b; font-weight: 600;">NIP / NIK:</span>
-                                <span style="color: #92400e; font-weight: 800; font-family: monospace;">${nipTendik}</span>
+                        <!-- Data Tendik -->
+                        <div style="flex: 1; min-width: 0; text-align: left; font-size: 10px; line-height: 1.4;">
+                            <div style="font-size: 12px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${namaTendik}
                             </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                                <span style="color: #64748b; font-weight: 600;">Status Akun:</span>
-                                <span style="color: #16a34a; font-weight: 800;">TENDIK AKTIF</span>
+                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">NIP / NIK</span>
+                                <span style="color: #92400e; font-weight: 900; font-family: monospace;">: ${nipTendik}</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: #64748b; font-weight: 600;">Unit Kerja:</span>
-                                <span style="color: #0f172a; font-weight: 700;">SMA Negeri 1 Lhoksukon</span>
+                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">Jabatan</span>
+                                <span style="color: #0f172a; font-weight: 800;">: ${jabatanTendik}</span>
+                            </div>
+                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">Unit Kerja</span>
+                                <span style="color: #0f172a; font-weight: 700;">: SMAN 1 Lhoksukon</span>
+                            </div>
+                            <div style="display: flex; gap: 4px;">
+                                <span style="color: #64748b; font-weight: 600; width: 55px;">Status</span>
+                                <span style="color: #16a34a; font-weight: 800;">: TENDIK AKTIF</span>
                             </div>
                         </div>
 
-                        <!-- Address Footer -->
-                        <div style="font-size: 8px; color: #94a3b8; line-height: 1.3;">
-                            Jl. Medan - Banda Aceh, Lhoksukon, Aceh Utara<br>
-                            <span style="color: #cbd5e1; font-family: monospace;">ID PASS: SMANSA-TENDIK-${nipTendik}</span>
+                        <!-- QR Code Absensi -->
+                        <div style="flex-shrink: 0; text-align: center;">
+                            <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 6px; display: inline-block;">
+                                <div id="cardTendikQrcode" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"></div>
+                            </div>
+                            <div style="font-size: 7px; font-weight: 800; color: #b45309; margin-top: 3px; letter-spacing: 0.05em;">SCAN PRESENSI</div>
                         </div>
+                    </div>
+
+                    <!-- Footer Bar -->
+                    <div style="background: #fffbeb; border-top: 1px solid #fef3c7; padding: 6px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; color: #b45309;">
+                        <span style="font-weight: 700;"><i class="fas fa-shield-alt mr-1"></i> RESMI TENAGA KEPENDIDIKAN</span>
+                        <span style="font-family: monospace; color: #d97706;">SMANSA-TENDIK-${nipTendik}</span>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="w-full max-w-[350px] mt-4 flex gap-2">
-                    <button onclick="downloadCardAsJPEG('cardTendikWrapper', 'Kartu_Tendik_${nipTendik}')" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-download"></i> Download JPEG
+                <!-- 2. TAMPAK BELAKANG KARTU TENDIK -->
+                <div id="cardSideBack" class="hidden w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
+                    <!-- Header Kartu Belakang -->
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #78350f 100%); padding: 12px 16px 8px; color: #ffffff; text-align: center; position: relative;">
+                        <div style="height: 3px; background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24); position: absolute; bottom: 0; left: 0; right: 0;"></div>
+                        <div style="font-size: 10px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;">KETENTUAN KARTU TENAGA KEPENDIDIKAN</div>
+                        <div style="font-size: 8px; color: #fde68a; font-weight: 700;">SMA NEGERI 1 LHOKSUKON</div>
+                    </div>
+
+                    <!-- Body Kartu Belakang -->
+                    <div style="padding: 12px 16px 10px; display: flex; gap: 14px; background: #ffffff;">
+                        <!-- Aturan -->
+                        <div style="flex: 1; font-size: 8px; color: #334155; line-height: 1.45; text-align: justify;">
+                            <ol style="margin: 0; padding-left: 12px;">
+                                <li>Kartu ini adalah identitas resmi Tenaga Kependidikan SMAN 1 Lhoksukon.</li>
+                                <li>Wajib digunakan untuk pencatatan presensi digital harian.</li>
+                                <li>Dilarang meminjamkan atau memindahtangankan kartu kepada siapapun.</li>
+                                <li>Bila kartu hilang/rusak segera melapor ke Bagian Tata Usaha.</li>
+                                <li>Penemu kartu ini dimohon menyerahkan ke SMA Negeri 1 Lhoksukon.</li>
+                            </ol>
+                        </div>
+
+                        <!-- Tanda Tangan & Stempel -->
+                        <div style="width: 145px; text-align: center; font-size: 7.5px; color: #1e293b; flex-shrink: 0; border-left: 1px dashed #cbd5e1; padding-left: 10px;">
+                            <div>Lhoksukon, Juli 2025</div>
+                            <div style="font-weight: 800; margin-top: 1px;">Kepala Sekolah,</div>
+                            
+                            <!-- Stempel & TTD Digital -->
+                            <div style="height: 48px; display: flex; align-items: center; justify-content: center; position: relative; margin: 2px 0;">
+                                <div style="position: absolute; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #ef4444; color: #ef4444; font-size: 5.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-transform: uppercase; transform: rotate(-15deg); opacity: 0.85;">
+                                    STEMPEL<br>SMANSA
+                                </div>
+                                <span style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 20px; color: #78350f; font-weight: bold; transform: rotate(-5deg); z-index: 10;">Husen</span>
+                            </div>
+
+                            <div style="font-weight: 900; text-decoration: underline; color: #0f172a;">Drs. H. M. Husen, M.Pd</div>
+                            <div style="font-size: 6.5px; color: #64748b; font-family: monospace;">NIP. 19681231 199403 1 021</div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Kartu Belakang -->
+                    <div style="background: #fffbeb; border-top: 1px solid #fef3c7; padding: 5px 16px; text-align: center; font-size: 7.5px; color: #d97706;">
+                        Telp: (0645) 800123 • Website: https://absensi.smansalhoksukon.sch.id
+                    </div>
+                </div>
+
+                <!-- Tombol Aksi -->
+                <div class="w-full max-w-[480px] mt-4 flex flex-wrap gap-2">
+                    <button onclick="downloadCardAsJPEG('cardSideFront', 'Kartu_Tendik_Depan_${nipTendik}')" class="flex-1 min-w-[130px] bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Depan (JPEG)
                     </button>
-                    <button onclick="window.print()" class="flex-1 bg-amber-800 hover:bg-amber-900 text-white py-3 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-print"></i> Cetak Kartu
+                    <button onclick="downloadCardAsJPEG('cardSideBack', 'Kartu_Tendik_Belakang_${nipTendik}')" class="flex-1 min-w-[130px] bg-teal-600 hover:bg-teal-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Belakang (JPEG)
                     </button>
-                    <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-3 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
+                    <button onclick="downloadBothCardSides('cardSideFront', 'cardSideBack', 'Kartu_Tendik_${nipTendik}')" class="flex-1 min-w-[130px] bg-amber-700 hover:bg-amber-800 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-file-archive"></i> Unduh 2 Sisi
+                    </button>
+                    <button onclick="window.print()" class="px-3 bg-slate-900 hover:bg-black text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-print"></i> Cetak
+                    </button>
+                    <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
                         Tutup
                     </button>
                 </div>
@@ -3918,15 +4230,15 @@
                     qrBox.innerHTML = "";
                     new QRCode(qrBox, {
                         text: String(qrContent),
-                        width: 140,
-                        height: 140,
+                        width: 80,
+                        height: 80,
                         colorDark: "#78350F",
                         colorLight: "#ffffff",
                         correctLevel : QRCode.CorrectLevel.H
                     });
                 }
             }
-        }, 100);
+        }, 80);
     }
 
     function loadScanAbsensi() {
@@ -4819,6 +5131,92 @@
             .scanAbsensi(targetId, currentUser.role, currentUser.kelas);
     }
 
+    function handleProfilePhotoUpload(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            showAlert('error', 'File harus berupa gambar (JPG, PNG, JPEG)!');
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            showAlert('error', 'Ukuran foto maksimal 5MB.');
+            return;
+        }
+
+        showLoading();
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // Resize image to max 360x360 for high quality yet compact storage
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const maxDim = 360;
+                if (width > height) {
+                    if (width > maxDim) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    }
+                } else {
+                    if (height > maxDim) {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                const resizedBase64 = canvas.toDataURL('image/jpeg', 0.88);
+
+                const userId = currentUser.username || currentUser.nisn || currentUser.nip;
+                google.script.run
+                    .withSuccessHandler(res => {
+                        hideLoading();
+                        if (res.success) {
+                            currentUser.foto = resizedBase64;
+                            localStorage.setItem('absensiAppSession', JSON.stringify(currentUser));
+                            showAlert('success', 'Foto profil berhasil disimpan!');
+
+                            // Update Modal Avatar Previews
+                            const modalImg = document.getElementById('profileModalAvatarImg');
+                            const modalInit = document.getElementById('profileModalAvatarInitial');
+                            if (modalImg) {
+                                modalImg.src = resizedBase64;
+                                modalImg.classList.remove('hidden');
+                            }
+                            if (modalInit) {
+                                modalInit.classList.add('hidden');
+                            }
+
+                            // Update Header Avatar Previews
+                            const cardPhotoImg = document.getElementById('modalCardPhotoImg');
+                            const cardPhotoInit = document.getElementById('modalCardPhotoInitial');
+                            if (cardPhotoImg) {
+                                cardPhotoImg.src = resizedBase64;
+                                cardPhotoImg.classList.remove('hidden');
+                            }
+                            if (cardPhotoInit) {
+                                cardPhotoInit.classList.add('hidden');
+                            }
+                        } else {
+                            showAlert('error', res.message || 'Gagal menyimpan foto.');
+                        }
+                    })
+                    .withFailureHandler(err => {
+                        hideLoading();
+                        showAlert('error', 'Error upload foto: ' + err);
+                    })
+                    .updateUserProfilePhoto(currentUser.token, userId, resizedBase64);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
     function showUserProfileAndSecurityModal() {
         if (!currentUser) return;
 
@@ -4828,6 +5226,7 @@
         const nipNisn = String(currentUser.nip || currentUser.nisn || '-').replace(/'/g, '');
         const jabatanKelas = currentUser.jabatan || currentUser.kelas || (role === 'guru' ? 'Guru Mata Pelajaran' : (role === 'tendik' ? 'Tenaga Kependidikan' : 'X MIPA 1'));
         const noHp = currentUser.noHp || '-';
+        const fotoUser = currentUser.foto || '';
         const initial = nama.charAt(0).toUpperCase();
 
         let cardHeaderGrad = 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%)';
@@ -4860,9 +5259,19 @@
                 <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 text-white relative">
                     <button onclick="closeModal()" class="absolute top-4 right-4 text-white/70 hover:text-white"><i class="fas fa-times text-lg"></i></button>
                     <div class="flex items-center space-x-4">
-                        <div class="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex items-center justify-center text-2xl font-black text-amber-400 shadow-inner">
-                            ${initial}
+                        <!-- Foto Avatar dengan Opsi Upload -->
+                        <div class="relative group cursor-pointer" onclick="document.getElementById('userProfilePhotoInput').click()" title="Klik untuk ganti foto profil">
+                            <img id="profileModalAvatarImg" src="${fotoUser}" class="${fotoUser ? '' : 'hidden'} w-16 h-16 rounded-2xl object-cover border-2 border-white/40 shadow-lg">
+                            <div id="profileModalAvatarInitial" class="${fotoUser ? 'hidden' : 'flex'} w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 items-center justify-center text-2xl font-black text-amber-400 shadow-inner">
+                                ${initial}
+                            </div>
+                            <div class="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition text-white">
+                                <i class="fas fa-camera text-sm"></i>
+                                <span class="text-[8px] font-bold mt-0.5">Ubah</span>
+                            </div>
                         </div>
+                        <input type="file" id="userProfilePhotoInput" accept="image/*" class="hidden" onchange="handleProfilePhotoUpload(event)">
+                        
                         <div>
                             <span class="px-2.5 py-0.5 bg-indigo-500/30 border border-indigo-400/30 rounded-full text-[10px] font-extrabold uppercase tracking-wider text-indigo-200">${role} SMANSA</span>
                             <h3 class="font-extrabold text-lg text-white mt-1 leading-tight">${nama}</h3>
@@ -4888,6 +5297,22 @@
                 <div class="p-6">
                     <!-- Tab 1: Profil -->
                     <div id="tab-profile-content" class="space-y-3 text-xs">
+                        <!-- Upload Foto Profil Trigger Bar -->
+                        <div class="bg-indigo-50/70 border border-indigo-100 p-3 rounded-2xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">Foto Profil & Kartu</div>
+                                    <div class="text-[10px] text-slate-500">Foto akan tampil di profil dan kartu identitas resmi Anda.</div>
+                                </div>
+                            </div>
+                            <button onclick="document.getElementById('userProfilePhotoInput').click()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-[11px] transition shadow-sm">
+                                <i class="fas fa-upload mr-1"></i> Upload
+                            </button>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-3">
                             <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                                 <span class="text-[10px] text-slate-400 font-bold uppercase">Nama Lengkap</span>
@@ -4932,7 +5357,7 @@
                     <div id="tab-card-content" class="hidden space-y-4 text-xs">
                         <div class="flex justify-center">
                             <!-- Card Preview Container -->
-                            <div id="modalCardWrapper" class="w-full max-w-[320px] bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200 text-slate-800 relative font-sans">
+                            <div id="modalCardWrapper" class="w-full max-w-[340px] bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-200 text-slate-800 relative font-sans">
                                 <!-- Card Header -->
                                 <div style="background: ${cardHeaderGrad}; padding: 14px 12px 10px; text-align: center; color: #ffffff; position: relative;">
                                     <div style="height: 3px; background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b); position: absolute; bottom: 0; left: 0; right: 0;"></div>
@@ -4950,8 +5375,12 @@
 
                                 <!-- Card Body -->
                                 <div style="padding: 12px 14px; text-align: center; background: #ffffff;">
-                                    <div style="width: 44px; height: 44px; border-radius: 14px; background: ${cardAvatarGrad}; color: #ffffff; font-size: 18px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; border: 2px solid #e0e7ff;">
-                                        ${initial}
+                                    <!-- Foto Kartu -->
+                                    <div style="width: 50px; height: 60px; border-radius: 12px; overflow: hidden; margin: 0 auto 6px; border: 2px solid #e0e7ff; background: ${cardAvatarGrad}; display: flex; align-items: center; justify-content: center;">
+                                        <img id="modalCardPhotoImg" src="${fotoUser}" class="${fotoUser ? '' : 'hidden'}" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div id="modalCardPhotoInitial" class="${fotoUser ? 'hidden' : 'flex'}" style="color: #ffffff; font-size: 20px; font-weight: 900;">
+                                            ${initial}
+                                        </div>
                                     </div>
                                     <h3 style="font-size: 13px; font-weight: 800; color: #0f172a; margin: 0 0 2px; line-height: 1.2;">${nama}</h3>
                                     <div style="display: inline-block; ${cardBadgeClass} border-radius: 9999px; padding: 1px 8px; font-size: 9px; font-weight: 700; margin-bottom: 8px;">
@@ -4989,7 +5418,7 @@
                                 <i class="fas fa-download"></i> Download JPEG
                             </button>
                             <button onclick="closeModal(); ${role === 'guru' ? 'loadQRCodeGuru()' : (role === 'tendik' ? 'loadQRCodeTendik()' : 'loadQRCodeSiswa()')}" class="flex-1 bg-slate-900 hover:bg-black text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                                <i class="fas fa-expand"></i> Mode Layar Penuh
+                                <i class="fas fa-expand"></i> Mode Kartu Lengkap
                             </button>
                         </div>
                     </div>
@@ -5030,7 +5459,6 @@
         const tabProf = document.getElementById('tab-profile-content');
         const tabCard = document.getElementById('tab-card-content');
         const tabSec = document.getElementById('tab-security-content');
-        
         const btnProf = document.getElementById('btnTabProfile');
         const btnCard = document.getElementById('btnTabCard');
         const btnSec = document.getElementById('btnTabSecurity');
