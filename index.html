@@ -1363,11 +1363,21 @@
     }
     initLocalStorage();
 
+    function withTimeout(promise, ms = 2000) {
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Firebase timeout')), ms);
+        promise.then(
+          res => { clearTimeout(timer); resolve(res); },
+          err => { clearTimeout(timer); reject(err); }
+        );
+      });
+    }
+
     async function getDB(key) {
       if (fbDb) {
         try {
-          const snap = await fbDb.ref(key).once('value');
-          if (snap.exists()) {
+          const snap = await withTimeout(fbDb.ref(key).once('value'), 2000);
+          if (snap && snap.exists()) {
             let val = snap.val();
             let arr = val;
             if (key !== 'config') {
@@ -1384,11 +1394,20 @@
             return arr;
           }
         } catch (err) {
-          console.error('Firebase read error [' + key + ']:', err);
+          console.warn('Firebase read error/fallback [' + key + ']:', err);
         }
       }
       const localKey = DB_KEYS[key.toUpperCase()] || ('absensi_db_' + key);
-      return JSON.parse(localStorage.getItem(localKey) || (key === 'config' ? '{}' : '[]'));
+      const localData = localStorage.getItem(localKey);
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          if (parsed && (Array.isArray(parsed) ? parsed.length > 0 : Object.keys(parsed).length > 0)) {
+            return parsed;
+          }
+        } catch(e) {}
+      }
+      return SEED_DATA[key] || (key === 'config' ? {} : []);
     }
 
     async function setDB(key, data) {
@@ -1396,24 +1415,27 @@
       localStorage.setItem(localKey, JSON.stringify(data));
       if (fbDb) {
         try {
-          await fbDb.ref(key).set(data);
+          await withTimeout(fbDb.ref(key).set(data), 3000);
         } catch (err) {
-          console.error('Firebase write error [' + key + ']:', err);
+          console.warn('Firebase write notice [' + key + ']:', err);
         }
       }
     }
 
     async function initDatabase() {
+      initLocalStorage();
       if (fbDb) {
         try {
-          const configSnap = await fbDb.ref('config').once('value');
+          const configSnap = await withTimeout(fbDb.ref('config').once('value'), 2000);
           if (!configSnap.exists()) {
-            await fbDb.ref('siswa').set(SEED_DATA.siswa);
-            await fbDb.ref('guru').set(SEED_DATA.guru);
-            await fbDb.ref('tendik').set(SEED_DATA.tendik);
-            await fbDb.ref('config').set(SEED_DATA.config);
-            await fbDb.ref('libur').set(SEED_DATA.libur);
-            await fbDb.ref('absensi').set(SEED_DATA.absensi);
+            await withTimeout(Promise.all([
+              fbDb.ref('siswa').set(SEED_DATA.siswa),
+              fbDb.ref('guru').set(SEED_DATA.guru),
+              fbDb.ref('tendik').set(SEED_DATA.tendik),
+              fbDb.ref('config').set(SEED_DATA.config),
+              fbDb.ref('libur').set(SEED_DATA.libur),
+              fbDb.ref('absensi').set(SEED_DATA.absensi)
+            ]), 3000);
             console.log('Data awal berhasil diinisialisasi ke Firebase Realtime Database!');
           }
         } catch (err) {
