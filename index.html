@@ -724,9 +724,9 @@
                               <i class="fas fa-plus mr-1"></i> Tambah Siswa
                           </button>
                           <button onclick="document.getElementById('importSiswaFile').click()" class="bg-emerald-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-700 transition">
-                              <i class="fas fa-file-import mr-1"></i> Import CSV
+                              <i class="fas fa-file-excel mr-1"></i> Import Excel
                           </button>
-                          <input type="file" id="importSiswaFile" accept=".csv" class="hidden" onchange="importCSV('siswa', this)">
+                          <input type="file" id="importSiswaFile" accept=".xlsx,.xls" class="hidden" onchange="importExcel('siswa', this)">
                       </div>
                     </div>
 
@@ -800,9 +800,9 @@
                               <i class="fas fa-plus mr-1"></i> Tambah Guru
                           </button>
                           <button onclick="document.getElementById('importGuruFile').click()" class="bg-emerald-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-700 transition">
-                              <i class="fas fa-file-import mr-1"></i> Import CSV
+                              <i class="fas fa-file-excel mr-1"></i> Import Excel
                           </button>
-                          <input type="file" id="importGuruFile" accept=".csv" class="hidden" onchange="importCSV('guru', this)">
+                          <input type="file" id="importGuruFile" accept=".xlsx,.xls" class="hidden" onchange="importExcel('guru', this)">
                         </div>
                     </div>
 
@@ -881,9 +881,9 @@
                               <i class="fas fa-plus mr-1"></i> Tambah Tendik
                           </button>
                           <button onclick="document.getElementById('importTendikFile').click()" class="bg-emerald-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:bg-emerald-700 transition">
-                              <i class="fas fa-file-import mr-1"></i> Import CSV
+                              <i class="fas fa-file-excel mr-1"></i> Import Excel
                           </button>
-                          <input type="file" id="importTendikFile" accept=".csv" class="hidden" onchange="importCSV('tendik', this)">
+                          <input type="file" id="importTendikFile" accept=".xlsx,.xls" class="hidden" onchange="importExcel('tendik', this)">
                         </div>
                     </div>
 
@@ -4593,61 +4593,45 @@
     }
 
     // ============================================================================
-    // IMPORT CSV: Siswa, Guru, Tendik
+    // IMPORT EXCEL: Siswa, Guru, Tendik
     // ============================================================================
-    function parseCSVLine(line) {
-        const result = [];
-        let current = '';
-        let inQuotes = false;
-        for (let i = 0; i < line.length; i++) {
-            const ch = line[i];
-            if (ch === '"') {
-                inQuotes = !inQuotes;
-            } else if (ch === ',' && !inQuotes) {
-                result.push(current.trim());
-                current = '';
-            } else {
-                current += ch;
-            }
-        }
-        result.push(current.trim());
-        return result;
-    }
-
-    function importCSV(type, inputEl) {
+    function importExcel(type, inputEl) {
         const file = inputEl.files[0];
         if (!file) return;
         inputEl.value = '';
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
-            if (lines.length < 2) {
-                showAlert('error', 'File CSV kosong atau tidak memiliki data.');
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+            if (rows.length < 2) {
+                showAlert('error', 'File Excel kosong atau tidak memiliki data.');
                 return;
             }
 
-            const headers = parseCSVLine(lines[0]);
             let added = 0, skipped = 0;
 
             if (type === 'siswa') {
                 const list = JSON.parse(localStorage.getItem(DB_KEYS.SISWA) || '[]');
-                for (let i = 1; i < lines.length; i++) {
-                    const cols = parseCSVLine(lines[i]);
-                    if (cols.length < 2) continue;
-                    const nisn = String(cols[1] || cols[0]).replace(/^'/, '').trim();
+                for (let i = 1; i < rows.length; i++) {
+                    const r = rows[i];
+                    if (!r || r.length < 2) continue;
+                    const nisn = String(r[1] || r[0]).replace(/^'/, '').trim();
                     if (!nisn || list.some(x => String(x.nisn) === nisn)) { skipped++; continue; }
                     list.push({
                         nisn: nisn,
-                        nama: cols[0] || cols[1] || '',
-                        kelas: cols[2] || '',
-                        jenisKelamin: cols[3] || '',
-                        tanggalLahir: cols[4] || '',
-                        agama: cols[5] || '',
-                        namaAyah: cols[6] || '',
-                        namaIbu: cols[7] || '',
-                        noHp: String(cols[8] || '').replace(/^'/, ''),
-                        alamat: cols[9] || ''
+                        nama: String(r[0] || ''),
+                        kelas: String(r[2] || ''),
+                        jenisKelamin: String(r[3] || ''),
+                        tanggalLahir: String(r[4] || ''),
+                        agama: String(r[5] || ''),
+                        namaAyah: String(r[6] || ''),
+                        namaIbu: String(r[7] || ''),
+                        noHp: String(r[8] || '').replace(/^'/, ''),
+                        alamat: String(r[9] || '')
                     });
                     added++;
                 }
@@ -4658,20 +4642,20 @@
 
             } else if (type === 'guru') {
                 const list = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
-                for (let i = 1; i < lines.length; i++) {
-                    const cols = parseCSVLine(lines[i]);
-                    if (cols.length < 2) continue;
-                    const username = String(cols[0] || '').replace(/^'/, '').trim();
+                for (let i = 1; i < rows.length; i++) {
+                    const r = rows[i];
+                    if (!r || r.length < 2) continue;
+                    const username = String(r[0] || '').replace(/^'/, '').trim();
                     if (!username || list.some(x => x.username.toLowerCase() === username.toLowerCase())) { skipped++; continue; }
                     list.push({
                         username: username,
-                        password: cols[1] || 'guru123',
-                        role: cols[2] || 'guru',
-                        nama: cols[3] || username,
-                        nip: String(cols[4] || '-').replace(/^'/, ''),
-                        jabatan: cols[5] || '',
-                        kelas: cols[6] || '',
-                        noHp: String(cols[7] || '-').replace(/^'/, '')
+                        password: String(r[1] || 'guru123'),
+                        role: String(r[2] || 'guru'),
+                        nama: String(r[3] || username),
+                        nip: String(r[4] || '-').replace(/^'/, ''),
+                        jabatan: String(r[5] || ''),
+                        kelas: String(r[6] || ''),
+                        noHp: String(r[7] || '-').replace(/^'/, '')
                     });
                     added++;
                 }
@@ -4681,19 +4665,19 @@
 
             } else if (type === 'tendik') {
                 const list = JSON.parse(localStorage.getItem(DB_KEYS.TENDIK) || '[]');
-                for (let i = 1; i < lines.length; i++) {
-                    const cols = parseCSVLine(lines[i]);
-                    if (cols.length < 2) continue;
-                    const username = String(cols[0] || '').replace(/^'/, '').trim();
+                for (let i = 1; i < rows.length; i++) {
+                    const r = rows[i];
+                    if (!r || r.length < 2) continue;
+                    const username = String(r[0] || '').replace(/^'/, '').trim();
                     if (!username || list.some(x => x.username.toLowerCase() === username.toLowerCase())) { skipped++; continue; }
                     list.push({
                         username: username,
-                        password: cols[1] || 'tendik123',
+                        password: String(r[1] || 'tendik123'),
                         role: 'tendik',
-                        nip: String(cols[2] || '-').replace(/^'/, ''),
-                        nama: cols[3] || username,
-                        jabatan: cols[4] || 'Staf Kependidikan',
-                        noHp: String(cols[5] || '-').replace(/^'/, '')
+                        nip: String(r[2] || '-').replace(/^'/, ''),
+                        nama: String(r[3] || username),
+                        jabatan: String(r[4] || 'Staf Kependidikan'),
+                        noHp: String(r[5] || '-').replace(/^'/, '')
                     });
                     added++;
                 }
@@ -4706,7 +4690,7 @@
             if (skipped > 0) msg += ` ${skipped} data dilewati (duplikat/kosong).`;
             showAlert(added > 0 ? 'success' : 'error', msg);
         };
-        reader.readAsText(file);
+        reader.readAsArrayBuffer(file);
     }
 
     checkSession();
