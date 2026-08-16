@@ -1363,7 +1363,7 @@
     }
     initLocalStorage();
 
-    function withTimeout(promise, ms = 2000) {
+    function withTimeout(promise, ms = 2500) {
       return new Promise((resolve, reject) => {
         const timer = setTimeout(() => reject(new Error('Firebase timeout')), ms);
         promise.then(
@@ -1376,14 +1376,16 @@
     async function getDB(key) {
       if (fbDb) {
         try {
-          const snap = await withTimeout(fbDb.ref(key).once('value'), 2000);
+          const snap = await withTimeout(fbDb.ref(key).once('value'), 2500);
           if (snap && snap.exists()) {
             let val = snap.val();
             let arr = val;
             if (key !== 'config') {
-              if (Array.isArray(val)) {
+              if (val === false || val === null) {
+                arr = [];
+              } else if (Array.isArray(val)) {
                 arr = val.filter(x => x !== null && x !== undefined);
-              } else if (typeof val === 'object' && val !== null) {
+              } else if (typeof val === 'object') {
                 arr = Object.values(val);
               } else {
                 arr = [];
@@ -1399,15 +1401,12 @@
       }
       const localKey = DB_KEYS[key.toUpperCase()] || ('absensi_db_' + key);
       const localData = localStorage.getItem(localKey);
-      if (localData) {
+      if (localData !== null && localData !== undefined) {
         try {
-          const parsed = JSON.parse(localData);
-          if (parsed && (Array.isArray(parsed) ? parsed.length > 0 : Object.keys(parsed).length > 0)) {
-            return parsed;
-          }
+          return JSON.parse(localData);
         } catch(e) {}
       }
-      return SEED_DATA[key] || (key === 'config' ? {} : []);
+      return SEED_DATA[key] ? JSON.parse(JSON.stringify(SEED_DATA[key])) : (key === 'config' ? {} : []);
     }
 
     async function setDB(key, data) {
@@ -1415,7 +1414,8 @@
       localStorage.setItem(localKey, JSON.stringify(data));
       if (fbDb) {
         try {
-          await withTimeout(fbDb.ref(key).set(data), 3000);
+          const payload = (Array.isArray(data) && data.length === 0) ? false : data;
+          await withTimeout(fbDb.ref(key).set(payload), 4000);
         } catch (err) {
           console.warn('Firebase write notice [' + key + ']:', err);
         }
@@ -1426,17 +1426,12 @@
       initLocalStorage();
       if (fbDb) {
         try {
-          const configSnap = await withTimeout(fbDb.ref('config').once('value'), 2000);
-          if (!configSnap.exists()) {
-            await withTimeout(Promise.all([
-              fbDb.ref('siswa').set(SEED_DATA.siswa),
-              fbDb.ref('guru').set(SEED_DATA.guru),
-              fbDb.ref('tendik').set(SEED_DATA.tendik),
-              fbDb.ref('config').set(SEED_DATA.config),
-              fbDb.ref('libur').set(SEED_DATA.libur),
-              fbDb.ref('absensi').set(SEED_DATA.absensi)
-            ]), 3000);
-            console.log('Data awal berhasil diinisialisasi ke Firebase Realtime Database!');
+          const keys = ['siswa', 'guru', 'tendik', 'config', 'libur', 'absensi'];
+          for (const k of keys) {
+            const snap = await withTimeout(fbDb.ref(k).once('value'), 2000);
+            if (!snap.exists()) {
+              await withTimeout(fbDb.ref(k).set(SEED_DATA[k]), 2000);
+            }
           }
         } catch (err) {
           console.warn('Firebase seeding notice:', err);
