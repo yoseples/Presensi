@@ -1,0 +1,12 @@
+Username,Password,Role,Nama Lengkap,NIP,Jabatan,Kelas (Wali Kelas),No Handphone
+admin,admin123,admin,Administrator SMANSA,198001012005011001,Kepala Tata Usaha,,081234567800
+guru1,guru123,guru,Drs. Usman M.Pd,197503122002121002,Wali Kelas X MIPA 1,X MIPA 1,081234567801
+guru2,guru123,guru,Cut Rahmah S.Pd,198207182008042003,Wali Kelas XI IPS 1,XI IPS 1,081234567802
+guru3,guru123,guru,Muhammad Yusuf S.Pd,197808152003121004,Wali Kelas X MIPA 2,X MIPA 2,081234567803
+guru4,guru123,guru,Nurhaliza S.Pd,198110202006042005,Wali Kelas XI IPS 2,XI IPS 2,081234567808
+guru5,guru123,guru,Ir. Saifuddin M.Si,197201082000031006,Guru Matematika,,081234567809
+guru6,guru123,guru,Dra. Mariana,196905152001032007,Guru Bahasa Indonesia,,081234567810
+guru7,guru123,guru,Azhari S.Pd,198503272010011008,Wali Kelas XII IPA 1,XII IPA 1,081234567811
+guru8,guru123,guru,Fitri Handayani S.Pd,198712142011042009,Wali Kelas XII IPS 1,XII IPS 1,081234567812
+guru9,guru123,guru,Teuku Irwan S.Pd M.Pd,197607032004051010,Guru Fisika,,081234567813
+guru10,guru123,guru,Cut Mutia S.Ag,198209112008042011,Guru Pendidikan Agama Islam,,081234567814
