@@ -3676,7 +3676,6 @@
             });
         }).catch(err => {
             if (isBackHidden) elBack.classList.add('hidden');
-            hideLoading();
             showAlert('error', 'Gagal memproses kartu: ' + err);
         });
     }
@@ -3714,138 +3713,136 @@
                     </button>
                 </div>
 
-                <!-- 1. TAMPAK DEPAN KARTU SISWA -->
-                <div id="cardSideFront" class="w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
-                    <!-- Header Kop Resmi -->
-                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%); padding: 14px 16px 10px; color: #ffffff; position: relative;">
+                <!-- 1. TAMPAK DEPAN KARTU SISWA (VERTIKAL) -->
+                <div id="cardSideFront" class="w-full max-w-[330px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans text-center">
+                    <!-- Header Kop Resmi Vertikal -->
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%); padding: 16px 14px 12px; color: #ffffff; position: relative;">
                         <div style="height: 3px; background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b); position: absolute; bottom: 0; left: 0; right: 0;"></div>
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <img src="logo.png" onerror="this.src='favicon.png'" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-                            <div style="text-align: center; flex: 1; padding: 0 8px;">
-                                <div style="font-size: 8px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #93c5fd; line-height: 1;">PEMERINTAH ACEH • DINAS PENDIDIKAN</div>
-                                <div style="font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
-                                <div style="font-size: 7.5px; color: #cbd5e1; line-height: 1;">Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara 24376</div>
-                            </div>
-                            <div style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
-                                <i class="fas fa-graduation-cap text-amber-400 text-lg"></i>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px;">
+                            <img src="logo.png" onerror="this.src='favicon.png'" style="width: 34px; height: 34px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+                            <div style="text-align: left;">
+                                <div style="font-size: 7.5px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #93c5fd; line-height: 1;">PEMERINTAH ACEH • DISDIK</div>
+                                <div style="font-size: 11px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
+                                <div style="font-size: 7px; color: #cbd5e1; line-height: 1;">Kabupaten Aceh Utara</div>
                             </div>
                         </div>
-                        <div style="text-align: center; margin-top: 6px;">
-                            <span style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 9999px; padding: 1px 12px; font-size: 8.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff;">
+                        <div style="margin-top: 6px;">
+                            <span style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 9999px; padding: 2px 12px; font-size: 8px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff;">
                                 KARTU TANDA PELAJAR
                             </span>
                         </div>
                     </div>
 
-                    <!-- Body Content -->
-                    <div style="padding: 14px 16px 12px; display: flex; gap: 14px; align-items: center; background: #ffffff;">
-                        <!-- Foto Siswa -->
-                        <div style="width: 90px; height: 115px; border-radius: 12px; overflow: hidden; border: 2px solid #3b82f6; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; background: linear-gradient(135deg, #1e3a8a, #3b82f6); display: flex; align-items: center; justify-content: center;">
-                            ${fotoSiswa ? `<img src="${fotoSiswa}" style="width: 100%; height: 100%; object-fit: cover;">` : `<span style="font-size: 32px; font-weight: 900; color: #ffffff;">${initial}</span>`}
+                    <!-- Body Content Vertikal -->
+                    <div style="padding: 14px 16px 12px; background: #ffffff;">
+                        <!-- Pas Foto 3x4 Siswa -->
+                        <div style="width: 92px; height: 120px; border-radius: 14px; overflow: hidden; border: 2.5px solid #3b82f6; box-shadow: 0 4px 12px rgba(30,58,138,0.18); margin: 0 auto 10px; background: linear-gradient(135deg, #1e3a8a, #3b82f6); display: flex; align-items: center; justify-content: center;">
+                            ${fotoSiswa ? `<img src="${fotoSiswa}" style="width: 100%; height: 100%; object-fit: cover;">` : `<span style="font-size: 34px; font-weight: 900; color: #ffffff;">${initial}</span>`}
                         </div>
 
-                        <!-- Data Siswa -->
-                        <div style="flex: 1; min-width: 0; text-align: left; font-size: 10px; line-height: 1.4;">
-                            <div style="font-size: 12px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${namaSiswa}
+                        <!-- Nama Siswa & Kelas -->
+                        <div style="font-size: 13px; font-weight: 900; color: #0f172a; text-transform: uppercase; line-height: 1.2; margin-bottom: 3px;">
+                            ${namaSiswa}
+                        </div>
+                        <div style="display: inline-block; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 9999px; padding: 2px 10px; font-size: 9.5px; font-weight: 800; margin-bottom: 10px;">
+                            Kelas ${kelasSiswa}
+                        </div>
+
+                        <!-- Tabel Data Ringkas -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 12px; font-size: 9.5px; text-align: left; margin-bottom: 10px; line-height: 1.5;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span style="color: #64748b; font-weight: 600;">NISN:</span>
+                                <span style="color: #1e3a8a; font-weight: 900; font-family: monospace;">${nisnSiswa}</span>
                             </div>
-                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">NISN</span>
-                                <span style="color: #1e3a8a; font-weight: 900; font-family: monospace;">: ${nisnSiswa}</span>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span style="color: #64748b; font-weight: 600;">Status:</span>
+                                <span style="color: #16a34a; font-weight: 800;">TERVERIFIKASI AKTIF</span>
                             </div>
-                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">Kelas</span>
-                                <span style="color: #0f172a; font-weight: 800;">: ${kelasSiswa}</span>
-                            </div>
-                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">Status</span>
-                                <span style="color: #16a34a; font-weight: 800;">: AKTIF</span>
-                            </div>
-                            <div style="display: flex; gap: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">Berlaku</span>
-                                <span style="color: #0f172a; font-weight: 700;">: Selama Menjadi Siswa</span>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #64748b; font-weight: 600;">Berlaku:</span>
+                                <span style="color: #0f172a; font-weight: 700;">T.A. 2025 / 2026</span>
                             </div>
                         </div>
 
                         <!-- QR Code Absensi -->
-                        <div style="flex-shrink: 0; text-align: center;">
-                            <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 6px; display: inline-block;">
-                                <div id="cardSiswaQrcode" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"></div>
-                            </div>
-                            <div style="font-size: 7px; font-weight: 800; color: #1e3a8a; margin-top: 3px; letter-spacing: 0.05em;">SCAN ABSENSI</div>
+                        <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 8px; display: inline-block; margin-bottom: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                            <div id="cardSiswaQrcode" style="width: 85px; height: 85px; display: flex; align-items: center; justify-content: center; margin: 0 auto;"></div>
+                            <div style="font-size: 7px; font-weight: 800; color: #1e3a8a; margin-top: 4px; letter-spacing: 0.05em;">SCAN PRESENSI DIGITAL</div>
                         </div>
                     </div>
 
                     <!-- Footer Bar -->
-                    <div style="background: #f1f5f9; border-top: 1px solid #e2e8f0; padding: 6px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; color: #64748b;">
-                        <span style="font-weight: 700;"><i class="fas fa-shield-alt text-blue-600 mr-1"></i> VERIFIED DIGITAL PASS</span>
-                        <span style="font-family: monospace; color: #94a3b8;">SMANSA-ID-${nisnSiswa}</span>
+                    <div style="background: #f1f5f9; border-top: 1px solid #e2e8f0; padding: 6px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; color: #64748b;">
+                        <span style="font-weight: 700;"><i class="fas fa-shield-alt text-blue-600 mr-1"></i> DIGITAL PASS</span>
+                        <span style="font-family: monospace; color: #94a3b8;">SMANSA-SISWA-${nisnSiswa}</span>
                     </div>
                 </div>
 
-                <!-- 2. TAMPAK BELAKANG KARTU SISWA -->
-                <div id="cardSideBack" class="hidden w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
-                    <!-- Header Kartu Belakang -->
-                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 12px 16px 8px; color: #ffffff; text-align: center; position: relative;">
+                <!-- 2. TAMPAK BELAKANG KARTU SISWA (VERTIKAL) -->
+                <div id="cardSideBack" class="hidden w-full max-w-[330px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans text-center">
+                    <!-- Header Kartu Belakang Vertikal -->
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%); padding: 14px 14px 10px; color: #ffffff; text-align: center; position: relative;">
                         <div style="height: 3px; background: linear-gradient(90deg, #f59e0b, #fbbf24, #f59e0b); position: absolute; bottom: 0; left: 0; right: 0;"></div>
-                        <div style="font-size: 10px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;">TATA TERTIB & KETENTUAN KARTU PELAJAR</div>
+                        <div style="font-size: 9.5px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;">TATA TERTIB & KETENTUAN</div>
                         <div style="font-size: 8px; color: #93c5fd; font-weight: 700;">SMA NEGERI 1 LHOKSUKON</div>
                     </div>
 
-                    <!-- Body Kartu Belakang -->
-                    <div style="padding: 12px 16px 10px; display: flex; gap: 14px; background: #ffffff;">
-                        <!-- Aturan -->
-                        <div style="flex: 1; font-size: 8px; color: #334155; line-height: 1.45; text-align: justify;">
+                    <!-- Body Kartu Belakang Vertikal -->
+                    <div style="padding: 14px 16px 12px; background: #ffffff;">
+                        <!-- Poin Aturan -->
+                        <div style="font-size: 8px; color: #334155; line-height: 1.45; text-align: justify; margin-bottom: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 8px 10px;">
                             <ol style="margin: 0; padding-left: 12px;">
-                                <li>Kartu ini adalah identitas resmi siswa SMA Negeri 1 Lhoksukon.</li>
-                                <li>Wajib dibawa setiap hari sekolah untuk presensi digital kehadiran.</li>
-                                <li>Dilarang meminjamkan atau memindahtangankan kartu kepada siapapun.</li>
-                                <li>Bila kartu hilang/rusak segera melapor ke Tata Usaha (TU).</li>
-                                <li>Penemu kartu ini dimohon menyerahkan ke SMA Negeri 1 Lhoksukon.</li>
+                                <li style="margin-bottom: 3px;">Kartu ini adalah identitas resmi siswa SMA Negeri 1 Lhoksukon.</li>
+                                <li style="margin-bottom: 3px;">Wajib dibawa setiap hari sekolah untuk presensi kehadiran digital.</li>
+                                <li style="margin-bottom: 3px;">Dilarang meminjamkan atau memindahtangankan kartu kepada siapapun.</li>
+                                <li style="margin-bottom: 3px;">Bila kartu hilang/rusak segera melapor ke Tata Usaha (TU).</li>
+                                <li>Penemu kartu ini dimohon mengembalikan ke SMA Negeri 1 Lhoksukon.</li>
                             </ol>
                         </div>
 
-                        <!-- Tanda Tangan & Stempel -->
-                        <div style="width: 145px; text-align: center; font-size: 7.5px; color: #1e293b; flex-shrink: 0; border-left: 1px dashed #cbd5e1; padding-left: 10px;">
-                            <div>Lhoksukon, Juli 2025</div>
-                            <div style="font-weight: 800; margin-top: 1px;">Kepala Sekolah,</div>
+                        <!-- Pengesahan Kepala Sekolah Vertikal -->
+                        <div style="text-align: center; font-size: 8px; color: #1e293b; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 8px 10px; background: #fdfdfd;">
+                            <div>Lhoksukon, 15 Juli 2025</div>
+                            <div style="font-weight: 800; margin-top: 1px;">Kepala SMA Negeri 1 Lhoksukon,</div>
                             
                             <!-- Stempel & TTD Digital -->
-                            <div style="height: 48px; display: flex; align-items: center; justify-content: center; position: relative; margin: 2px 0;">
-                                <div style="position: absolute; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #ef4444; color: #ef4444; font-size: 5.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-transform: uppercase; transform: rotate(-15deg); opacity: 0.85;">
+                            <div style="height: 52px; display: flex; align-items: center; justify-content: center; position: relative; margin: 2px 0;">
+                                <div style="position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #ef4444; color: #ef4444; font-size: 5.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-transform: uppercase; transform: rotate(-15deg); opacity: 0.85;">
                                     STEMPEL<br>SMANSA
                                 </div>
-                                <span style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 20px; color: #1e3a8a; font-weight: bold; transform: rotate(-5deg); z-index: 10;">Husen</span>
+                                <span style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 22px; color: #1e3a8a; font-weight: bold; transform: rotate(-5deg); z-index: 10;">Husen</span>
                             </div>
 
-                            <div style="font-weight: 900; text-decoration: underline; color: #0f172a;">Drs. H. M. Husen, M.Pd</div>
-                            <div style="font-size: 6.5px; color: #64748b; font-family: monospace;">NIP. 19681231 199403 1 021</div>
+                            <div style="font-weight: 900; text-decoration: underline; color: #0f172a; font-size: 9px;">Drs. H. M. Husen, M.Pd</div>
+                            <div style="font-size: 7px; color: #64748b; font-family: monospace;">NIP. 19681231 199403 1 021</div>
                         </div>
                     </div>
 
                     <!-- Footer Kartu Belakang -->
-                    <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 5px 16px; text-align: center; font-size: 7.5px; color: #94a3b8;">
-                        Telp: (0645) 800123 • Website: https://absensi.smansalhoksukon.sch.id
+                    <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 6px 14px; text-align: center; font-size: 7px; color: #94a3b8;">
+                        Jl. Medan - Banda Aceh, Lhoksukon • https://absensi.smansalhoksukon.sch.id
                     </div>
                 </div>
 
                 <!-- Tombol Aksi -->
-                <div class="w-full max-w-[480px] mt-4 flex flex-wrap gap-2">
-                    <button onclick="downloadCardAsJPEG('cardSideFront', 'Kartu_Pelajar_Depan_${nisnSiswa}')" class="flex-1 min-w-[130px] bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-download"></i> Unduh Depan (JPEG)
+                <div class="w-full max-w-[330px] mt-4 flex flex-wrap gap-2">
+                    <button onclick="downloadCardAsJPEG('cardSideFront', 'Kartu_Pelajar_Depan_${nisnSiswa}')" class="flex-1 min-w-[140px] bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Depan
                     </button>
-                    <button onclick="downloadCardAsJPEG('cardSideBack', 'Kartu_Pelajar_Belakang_${nisnSiswa}')" class="flex-1 min-w-[130px] bg-teal-600 hover:bg-teal-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-download"></i> Unduh Belakang (JPEG)
+                    <button onclick="downloadCardAsJPEG('cardSideBack', 'Kartu_Pelajar_Belakang_${nisnSiswa}')" class="flex-1 min-w-[140px] bg-teal-600 hover:bg-teal-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Belakang
                     </button>
-                    <button onclick="downloadBothCardSides('cardSideFront', 'cardSideBack', 'Kartu_Pelajar_${nisnSiswa}')" class="flex-1 min-w-[130px] bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-file-archive"></i> Unduh 2 Sisi
+                    <button onclick="downloadBothCardSides('cardSideFront', 'cardSideBack', 'Kartu_Pelajar_${nisnSiswa}')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-file-archive"></i> Unduh Kedua Sisi (Depan & Belakang)
                     </button>
-                    <button onclick="window.print()" class="px-3 bg-slate-900 hover:bg-black text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-print"></i> Cetak
-                    </button>
-                    <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
-                        Tutup
-                    </button>
+                    <div class="w-full flex gap-2">
+                        <button onclick="window.print()" class="flex-1 bg-slate-900 hover:bg-black text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                            <i class="fas fa-print"></i> Cetak
+                        </button>
+                        <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
+                            Tutup
+                        </button>
+                    </div>
                 </div>
             </div>`;
 
@@ -3856,8 +3853,8 @@
                     qrBox.innerHTML = "";
                     new QRCode(qrBox, {
                         text: String(nisnSiswa),
-                        width: 80,
-                        height: 80,
+                        width: 85,
+                        height: 85,
                         colorDark: "#0F172A",
                         colorLight: "#ffffff",
                         correctLevel : QRCode.CorrectLevel.H
@@ -3901,138 +3898,136 @@
                     </button>
                 </div>
 
-                <!-- 1. TAMPAK DEPAN KARTU GURU -->
-                <div id="cardSideFront" class="w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
-                    <!-- Header Kop Resmi -->
-                    <div style="background: linear-gradient(135deg, #090d16 0%, #3b0764 55%, #6b21a8 100%); padding: 14px 16px 10px; color: #ffffff; position: relative;">
+                <!-- 1. TAMPAK DEPAN KARTU GURU (VERTIKAL) -->
+                <div id="cardSideFront" class="w-full max-w-[330px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans text-center">
+                    <!-- Header Kop Resmi Vertikal -->
+                    <div style="background: linear-gradient(135deg, #090d16 0%, #3b0764 55%, #6b21a8 100%); padding: 16px 14px 12px; color: #ffffff; position: relative;">
                         <div style="height: 3px; background: linear-gradient(90deg, #c084fc, #e879f9, #c084fc); position: absolute; bottom: 0; left: 0; right: 0;"></div>
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <img src="logo.png" onerror="this.src='favicon.png'" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-                            <div style="text-align: center; flex: 1; padding: 0 8px;">
-                                <div style="font-size: 8px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #d8b4fe; line-height: 1;">PEMERINTAH ACEH • DINAS PENDIDIKAN</div>
-                                <div style="font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
-                                <div style="font-size: 7.5px; color: #e9d5ff; line-height: 1;">Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara 24376</div>
-                            </div>
-                            <div style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
-                                <i class="fas fa-chalkboard-teacher text-amber-400 text-lg"></i>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px;">
+                            <img src="logo.png" onerror="this.src='favicon.png'" style="width: 34px; height: 34px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+                            <div style="text-align: left;">
+                                <div style="font-size: 7.5px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #d8b4fe; line-height: 1;">PEMERINTAH ACEH • DISDIK</div>
+                                <div style="font-size: 11px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
+                                <div style="font-size: 7px; color: #e9d5ff; line-height: 1;">Kabupaten Aceh Utara</div>
                             </div>
                         </div>
-                        <div style="text-align: center; margin-top: 6px;">
-                            <span style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 9999px; padding: 1px 12px; font-size: 8.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff;">
+                        <div style="margin-top: 6px;">
+                            <span style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 9999px; padding: 2px 12px; font-size: 8px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff;">
                                 KARTU TANDA PENDIDIK / GURU
                             </span>
                         </div>
                     </div>
 
-                    <!-- Body Content -->
-                    <div style="padding: 14px 16px 12px; display: flex; gap: 14px; align-items: center; background: #ffffff;">
-                        <!-- Foto Guru -->
-                        <div style="width: 90px; height: 115px; border-radius: 12px; overflow: hidden; border: 2px solid #9333ea; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; background: linear-gradient(135deg, #581c87, #9333ea); display: flex; align-items: center; justify-content: center;">
-                            ${fotoGuru ? `<img src="${fotoGuru}" style="width: 100%; height: 100%; object-fit: cover;">` : `<span style="font-size: 32px; font-weight: 900; color: #ffffff;">${initial}</span>`}
+                    <!-- Body Content Vertikal -->
+                    <div style="padding: 14px 16px 12px; background: #ffffff;">
+                        <!-- Pas Foto 3x4 Guru -->
+                        <div style="width: 92px; height: 120px; border-radius: 14px; overflow: hidden; border: 2.5px solid #9333ea; box-shadow: 0 4px 12px rgba(88,28,135,0.18); margin: 0 auto 10px; background: linear-gradient(135deg, #581c87, #9333ea); display: flex; align-items: center; justify-content: center;">
+                            ${fotoGuru ? `<img src="${fotoGuru}" style="width: 100%; height: 100%; object-fit: cover;">` : `<span style="font-size: 34px; font-weight: 900; color: #ffffff;">${initial}</span>`}
                         </div>
 
-                        <!-- Data Guru -->
-                        <div style="flex: 1; min-width: 0; text-align: left; font-size: 10px; line-height: 1.4;">
-                            <div style="font-size: 12px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${namaGuru}
+                        <!-- Nama Guru & Jabatan -->
+                        <div style="font-size: 13px; font-weight: 900; color: #0f172a; text-transform: uppercase; line-height: 1.2; margin-bottom: 3px;">
+                            ${namaGuru}
+                        </div>
+                        <div style="display: inline-block; background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; border-radius: 9999px; padding: 2px 10px; font-size: 9.5px; font-weight: 800; margin-bottom: 10px;">
+                            ${jabatanGuru}
+                        </div>
+
+                        <!-- Tabel Data Ringkas -->
+                        <div style="background: #faf5ff; border: 1px solid #f3e8ff; border-radius: 12px; padding: 8px 12px; font-size: 9.5px; text-align: left; margin-bottom: 10px; line-height: 1.5;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span style="color: #64748b; font-weight: 600;">NIP / ID:</span>
+                                <span style="color: #581c87; font-weight: 900; font-family: monospace;">${nipGuru}</span>
                             </div>
-                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">NIP / ID</span>
-                                <span style="color: #581c87; font-weight: 900; font-family: monospace;">: ${nipGuru}</span>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span style="color: #64748b; font-weight: 600;">Status:</span>
+                                <span style="color: #16a34a; font-weight: 800;">PENDIDIK AKTIF</span>
                             </div>
-                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">Jabatan</span>
-                                <span style="color: #0f172a; font-weight: 800;">: ${jabatanGuru}</span>
-                            </div>
-                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">Unit Kerja</span>
-                                <span style="color: #0f172a; font-weight: 700;">: SMAN 1 Lhoksukon</span>
-                            </div>
-                            <div style="display: flex; gap: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">Status</span>
-                                <span style="color: #16a34a; font-weight: 800;">: PENDIDIK AKTIF</span>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #64748b; font-weight: 600;">Unit Kerja:</span>
+                                <span style="color: #0f172a; font-weight: 700;">SMAN 1 Lhoksukon</span>
                             </div>
                         </div>
 
                         <!-- QR Code Absensi -->
-                        <div style="flex-shrink: 0; text-align: center;">
-                            <div style="background: #faf5ff; border: 1.5px solid #e9d5ff; border-radius: 12px; padding: 6px; display: inline-block;">
-                                <div id="cardGuruQrcode" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"></div>
-                            </div>
-                            <div style="font-size: 7px; font-weight: 800; color: #6b21a8; margin-top: 3px; letter-spacing: 0.05em;">SCAN PRESENSI</div>
+                        <div style="background: #ffffff; border: 1.5px solid #e9d5ff; border-radius: 14px; padding: 8px; display: inline-block; margin-bottom: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                            <div id="cardGuruQrcode" style="width: 85px; height: 85px; display: flex; align-items: center; justify-content: center; margin: 0 auto;"></div>
+                            <div style="font-size: 7px; font-weight: 800; color: #6b21a8; margin-top: 4px; letter-spacing: 0.05em;">SCAN PRESENSI GURU</div>
                         </div>
                     </div>
 
                     <!-- Footer Bar -->
-                    <div style="background: #faf5ff; border-top: 1px solid #f3e8ff; padding: 6px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; color: #6b21a8;">
-                        <span style="font-weight: 700;"><i class="fas fa-shield-alt mr-1"></i> RESMI TENAGA PENDIDIK</span>
+                    <div style="background: #faf5ff; border-top: 1px solid #f3e8ff; padding: 6px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; color: #6b21a8;">
+                        <span style="font-weight: 700;"><i class="fas fa-shield-alt mr-1"></i> TENAGA PENDIDIK</span>
                         <span style="font-family: monospace; color: #a855f7;">SMANSA-GURU-${nipGuru}</span>
                     </div>
                 </div>
 
-                <!-- 2. TAMPAK BELAKANG KARTU GURU -->
-                <div id="cardSideBack" class="hidden w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
-                    <!-- Header Kartu Belakang -->
-                    <div style="background: linear-gradient(135deg, #090d16 0%, #3b0764 100%); padding: 12px 16px 8px; color: #ffffff; text-align: center; position: relative;">
+                <!-- 2. TAMPAK BELAKANG KARTU GURU (VERTIKAL) -->
+                <div id="cardSideBack" class="hidden w-full max-w-[330px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans text-center">
+                    <!-- Header Kartu Belakang Vertikal -->
+                    <div style="background: linear-gradient(135deg, #090d16 0%, #3b0764 100%); padding: 14px 14px 10px; color: #ffffff; text-align: center; position: relative;">
                         <div style="height: 3px; background: linear-gradient(90deg, #c084fc, #e879f9, #c084fc); position: absolute; bottom: 0; left: 0; right: 0;"></div>
-                        <div style="font-size: 10px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;">KETENTUAN KARTU TANDA PENDIDIK</div>
+                        <div style="font-size: 9.5px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;">KETENTUAN KARTU PENDIDIK</div>
                         <div style="font-size: 8px; color: #d8b4fe; font-weight: 700;">SMA NEGERI 1 LHOKSUKON</div>
                     </div>
 
-                    <!-- Body Kartu Belakang -->
-                    <div style="padding: 12px 16px 10px; display: flex; gap: 14px; background: #ffffff;">
-                        <!-- Aturan -->
-                        <div style="flex: 1; font-size: 8px; color: #334155; line-height: 1.45; text-align: justify;">
+                    <!-- Body Kartu Belakang Vertikal -->
+                    <div style="padding: 14px 16px 12px; background: #ffffff;">
+                        <!-- Poin Aturan -->
+                        <div style="font-size: 8px; color: #334155; line-height: 1.45; text-align: justify; margin-bottom: 12px; background: #faf5ff; border: 1px solid #f3e8ff; border-radius: 12px; padding: 8px 10px;">
                             <ol style="margin: 0; padding-left: 12px;">
-                                <li>Kartu ini adalah identitas resmi Tenaga Pendidik SMA Negeri 1 Lhoksukon.</li>
-                                <li>Wajib digunakan untuk pencatatan presensi digital harian.</li>
-                                <li>Dilarang meminjamkan atau memindahtangankan kartu kepada siapapun.</li>
-                                <li>Bila kartu hilang/rusak segera melapor ke Bagian Kepegawaian TU.</li>
-                                <li>Penemu kartu ini dimohon menyerahkan ke SMA Negeri 1 Lhoksukon.</li>
+                                <li style="margin-bottom: 3px;">Kartu ini adalah identitas resmi Tenaga Pendidik SMA Negeri 1 Lhoksukon.</li>
+                                <li style="margin-bottom: 3px;">Wajib digunakan untuk pencatatan presensi digital harian.</li>
+                                <li style="margin-bottom: 3px;">Dilarang meminjamkan atau memindahtangankan kartu kepada siapapun.</li>
+                                <li style="margin-bottom: 3px;">Bila kartu hilang/rusak segera melapor ke Bagian Kepegawaian TU.</li>
+                                <li>Penemu kartu ini dimohon mengembalikan ke SMA Negeri 1 Lhoksukon.</li>
                             </ol>
                         </div>
 
-                        <!-- Tanda Tangan & Stempel -->
-                        <div style="width: 145px; text-align: center; font-size: 7.5px; color: #1e293b; flex-shrink: 0; border-left: 1px dashed #cbd5e1; padding-left: 10px;">
-                            <div>Lhoksukon, Juli 2025</div>
-                            <div style="font-weight: 800; margin-top: 1px;">Kepala Sekolah,</div>
+                        <!-- Pengesahan Kepala Sekolah Vertikal -->
+                        <div style="text-align: center; font-size: 8px; color: #1e293b; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 8px 10px; background: #fdfdfd;">
+                            <div>Lhoksukon, 15 Juli 2025</div>
+                            <div style="font-weight: 800; margin-top: 1px;">Kepala SMA Negeri 1 Lhoksukon,</div>
                             
                             <!-- Stempel & TTD Digital -->
-                            <div style="height: 48px; display: flex; align-items: center; justify-content: center; position: relative; margin: 2px 0;">
-                                <div style="position: absolute; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #ef4444; color: #ef4444; font-size: 5.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-transform: uppercase; transform: rotate(-15deg); opacity: 0.85;">
+                            <div style="height: 52px; display: flex; align-items: center; justify-content: center; position: relative; margin: 2px 0;">
+                                <div style="position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #ef4444; color: #ef4444; font-size: 5.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-transform: uppercase; transform: rotate(-15deg); opacity: 0.85;">
                                     STEMPEL<br>SMANSA
                                 </div>
-                                <span style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 20px; color: #581c87; font-weight: bold; transform: rotate(-5deg); z-index: 10;">Husen</span>
+                                <span style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 22px; color: #581c87; font-weight: bold; transform: rotate(-5deg); z-index: 10;">Husen</span>
                             </div>
 
-                            <div style="font-weight: 900; text-decoration: underline; color: #0f172a;">Drs. H. M. Husen, M.Pd</div>
-                            <div style="font-size: 6.5px; color: #64748b; font-family: monospace;">NIP. 19681231 199403 1 021</div>
+                            <div style="font-weight: 900; text-decoration: underline; color: #0f172a; font-size: 9px;">Drs. H. M. Husen, M.Pd</div>
+                            <div style="font-size: 7px; color: #64748b; font-family: monospace;">NIP. 19681231 199403 1 021</div>
                         </div>
                     </div>
 
                     <!-- Footer Kartu Belakang -->
-                    <div style="background: #faf5ff; border-top: 1px solid #f3e8ff; padding: 5px 16px; text-align: center; font-size: 7.5px; color: #a855f7;">
-                        Telp: (0645) 800123 • Website: https://absensi.smansalhoksukon.sch.id
+                    <div style="background: #faf5ff; border-top: 1px solid #f3e8ff; padding: 6px 14px; text-align: center; font-size: 7px; color: #a855f7;">
+                        Jl. Medan - Banda Aceh, Lhoksukon • https://absensi.smansalhoksukon.sch.id
                     </div>
                 </div>
 
                 <!-- Tombol Aksi -->
-                <div class="w-full max-w-[480px] mt-4 flex flex-wrap gap-2">
-                    <button onclick="downloadCardAsJPEG('cardSideFront', 'Kartu_Guru_Depan_${nipGuru}')" class="flex-1 min-w-[130px] bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-download"></i> Unduh Depan (JPEG)
+                <div class="w-full max-w-[330px] mt-4 flex flex-wrap gap-2">
+                    <button onclick="downloadCardAsJPEG('cardSideFront', 'Kartu_Guru_Depan_${nipGuru}')" class="flex-1 min-w-[140px] bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Depan
                     </button>
-                    <button onclick="downloadCardAsJPEG('cardSideBack', 'Kartu_Guru_Belakang_${nipGuru}')" class="flex-1 min-w-[130px] bg-teal-600 hover:bg-teal-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-download"></i> Unduh Belakang (JPEG)
+                    <button onclick="downloadCardAsJPEG('cardSideBack', 'Kartu_Guru_Belakang_${nipGuru}')" class="flex-1 min-w-[140px] bg-teal-600 hover:bg-teal-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Belakang
                     </button>
-                    <button onclick="downloadBothCardSides('cardSideFront', 'cardSideBack', 'Kartu_Guru_${nipGuru}')" class="flex-1 min-w-[130px] bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-file-archive"></i> Unduh 2 Sisi
+                    <button onclick="downloadBothCardSides('cardSideFront', 'cardSideBack', 'Kartu_Guru_${nipGuru}')" class="w-full bg-purple-700 hover:bg-purple-800 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-file-archive"></i> Unduh Kedua Sisi (Depan & Belakang)
                     </button>
-                    <button onclick="window.print()" class="px-3 bg-slate-900 hover:bg-black text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-print"></i> Cetak
-                    </button>
-                    <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
-                        Tutup
-                    </button>
+                    <div class="w-full flex gap-2">
+                        <button onclick="window.print()" class="flex-1 bg-slate-900 hover:bg-black text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                            <i class="fas fa-print"></i> Cetak
+                        </button>
+                        <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
+                            Tutup
+                        </button>
+                    </div>
                 </div>
             </div>`;
 
@@ -4043,8 +4038,8 @@
                     qrBox.innerHTML = "";
                     new QRCode(qrBox, {
                         text: String(qrContent),
-                        width: 80,
-                        height: 80,
+                        width: 85,
+                        height: 85,
                         colorDark: "#3B0764",
                         colorLight: "#ffffff",
                         correctLevel : QRCode.CorrectLevel.H
@@ -4088,138 +4083,136 @@
                     </button>
                 </div>
 
-                <!-- 1. TAMPAK DEPAN KARTU TENDIK -->
-                <div id="cardSideFront" class="w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
-                    <!-- Header Kop Resmi -->
-                    <div style="background: linear-gradient(135deg, #0f172a 0%, #78350f 55%, #b45309 100%); padding: 14px 16px 10px; color: #ffffff; position: relative;">
+                <!-- 1. TAMPAK DEPAN KARTU TENDIK (VERTIKAL) -->
+                <div id="cardSideFront" class="w-full max-w-[330px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans text-center">
+                    <!-- Header Kop Resmi Vertikal -->
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #78350f 55%, #b45309 100%); padding: 16px 14px 12px; color: #ffffff; position: relative;">
                         <div style="height: 3px; background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24); position: absolute; bottom: 0; left: 0; right: 0;"></div>
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <img src="logo.png" onerror="this.src='favicon.png'" style="width: 38px; height: 38px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-                            <div style="text-align: center; flex: 1; padding: 0 8px;">
-                                <div style="font-size: 8px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #fde68a; line-height: 1;">PEMERINTAH ACEH • DINAS PENDIDIKAN</div>
-                                <div style="font-size: 12px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
-                                <div style="font-size: 7.5px; color: #fef3c7; line-height: 1;">Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara 24376</div>
-                            </div>
-                            <div style="width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
-                                <i class="fas fa-user-tie text-amber-300 text-lg"></i>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px;">
+                            <img src="logo.png" onerror="this.src='favicon.png'" style="width: 34px; height: 34px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+                            <div style="text-align: left;">
+                                <div style="font-size: 7.5px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: #fde68a; line-height: 1;">PEMERINTAH ACEH • DISDIK</div>
+                                <div style="font-size: 11px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: #ffffff; line-height: 1.2;">SMA NEGERI 1 LHOKSUKON</div>
+                                <div style="font-size: 7px; color: #fef3c7; line-height: 1;">Kabupaten Aceh Utara</div>
                             </div>
                         </div>
-                        <div style="text-align: center; margin-top: 6px;">
-                            <span style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 9999px; padding: 1px 12px; font-size: 8.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff;">
+                        <div style="margin-top: 6px;">
+                            <span style="display: inline-block; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.3); border-radius: 9999px; padding: 2px 12px; font-size: 8px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #ffffff;">
                                 KARTU TENAGA KEPENDIDIKAN
                             </span>
                         </div>
                     </div>
 
-                    <!-- Body Content -->
-                    <div style="padding: 14px 16px 12px; display: flex; gap: 14px; align-items: center; background: #ffffff;">
-                        <!-- Foto Tendik -->
-                        <div style="width: 90px; height: 115px; border-radius: 12px; overflow: hidden; border: 2px solid #d97706; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-shrink: 0; background: linear-gradient(135deg, #78350f, #d97706); display: flex; align-items: center; justify-content: center;">
-                            ${fotoTendik ? `<img src="${fotoTendik}" style="width: 100%; height: 100%; object-fit: cover;">` : `<span style="font-size: 32px; font-weight: 900; color: #ffffff;">${initial}</span>`}
+                    <!-- Body Content Vertikal -->
+                    <div style="padding: 14px 16px 12px; background: #ffffff;">
+                        <!-- Pas Foto 3x4 Tendik -->
+                        <div style="width: 92px; height: 120px; border-radius: 14px; overflow: hidden; border: 2.5px solid #d97706; box-shadow: 0 4px 12px rgba(120,53,15,0.18); margin: 0 auto 10px; background: linear-gradient(135deg, #78350f, #d97706); display: flex; align-items: center; justify-content: center;">
+                            ${fotoTendik ? `<img src="${fotoTendik}" style="width: 100%; height: 100%; object-fit: cover;">` : `<span style="font-size: 34px; font-weight: 900; color: #ffffff;">${initial}</span>`}
                         </div>
 
-                        <!-- Data Tendik -->
-                        <div style="flex: 1; min-width: 0; text-align: left; font-size: 10px; line-height: 1.4;">
-                            <div style="font-size: 12px; font-weight: 900; color: #0f172a; text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${namaTendik}
+                        <!-- Nama Tendik & Jabatan -->
+                        <div style="font-size: 13px; font-weight: 900; color: #0f172a; text-transform: uppercase; line-height: 1.2; margin-bottom: 3px;">
+                            ${namaTendik}
+                        </div>
+                        <div style="display: inline-block; background: #fffbeb; color: #b45309; border: 1px solid #fde68a; border-radius: 9999px; padding: 2px 10px; font-size: 9.5px; font-weight: 800; margin-bottom: 10px;">
+                            ${jabatanTendik}
+                        </div>
+
+                        <!-- Tabel Data Ringkas -->
+                        <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 8px 12px; font-size: 9.5px; text-align: left; margin-bottom: 10px; line-height: 1.5;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span style="color: #64748b; font-weight: 600;">NIP / NIK:</span>
+                                <span style="color: #92400e; font-weight: 900; font-family: monospace;">${nipTendik}</span>
                             </div>
-                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">NIP / NIK</span>
-                                <span style="color: #92400e; font-weight: 900; font-family: monospace;">: ${nipTendik}</span>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                                <span style="color: #64748b; font-weight: 600;">Status:</span>
+                                <span style="color: #16a34a; font-weight: 800;">TENDIK AKTIF</span>
                             </div>
-                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">Jabatan</span>
-                                <span style="color: #0f172a; font-weight: 800;">: ${jabatanTendik}</span>
-                            </div>
-                            <div style="display: flex; gap: 4px; margin-bottom: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">Unit Kerja</span>
-                                <span style="color: #0f172a; font-weight: 700;">: SMAN 1 Lhoksukon</span>
-                            </div>
-                            <div style="display: flex; gap: 4px;">
-                                <span style="color: #64748b; font-weight: 600; width: 55px;">Status</span>
-                                <span style="color: #16a34a; font-weight: 800;">: TENDIK AKTIF</span>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #64748b; font-weight: 600;">Unit Kerja:</span>
+                                <span style="color: #0f172a; font-weight: 700;">SMAN 1 Lhoksukon</span>
                             </div>
                         </div>
 
                         <!-- QR Code Absensi -->
-                        <div style="flex-shrink: 0; text-align: center;">
-                            <div style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 6px; display: inline-block;">
-                                <div id="cardTendikQrcode" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"></div>
-                            </div>
-                            <div style="font-size: 7px; font-weight: 800; color: #b45309; margin-top: 3px; letter-spacing: 0.05em;">SCAN PRESENSI</div>
+                        <div style="background: #ffffff; border: 1.5px solid #fde68a; border-radius: 14px; padding: 8px; display: inline-block; margin-bottom: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                            <div id="cardTendikQrcode" style="width: 85px; height: 85px; display: flex; align-items: center; justify-content: center; margin: 0 auto;"></div>
+                            <div style="font-size: 7px; font-weight: 800; color: #b45309; margin-top: 4px; letter-spacing: 0.05em;">SCAN PRESENSI STAF</div>
                         </div>
                     </div>
 
                     <!-- Footer Bar -->
-                    <div style="background: #fffbeb; border-top: 1px solid #fef3c7; padding: 6px 16px; display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; color: #b45309;">
-                        <span style="font-weight: 700;"><i class="fas fa-shield-alt mr-1"></i> RESMI TENAGA KEPENDIDIKAN</span>
+                    <div style="background: #fffbeb; border-top: 1px solid #fef3c7; padding: 6px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 7.5px; color: #b45309;">
+                        <span style="font-weight: 700;"><i class="fas fa-shield-alt mr-1"></i> TENAGA KEPENDIDIKAN</span>
                         <span style="font-family: monospace; color: #d97706;">SMANSA-TENDIK-${nipTendik}</span>
                     </div>
                 </div>
 
-                <!-- 2. TAMPAK BELAKANG KARTU TENDIK -->
-                <div id="cardSideBack" class="hidden w-full max-w-[480px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans">
-                    <!-- Header Kartu Belakang -->
-                    <div style="background: linear-gradient(135deg, #0f172a 0%, #78350f 100%); padding: 12px 16px 8px; color: #ffffff; text-align: center; position: relative;">
+                <!-- 2. TAMPAK BELAKANG KARTU TENDIK (VERTIKAL) -->
+                <div id="cardSideBack" class="hidden w-full max-w-[330px] bg-white rounded-3xl overflow-hidden shadow-2xl border border-slate-200 text-slate-800 relative font-sans text-center">
+                    <!-- Header Kartu Belakang Vertikal -->
+                    <div style="background: linear-gradient(135deg, #0f172a 0%, #78350f 100%); padding: 14px 14px 10px; color: #ffffff; text-align: center; position: relative;">
                         <div style="height: 3px; background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24); position: absolute; bottom: 0; left: 0; right: 0;"></div>
-                        <div style="font-size: 10px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;">KETENTUAN KARTU TENAGA KEPENDIDIKAN</div>
+                        <div style="font-size: 9.5px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;">KETENTUAN KARTU TENDIK</div>
                         <div style="font-size: 8px; color: #fde68a; font-weight: 700;">SMA NEGERI 1 LHOKSUKON</div>
                     </div>
 
-                    <!-- Body Kartu Belakang -->
-                    <div style="padding: 12px 16px 10px; display: flex; gap: 14px; background: #ffffff;">
-                        <!-- Aturan -->
-                        <div style="flex: 1; font-size: 8px; color: #334155; line-height: 1.45; text-align: justify;">
+                    <!-- Body Kartu Belakang Vertikal -->
+                    <div style="padding: 14px 16px 12px; background: #ffffff;">
+                        <!-- Poin Aturan -->
+                        <div style="font-size: 8px; color: #334155; line-height: 1.45; text-align: justify; margin-bottom: 12px; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 8px 10px;">
                             <ol style="margin: 0; padding-left: 12px;">
-                                <li>Kartu ini adalah identitas resmi Tenaga Kependidikan SMAN 1 Lhoksukon.</li>
-                                <li>Wajib digunakan untuk pencatatan presensi digital harian.</li>
-                                <li>Dilarang meminjamkan atau memindahtangankan kartu kepada siapapun.</li>
-                                <li>Bila kartu hilang/rusak segera melapor ke Bagian Tata Usaha.</li>
-                                <li>Penemu kartu ini dimohon menyerahkan ke SMA Negeri 1 Lhoksukon.</li>
+                                <li style="margin-bottom: 3px;">Kartu ini adalah identitas resmi Tenaga Kependidikan SMAN 1 Lhoksukon.</li>
+                                <li style="margin-bottom: 3px;">Wajib digunakan untuk pencatatan presensi digital harian.</li>
+                                <li style="margin-bottom: 3px;">Dilarang meminjamkan atau memindahtangankan kartu kepada siapapun.</li>
+                                <li style="margin-bottom: 3px;">Bila kartu hilang/rusak segera melapor ke Bagian Tata Usaha.</li>
+                                <li>Penemu kartu ini dimohon mengembalikan ke SMA Negeri 1 Lhoksukon.</li>
                             </ol>
                         </div>
 
-                        <!-- Tanda Tangan & Stempel -->
-                        <div style="width: 145px; text-align: center; font-size: 7.5px; color: #1e293b; flex-shrink: 0; border-left: 1px dashed #cbd5e1; padding-left: 10px;">
-                            <div>Lhoksukon, Juli 2025</div>
-                            <div style="font-weight: 800; margin-top: 1px;">Kepala Sekolah,</div>
+                        <!-- Pengesahan Kepala Sekolah Vertikal -->
+                        <div style="text-align: center; font-size: 8px; color: #1e293b; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 8px 10px; background: #fdfdfd;">
+                            <div>Lhoksukon, 15 Juli 2025</div>
+                            <div style="font-weight: 800; margin-top: 1px;">Kepala SMA Negeri 1 Lhoksukon,</div>
                             
                             <!-- Stempel & TTD Digital -->
-                            <div style="height: 48px; display: flex; align-items: center; justify-content: center; position: relative; margin: 2px 0;">
-                                <div style="position: absolute; width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #ef4444; color: #ef4444; font-size: 5.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-transform: uppercase; transform: rotate(-15deg); opacity: 0.85;">
+                            <div style="height: 52px; display: flex; align-items: center; justify-content: center; position: relative; margin: 2px 0;">
+                                <div style="position: absolute; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #ef4444; color: #ef4444; font-size: 5.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; text-transform: uppercase; transform: rotate(-15deg); opacity: 0.85;">
                                     STEMPEL<br>SMANSA
                                 </div>
-                                <span style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 20px; color: #78350f; font-weight: bold; transform: rotate(-5deg); z-index: 10;">Husen</span>
+                                <span style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 22px; color: #78350f; font-weight: bold; transform: rotate(-5deg); z-index: 10;">Husen</span>
                             </div>
 
-                            <div style="font-weight: 900; text-decoration: underline; color: #0f172a;">Drs. H. M. Husen, M.Pd</div>
-                            <div style="font-size: 6.5px; color: #64748b; font-family: monospace;">NIP. 19681231 199403 1 021</div>
+                            <div style="font-weight: 900; text-decoration: underline; color: #0f172a; font-size: 9px;">Drs. H. M. Husen, M.Pd</div>
+                            <div style="font-size: 7px; color: #64748b; font-family: monospace;">NIP. 19681231 199403 1 021</div>
                         </div>
                     </div>
 
                     <!-- Footer Kartu Belakang -->
-                    <div style="background: #fffbeb; border-top: 1px solid #fef3c7; padding: 5px 16px; text-align: center; font-size: 7.5px; color: #d97706;">
-                        Telp: (0645) 800123 • Website: https://absensi.smansalhoksukon.sch.id
+                    <div style="background: #fffbeb; border-top: 1px solid #fef3c7; padding: 6px 14px; text-align: center; font-size: 7px; color: #d97706;">
+                        Jl. Medan - Banda Aceh, Lhoksukon • https://absensi.smansalhoksukon.sch.id
                     </div>
                 </div>
 
                 <!-- Tombol Aksi -->
-                <div class="w-full max-w-[480px] mt-4 flex flex-wrap gap-2">
-                    <button onclick="downloadCardAsJPEG('cardSideFront', 'Kartu_Tendik_Depan_${nipTendik}')" class="flex-1 min-w-[130px] bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-download"></i> Unduh Depan (JPEG)
+                <div class="w-full max-w-[330px] mt-4 flex flex-wrap gap-2">
+                    <button onclick="downloadCardAsJPEG('cardSideFront', 'Kartu_Tendik_Depan_${nipTendik}')" class="flex-1 min-w-[140px] bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Depan
                     </button>
-                    <button onclick="downloadCardAsJPEG('cardSideBack', 'Kartu_Tendik_Belakang_${nipTendik}')" class="flex-1 min-w-[130px] bg-teal-600 hover:bg-teal-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-download"></i> Unduh Belakang (JPEG)
+                    <button onclick="downloadCardAsJPEG('cardSideBack', 'Kartu_Tendik_Belakang_${nipTendik}')" class="flex-1 min-w-[140px] bg-teal-600 hover:bg-teal-700 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-download"></i> Unduh Belakang
                     </button>
-                    <button onclick="downloadBothCardSides('cardSideFront', 'cardSideBack', 'Kartu_Tendik_${nipTendik}')" class="flex-1 min-w-[130px] bg-amber-700 hover:bg-amber-800 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-file-archive"></i> Unduh 2 Sisi
+                    <button onclick="downloadBothCardSides('cardSideFront', 'cardSideBack', 'Kartu_Tendik_${nipTendik}')" class="w-full bg-amber-700 hover:bg-amber-800 text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                        <i class="fas fa-file-archive"></i> Unduh Kedua Sisi (Depan & Belakang)
                     </button>
-                    <button onclick="window.print()" class="px-3 bg-slate-900 hover:bg-black text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
-                        <i class="fas fa-print"></i> Cetak
-                    </button>
-                    <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
-                        Tutup
-                    </button>
+                    <div class="w-full flex gap-2">
+                        <button onclick="window.print()" class="flex-1 bg-slate-900 hover:bg-black text-white py-2.5 rounded-xl font-bold text-xs shadow flex items-center justify-center gap-1.5 transition">
+                            <i class="fas fa-print"></i> Cetak
+                        </button>
+                        <button onclick="${backFunction}" class="px-4 border border-gray-300 text-gray-700 py-2.5 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
+                            Tutup
+                        </button>
+                    </div>
                 </div>
             </div>`;
 
@@ -4230,8 +4223,8 @@
                     qrBox.innerHTML = "";
                     new QRCode(qrBox, {
                         text: String(qrContent),
-                        width: 80,
-                        height: 80,
+                        width: 85,
+                        height: 85,
                         colorDark: "#78350F",
                         colorLight: "#ffffff",
                         correctLevel : QRCode.CorrectLevel.H
