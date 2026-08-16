@@ -40,6 +40,9 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <script>
@@ -1281,11 +1284,30 @@
   <!-- ========================================== -->
   <script>
     /**
-     * STANDALONE LOCAL DATABASE ADAPTER (GitHub Pages Ready)
+     * FIREBASE REALTIME DATABASE ADAPTER (cPanel & GitHub Pages Ready)
      */
-    // ⚠️ ISI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA (OPSIONAL)
-    // Format: 'https://script.google.com/macros/s/AKfycb.../exec'
-    // Jika diisi, seluruh pengguna otomatis terhubung ke Google Sheet Live
+    const firebaseConfig = {
+      apiKey: "AIzaSyDbJlN5zeMt0QEoVdecaoddVEbwdYDSMS4",
+      authDomain: "absensi-digital-pusat.firebaseapp.com",
+      databaseURL: "https://absensi-digital-pusat-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "absensi-digital-pusat",
+      storageBucket: "absensi-digital-pusat.firebasestorage.app",
+      messagingSenderId: "521775834196",
+      appId: "1:521775834196:web:c01b8089244f859a61b9c1",
+      measurementId: "G-XYDHLRM620"
+    };
+
+    let fbApp = null;
+    let fbDb = null;
+    try {
+      if (typeof firebase !== 'undefined') {
+        fbApp = firebase.initializeApp(firebaseConfig);
+        fbDb = firebase.database();
+      }
+    } catch (e) {
+      console.warn("Firebase Init Error:", e);
+    }
+
     const DEFAULT_GAS_API_URL = '';
 
     const DB_KEYS = {
@@ -1341,6 +1363,66 @@
     }
     initLocalStorage();
 
+    async function getDB(key) {
+      if (fbDb) {
+        try {
+          const snap = await fbDb.ref(key).once('value');
+          if (snap.exists()) {
+            let val = snap.val();
+            let arr = val;
+            if (key !== 'config') {
+              if (Array.isArray(val)) {
+                arr = val.filter(x => x !== null && x !== undefined);
+              } else if (typeof val === 'object' && val !== null) {
+                arr = Object.values(val);
+              } else {
+                arr = [];
+              }
+            }
+            const localKey = DB_KEYS[key.toUpperCase()] || ('absensi_db_' + key);
+            localStorage.setItem(localKey, JSON.stringify(arr));
+            return arr;
+          }
+        } catch (err) {
+          console.error('Firebase read error [' + key + ']:', err);
+        }
+      }
+      const localKey = DB_KEYS[key.toUpperCase()] || ('absensi_db_' + key);
+      return JSON.parse(localStorage.getItem(localKey) || (key === 'config' ? '{}' : '[]'));
+    }
+
+    async function setDB(key, data) {
+      const localKey = DB_KEYS[key.toUpperCase()] || ('absensi_db_' + key);
+      localStorage.setItem(localKey, JSON.stringify(data));
+      if (fbDb) {
+        try {
+          await fbDb.ref(key).set(data);
+        } catch (err) {
+          console.error('Firebase write error [' + key + ']:', err);
+        }
+      }
+    }
+
+    async function initDatabase() {
+      if (fbDb) {
+        try {
+          const configSnap = await fbDb.ref('config').once('value');
+          if (!configSnap.exists()) {
+            await fbDb.ref('siswa').set(SEED_DATA.siswa);
+            await fbDb.ref('guru').set(SEED_DATA.guru);
+            await fbDb.ref('tendik').set(SEED_DATA.tendik);
+            await fbDb.ref('config').set(SEED_DATA.config);
+            await fbDb.ref('libur').set(SEED_DATA.libur);
+            await fbDb.ref('absensi').set(SEED_DATA.absensi);
+            console.log('Data awal berhasil diinisialisasi ke Firebase Realtime Database!');
+          }
+        } catch (err) {
+          console.warn('Firebase seeding notice:', err);
+        }
+      }
+    }
+    initDatabase();
+
     function getTodayString() {
       const d = new Date();
       const year = d.getFullYear();
@@ -1364,7 +1446,7 @@
         }
 
         // 1. Cek Apakah Siswa (berdasarkan NISN)
-        const siswaList = JSON.parse(localStorage.getItem(DB_KEYS.SISWA) || '[]');
+        const siswaList = await getDB('siswa');
         const siswa = siswaList.find(x => String(x.nisn).trim() === inputUser);
         if (siswa) {
           return {
@@ -1378,7 +1460,7 @@
         }
 
         // 2. Cek Apakah Guru / Admin (berdasarkan Username atau NIP)
-        const guruList = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
+        const guruList = await getDB('guru');
         const guru = guruList.find(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
         if (guru) {
           if (guru.password === inputPass || inputPass === '12345' || inputPass === 'admin123' || inputPass === 'guru123') {
@@ -1399,7 +1481,7 @@
         }
 
         // 3. Cek Apakah Tendik (berdasarkan Username atau NIP)
-        const tendikList = JSON.parse(localStorage.getItem(DB_KEYS.TENDIK) || '[]');
+        const tendikList = await getDB('tendik');
         const tendik = tendikList.find(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
         if (tendik) {
           if (tendik.password === inputPass || inputPass === '12345' || inputPass === 'tendik123') {
@@ -1423,18 +1505,18 @@
       },
 
       getKelasList: async () => {
-        const list = JSON.parse(localStorage.getItem(DB_KEYS.SISWA) || '[]');
+        const list = await getDB('siswa');
         const set = new Set(list.map(x => x.kelas).filter(Boolean));
         return { success: true, data: Array.from(set).sort() };
       },
 
       getSiswaList: async () => {
-        const list = JSON.parse(localStorage.getItem(DB_KEYS.SISWA) || '[]');
+        const list = await getDB('siswa');
         return { success: true, data: list };
       },
 
       addSiswa: async (token, siswaData) => {
-        const list = JSON.parse(localStorage.getItem(DB_KEYS.SISWA) || '[]');
+        const list = await getDB('siswa');
         const cleanNisn = String(siswaData.nisn).replace(/^'/, '');
         if (list.some(x => String(x.nisn) === cleanNisn)) {
           return { success: false, message: 'NISN sudah terdaftar!' };
@@ -1442,39 +1524,39 @@
         siswaData.nisn = cleanNisn;
         siswaData.noHp = String(siswaData.noHp).replace(/^'/, '');
         list.push(siswaData);
-        localStorage.setItem(DB_KEYS.SISWA, JSON.stringify(list));
+        await setDB('siswa', list);
         return { success: true, message: 'Siswa berhasil ditambahkan' };
       },
 
       updateSiswa: async (token, oldNisn, siswaData) => {
-        let list = JSON.parse(localStorage.getItem(DB_KEYS.SISWA) || '[]');
+        let list = await getDB('siswa');
         const cleanOld = String(oldNisn).replace(/^'/, '');
         const idx = list.findIndex(x => String(x.nisn) === cleanOld);
         if (idx !== -1) {
           siswaData.nisn = String(siswaData.nisn).replace(/^'/, '');
           siswaData.noHp = String(siswaData.noHp).replace(/^'/, '');
           list[idx] = siswaData;
-          localStorage.setItem(DB_KEYS.SISWA, JSON.stringify(list));
+          await setDB('siswa', list);
           return { success: true, message: 'Data siswa berhasil diperbarui' };
         }
         return { success: false, message: 'Siswa tidak ditemukan' };
       },
 
       deleteSiswa: async (token, nisn) => {
-        let list = JSON.parse(localStorage.getItem(DB_KEYS.SISWA) || '[]');
+        let list = await getDB('siswa');
         const clean = String(nisn).replace(/^'/, '');
         list = list.filter(x => String(x.nisn) !== clean);
-        localStorage.setItem(DB_KEYS.SISWA, JSON.stringify(list));
+        await setDB('siswa', list);
         return { success: true, message: 'Siswa berhasil dihapus' };
       },
 
       getGuruList: async (token) => {
-        const list = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
+        const list = await getDB('guru');
         return { success: true, data: list };
       },
 
       addGuru: async (token, guruData) => {
-        const list = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
+        const list = await getDB('guru');
         const cleanU = String(guruData.username).replace(/^'/, '');
         if (list.some(x => x.username.toLowerCase() === cleanU.toLowerCase())) {
           return { success: false, message: 'Username sudah digunakan!' };
@@ -1489,12 +1571,12 @@
           kelas: guruData.kelas || '',
           noHp: String(guruData.noHp || '-').replace(/^'/, '')
         });
-        localStorage.setItem(DB_KEYS.GURU, JSON.stringify(list));
+        await setDB('guru', list);
         return { success: true, message: 'Guru berhasil ditambahkan' };
       },
 
       updateGuru: async (token, oldUsername, guruData) => {
-        let list = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
+        let list = await getDB('guru');
         const cleanOld = String(oldUsername).replace(/^'/, '');
         const idx = list.findIndex(x => x.username.toLowerCase() === cleanOld.toLowerCase());
         if (idx !== -1) {
@@ -1508,27 +1590,27 @@
             kelas: guruData.kelas || '',
             noHp: String(guruData.noHp || '-').replace(/^'/, '')
           };
-          localStorage.setItem(DB_KEYS.GURU, JSON.stringify(list));
+          await setDB('guru', list);
           return { success: true, message: 'Data guru berhasil diperbarui' };
         }
         return { success: false, message: 'Guru tidak ditemukan' };
       },
 
       deleteGuru: async (token, username) => {
-        let list = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
+        let list = await getDB('guru');
         const clean = String(username).replace(/^'/, '');
         list = list.filter(x => x.username.toLowerCase() !== clean.toLowerCase());
-        localStorage.setItem(DB_KEYS.GURU, JSON.stringify(list));
+        await setDB('guru', list);
         return { success: true, message: 'Guru berhasil dihapus' };
       },
 
       getTendikList: async (token) => {
-        const list = JSON.parse(localStorage.getItem(DB_KEYS.TENDIK) || '[]');
+        const list = await getDB('tendik');
         return { success: true, data: list };
       },
 
       addTendik: async (token, username, password, nip, nama, jabatan, noHp) => {
-        const list = JSON.parse(localStorage.getItem(DB_KEYS.TENDIK) || '[]');
+        const list = await getDB('tendik');
         const cleanU = String(username).replace(/^'/, '');
         if (list.some(x => x.username.toLowerCase() === cleanU.toLowerCase())) {
           return { success: false, message: 'Username sudah terdaftar!' };
@@ -1542,12 +1624,12 @@
           jabatan: jabatan || 'Staf Kependidikan',
           noHp: String(noHp || '-').replace(/^'/, '')
         });
-        localStorage.setItem(DB_KEYS.TENDIK, JSON.stringify(list));
+        await setDB('tendik', list);
         return { success: true, message: 'Data Tendik berhasil ditambahkan' };
       },
 
       updateTendik: async (token, oldUsername, username, password, nip, nama, jabatan, noHp) => {
-        let list = JSON.parse(localStorage.getItem(DB_KEYS.TENDIK) || '[]');
+        let list = await getDB('tendik');
         const cleanOld = String(oldUsername).replace(/^'/, '');
         const idx = list.findIndex(x => x.username.toLowerCase() === cleanOld.toLowerCase());
         if (idx !== -1) {
@@ -1560,99 +1642,91 @@
             jabatan: jabatan || 'Staf Kependidikan',
             noHp: String(noHp || '-').replace(/^'/, '')
           };
-          localStorage.setItem(DB_KEYS.TENDIK, JSON.stringify(list));
+          await setDB('tendik', list);
           return { success: true, message: 'Data Tendik berhasil diperbarui' };
         }
         return { success: false, message: 'Data Tendik tidak ditemukan' };
       },
 
       deleteTendik: async (token, username) => {
-        let list = JSON.parse(localStorage.getItem(DB_KEYS.TENDIK) || '[]');
+        let list = await getDB('tendik');
         const clean = String(username).replace(/^'/, '');
         list = list.filter(x => x.username.toLowerCase() !== clean.toLowerCase());
-        localStorage.setItem(DB_KEYS.TENDIK, JSON.stringify(list));
+        await setDB('tendik', list);
         return { success: true, message: 'Data Tendik berhasil dihapus' };
       },
 
       getAppConfig: async () => {
-        const conf = JSON.parse(localStorage.getItem(DB_KEYS.CONFIG) || '{}');
+        const conf = await getDB('config');
         return { success: true, data: conf };
       },
 
       saveAppConfig: async (newConfig) => {
-        localStorage.setItem(DB_KEYS.CONFIG, JSON.stringify(newConfig));
+        await setDB('config', newConfig);
         return { success: true, message: 'Pengaturan waktu berhasil disimpan' };
       },
 
       changePassword: async (token, username, oldPassword, newPassword) => {
-        return this.changeCredentials(token, username, username, oldPassword, newPassword);
+        return BackendAPI.changeCredentials(token, username, username, oldPassword, newPassword);
       },
 
       changeCredentials: async (token, oldUsername, newUsername, oldPassword, newPassword) => {
         const oldU = String(oldUsername || '').trim().toLowerCase();
         const newU = String(newUsername || '').trim();
 
-        const userList = JSON.parse(localStorage.getItem(DB_KEYS.USERS) || '[]');
-        const user = userList.find(u => u.username.toLowerCase() === oldU || (u.nip && String(u.nip) === oldU));
-        if (user) {
-          user.username = newU;
-          if (newPassword) user.password = newPassword;
-          localStorage.setItem(DB_KEYS.USERS, JSON.stringify(userList));
-        }
-
-        const guruList = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
+        const guruList = await getDB('guru');
         const guru = guruList.find(g => (g.username && g.username.toLowerCase() === oldU) || (g.nip && String(g.nip) === oldU));
         if (guru) {
           guru.username = newU;
           if (newPassword) guru.password = newPassword;
-          localStorage.setItem(DB_KEYS.GURU, JSON.stringify(guruList));
+          await setDB('guru', guruList);
         }
 
-        const tendikList = JSON.parse(localStorage.getItem(DB_KEYS.TENDIK) || '[]');
+        const tendikList = await getDB('tendik');
         const tendik = tendikList.find(t => (t.username && t.username.toLowerCase() === oldU) || (t.nip && String(t.nip) === oldU));
         if (tendik) {
           tendik.username = newU;
           if (newPassword) tendik.password = newPassword;
-          localStorage.setItem(DB_KEYS.TENDIK, JSON.stringify(tendikList));
+          await setDB('tendik', tendikList);
         }
 
         return { success: true, message: 'Username & Password berhasil diubah!' };
       },
 
       getHariLibur: async () => {
-        const list = JSON.parse(localStorage.getItem(DB_KEYS.LIBUR) || '[]');
+        const list = await getDB('libur');
         return { success: true, data: list };
       },
 
       addHariLibur: async (tanggal, keterangan) => {
-        const list = JSON.parse(localStorage.getItem(DB_KEYS.LIBUR) || '[]');
+        const list = await getDB('libur');
         list.push({ tanggal, keterangan });
-        localStorage.setItem(DB_KEYS.LIBUR, JSON.stringify(list));
+        await setDB('libur', list);
         return { success: true, message: 'Hari libur berhasil ditambahkan' };
       },
 
       updateHariLibur: async (oldDate, newDate, newKeterangan) => {
-        let list = JSON.parse(localStorage.getItem(DB_KEYS.LIBUR) || '[]');
+        let list = await getDB('libur');
         const idx = list.findIndex(x => x.tanggal === oldDate);
         if (idx !== -1) {
           list[idx] = { tanggal: newDate, keterangan: newKeterangan };
-          localStorage.setItem(DB_KEYS.LIBUR, JSON.stringify(list));
+          await setDB('libur', list);
           return { success: true, message: 'Hari libur diperbarui' };
         }
         return { success: false, message: 'Data tidak ditemukan' };
       },
 
       deleteHariLibur: async (tanggal) => {
-        let list = JSON.parse(localStorage.getItem(DB_KEYS.LIBUR) || '[]');
+        let list = await getDB('libur');
         list = list.filter(x => x.tanggal !== tanggal);
-        localStorage.setItem(DB_KEYS.LIBUR, JSON.stringify(list));
+        await setDB('libur', list);
         return { success: true, message: 'Hari libur dihapus' };
       },
 
       getMonitoringRealtime: async (filterKelas) => {
         const today = getTodayString();
-        const siswaList = JSON.parse(localStorage.getItem(DB_KEYS.SISWA) || '[]');
-        const absensiList = JSON.parse(localStorage.getItem(DB_KEYS.ABSENSI) || '[]');
+        const siswaList = await getDB('siswa');
+        const absensiList = await getDB('absensi');
 
         const mapAbsen = {};
         absensiList.forEach(a => {
@@ -1686,13 +1760,13 @@
 
       getAbsensiToday: async (nisn) => {
         const today = getTodayString();
-        const liburList = JSON.parse(localStorage.getItem(DB_KEYS.LIBUR) || '[]');
+        const liburList = await getDB('libur');
         const isLibur = liburList.find(x => x.tanggal === today);
         if (isLibur) {
           return { success: true, isLibur: true, keteranganLibur: isLibur.keterangan };
         }
 
-        const absensiList = JSON.parse(localStorage.getItem(DB_KEYS.ABSENSI) || '[]');
+        const absensiList = await getDB('absensi');
         const rec = absensiList.find(a => a.tanggal === today && String(a.nisn) === String(nisn));
         return { success: true, isLibur: false, data: rec || null };
       },
@@ -1701,11 +1775,11 @@
         const nisn = String(rawNisn).trim();
         const today = getTodayString();
         const nowTime = getNowTimeString();
-        const config = JSON.parse(localStorage.getItem(DB_KEYS.CONFIG) || '{}');
-        let absensiList = JSON.parse(localStorage.getItem(DB_KEYS.ABSENSI) || '[]');
+        const config = await getDB('config');
+        let absensiList = await getDB('absensi');
 
         // 1. CEK ABSENSI GURU (jika QR / ID cocok dengan NIP / Username Guru)
-        const guruList = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
+        const guruList = await getDB('guru');
         const guru = guruList.find(g => String(g.nip || '').trim() === nisn || g.username.toLowerCase() === nisn.toLowerCase());
         if (guru) {
           const targetId = guru.nip || guru.username;
@@ -1721,7 +1795,7 @@
             }
             rec.jamPulang = nowTime;
             rec.keterangan = ket || 'Tepat Waktu';
-            localStorage.setItem(DB_KEYS.ABSENSI, JSON.stringify(absensiList));
+            await setDB('absensi', absensiList);
 
             return {
               success: true,
@@ -1746,7 +1820,7 @@
             status: 'Hadir',
             tipeUser: 'Guru'
           });
-          localStorage.setItem(DB_KEYS.ABSENSI, JSON.stringify(absensiList));
+          await setDB('absensi', absensiList);
 
           return {
             success: true,
@@ -1759,7 +1833,7 @@
         }
 
         // 2. CEK ABSENSI TENDIK (jika QR / ID cocok dengan NIP / Username Tendik)
-        const tendikList = JSON.parse(localStorage.getItem(DB_KEYS.TENDIK) || '[]');
+        const tendikList = await getDB('tendik');
         const tendik = tendikList.find(t => String(t.nip || '').trim() === nisn || t.username.toLowerCase() === nisn.toLowerCase());
         if (tendik) {
           const targetId = tendik.nip || tendik.username;
@@ -1775,7 +1849,7 @@
             }
             rec.jamPulang = nowTime;
             rec.keterangan = ket || 'Tepat Waktu';
-            localStorage.setItem(DB_KEYS.ABSENSI, JSON.stringify(absensiList));
+            await setDB('absensi', absensiList);
 
             return {
               success: true,
@@ -1800,7 +1874,7 @@
             status: 'Hadir',
             tipeUser: 'Tendik'
           });
-          localStorage.setItem(DB_KEYS.ABSENSI, JSON.stringify(absensiList));
+          await setDB('absensi', absensiList);
 
           return {
             success: true,
@@ -1813,7 +1887,7 @@
         }
 
         // 3. CEK ABSENSI SISWA
-        const siswaList = JSON.parse(localStorage.getItem(DB_KEYS.SISWA) || '[]');
+        const siswaList = await getDB('siswa');
         const siswa = siswaList.find(s => String(s.nisn) === nisn);
         if (!siswa) {
           return { success: false, message: 'QR Code / ID "' + nisn + '" tidak terdaftar di database Siswa, Guru, atau Tendik!' };
@@ -1836,7 +1910,7 @@
           }
           rec.jamPulang = nowTime;
           rec.keterangan = ket || 'Tepat Waktu';
-          localStorage.setItem(DB_KEYS.ABSENSI, JSON.stringify(absensiList));
+          await setDB('absensi', absensiList);
 
           return {
             success: true,
@@ -1864,7 +1938,7 @@
           status: 'Hadir',
           tipeUser: 'Siswa'
         });
-        localStorage.setItem(DB_KEYS.ABSENSI, JSON.stringify(absensiList));
+        await setDB('absensi', absensiList);
 
         return {
           success: true,
@@ -1878,7 +1952,7 @@
 
       updateAbsensiStatus: async (token, nisn, nama, kelas, status) => {
         const today = getTodayString();
-        let absensiList = JSON.parse(localStorage.getItem(DB_KEYS.ABSENSI) || '[]');
+        let absensiList = await getDB('absensi');
         const idx = absensiList.findIndex(a => a.tanggal === today && String(a.nisn) === String(nisn));
 
         if (idx !== -1) {
@@ -1895,12 +1969,12 @@
             status: status
           });
         }
-        localStorage.setItem(DB_KEYS.ABSENSI, JSON.stringify(absensiList));
+        await setDB('absensi', absensiList);
         return { success: true, message: 'Status absensi berhasil diperbarui' };
       },
 
       getAbsensiList: async (filters) => {
-        const absensiList = JSON.parse(localStorage.getItem(DB_KEYS.ABSENSI) || '[]');
+        const absensiList = await getDB('absensi');
         let filtered = [...absensiList];
 
         if (filters.tanggalMulai) {
@@ -4122,10 +4196,24 @@
         setTimeout(() => location.reload(), 500);
     }
 
-    function resetDemoData() {
-        if (confirm('Reset seluruh data siswa, guru, dan absensi ke data awal demo?')) {
+    async function resetDemoData() {
+        if (confirm('Reset seluruh data siswa, guru, dan absensi ke data awal?')) {
+            showLoading();
             localStorage.clear();
             initLocalStorage();
+            if (fbDb) {
+                try {
+                    await fbDb.ref('siswa').set(SEED_DATA.siswa);
+                    await fbDb.ref('guru').set(SEED_DATA.guru);
+                    await fbDb.ref('tendik').set(SEED_DATA.tendik);
+                    await fbDb.ref('config').set(SEED_DATA.config);
+                    await fbDb.ref('libur').set(SEED_DATA.libur);
+                    await fbDb.ref('absensi').set(SEED_DATA.absensi);
+                } catch(e) {
+                    console.error("Firebase reset error:", e);
+                }
+            }
+            hideLoading();
             showAlert('success', 'Database berhasil di-reset!');
             closeModal();
             setTimeout(() => location.reload(), 800);
@@ -4601,7 +4689,7 @@
         inputEl.value = '';
 
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, { type: 'array' });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -4615,7 +4703,7 @@
             let added = 0, skipped = 0;
 
             if (type === 'siswa') {
-                const list = JSON.parse(localStorage.getItem(DB_KEYS.SISWA) || '[]');
+                const list = await getDB('siswa');
                 for (let i = 1; i < rows.length; i++) {
                     const r = rows[i];
                     if (!r || r.length < 2) continue;
@@ -4635,13 +4723,13 @@
                     });
                     added++;
                 }
-                localStorage.setItem(DB_KEYS.SISWA, JSON.stringify(list));
+                await setDB('siswa', list);
                 tableState.siswa.fullData = [];
                 loadDataSiswa();
                 loadKelasSuggestions();
 
             } else if (type === 'guru') {
-                const list = JSON.parse(localStorage.getItem(DB_KEYS.GURU) || '[]');
+                const list = await getDB('guru');
                 for (let i = 1; i < rows.length; i++) {
                     const r = rows[i];
                     if (!r || r.length < 2) continue;
@@ -4659,12 +4747,12 @@
                     });
                     added++;
                 }
-                localStorage.setItem(DB_KEYS.GURU, JSON.stringify(list));
+                await setDB('guru', list);
                 tableState.guru.fullData = [];
                 loadDataGuru();
 
             } else if (type === 'tendik') {
-                const list = JSON.parse(localStorage.getItem(DB_KEYS.TENDIK) || '[]');
+                const list = await getDB('tendik');
                 for (let i = 1; i < rows.length; i++) {
                     const r = rows[i];
                     if (!r || r.length < 2) continue;
@@ -4681,7 +4769,7 @@
                     });
                     added++;
                 }
-                localStorage.setItem(DB_KEYS.TENDIK, JSON.stringify(list));
+                await setDB('tendik', list);
                 allTendikData = [];
                 fetchTendikData();
             }
