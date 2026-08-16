@@ -4682,8 +4682,8 @@
                     added++;
                 }
                 localStorage.setItem(DB_KEYS.TENDIK, JSON.stringify(list));
-                tableState.tendik.fullData = [];
-                loadDataTendik();
+                allTendikData = [];
+                fetchTendikData();
             }
 
             let msg = `Import selesai: ${added} data berhasil ditambahkan.`;
