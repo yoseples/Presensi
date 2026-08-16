@@ -282,53 +282,104 @@
                       </div>
                   </div>
 
-                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-                      
-                      <div class="bg-white p-5 rounded-2xl shadow-sm border border-indigo-100 flex flex-col justify-between relative overflow-hidden group">
-                          <div class="absolute right-0 top-0 w-16 h-16 bg-indigo-50 rounded-bl-full -mr-2 -mt-2 transition-transform group-hover:scale-110"></div>
-                          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest relative z-10">Total Siswa</p>
-                          <div class="flex items-center justify-between mt-2 relative z-10">
-                              <h3 id="admStatTotal" class="text-2xl font-bold text-gray-800">0</h3>
-                              <div class="text-indigo-500 bg-indigo-50 p-2.5 rounded-xl"><i class="fas fa-users"></i></div>
-                          </div>
-                      </div>
+                   <!-- Ringkasan Total Siswa & Filter Cepat -->
+                   <div class="flex items-center justify-between bg-white p-4 md:p-5 rounded-2xl border border-indigo-100 shadow-sm mb-4">
+                       <div class="flex items-center gap-3.5">
+                           <div class="w-11 h-11 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-xs">
+                               <i class="fas fa-users"></i>
+                           </div>
+                           <div>
+                               <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Siswa Terdaftar</p>
+                               <h3 id="admStatTotal" class="text-2xl font-extrabold text-gray-800 leading-tight">0</h3>
+                           </div>
+                       </div>
+                       <button onclick="showAttendanceDetailModal('Semua')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-xl transition flex items-center gap-2 border border-indigo-100">
+                           <i class="fas fa-list-ul"></i> <span>Lihat Semua Siswa</span>
+                       </button>
+                   </div>
 
-                      <div class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-100 flex flex-col justify-between relative overflow-hidden group">
-                          <div class="absolute right-0 top-0 w-16 h-16 bg-emerald-50 rounded-bl-full -mr-2 -mt-2 transition-transform group-hover:scale-110"></div>
-                          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest relative z-10">Hadir</p>
-                          <div class="flex items-center justify-between mt-2 relative z-10">
-                              <h3 id="admStatHadir" class="text-2xl font-bold text-gray-800">0</h3>
-                              <div class="text-emerald-500 bg-emerald-50 p-2.5 rounded-xl"><i class="fas fa-check"></i></div>
-                          </div>
-                      </div>
+                   <!-- Informasi Presensi: 2 Baris dan 2 Kotak (Hadir, Sakit, Izin, Alpa) Interaktif & Dapat Diklik -->
+                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                       <!-- Baris 1 - Kotak 1: Hadir -->
+                       <div onclick="showAttendanceDetailModal('Hadir')" class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-emerald-300 active:scale-[0.98] transition-all">
+                           <div class="absolute right-0 top-0 w-20 h-20 bg-emerald-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110"></div>
+                           <div class="flex items-center justify-between relative z-10">
+                               <p class="text-xs font-extrabold text-emerald-700 uppercase tracking-wider flex items-center gap-2">
+                                   <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Siswa Hadir
+                               </p>
+                               <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                   <i class="fas fa-search-plus mr-1"></i> Klik untuk lihat
+                               </span>
+                           </div>
+                           <div class="flex items-center justify-between mt-4 relative z-10">
+                               <div>
+                                   <h3 id="admStatHadir" class="text-3xl font-extrabold text-gray-800">0</h3>
+                                   <p class="text-[10px] text-gray-400 font-medium mt-0.5">Hadir di sekolah hari ini</p>
+                               </div>
+                               <div class="text-emerald-500 bg-emerald-50 group-hover:bg-emerald-100 p-3 rounded-2xl text-xl shadow-xs transition"><i class="fas fa-check-circle"></i></div>
+                           </div>
+                       </div>
 
-                      <div class="bg-white p-5 rounded-2xl shadow-sm border border-yellow-100 flex flex-col justify-between relative overflow-hidden group">
-                          <div class="absolute right-0 top-0 w-16 h-16 bg-yellow-50 rounded-bl-full -mr-2 -mt-2 transition-transform group-hover:scale-110"></div>
-                          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest relative z-10">Sakit</p>
-                          <div class="flex items-center justify-between mt-2 relative z-10">
-                              <h3 id="admStatSakit" class="text-2xl font-bold text-gray-800">0</h3>
-                              <div class="text-yellow-500 bg-yellow-50 p-2.5 rounded-xl"><i class="fas fa-procedures"></i></div>
-                          </div>
-                      </div>
+                       <!-- Baris 1 - Kotak 2: Sakit -->
+                       <div onclick="showAttendanceDetailModal('Sakit')" class="bg-white p-5 rounded-2xl shadow-sm border border-yellow-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-yellow-300 active:scale-[0.98] transition-all">
+                           <div class="absolute right-0 top-0 w-20 h-20 bg-yellow-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110"></div>
+                           <div class="flex items-center justify-between relative z-10">
+                               <p class="text-xs font-extrabold text-yellow-700 uppercase tracking-wider flex items-center gap-2">
+                                   <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span> Siswa Sakit
+                               </p>
+                               <span class="text-[10px] font-bold text-yellow-600 bg-yellow-50 px-2.5 py-1 rounded-full border border-yellow-200 group-hover:bg-yellow-500 group-hover:text-white transition-colors">
+                                   <i class="fas fa-search-plus mr-1"></i> Klik untuk lihat
+                               </span>
+                           </div>
+                           <div class="flex items-center justify-between mt-4 relative z-10">
+                               <div>
+                                   <h3 id="admStatSakit" class="text-3xl font-extrabold text-gray-800">0</h3>
+                                   <p class="text-[10px] text-gray-400 font-medium mt-0.5">Keterangan sakit hari ini</p>
+                               </div>
+                               <div class="text-yellow-500 bg-yellow-50 group-hover:bg-yellow-100 p-3 rounded-2xl text-xl shadow-xs transition"><i class="fas fa-procedures"></i></div>
+                           </div>
+                       </div>
 
-                      <div class="bg-white p-5 rounded-2xl shadow-sm border border-blue-100 flex flex-col justify-between relative overflow-hidden group">
-                          <div class="absolute right-0 top-0 w-16 h-16 bg-blue-50 rounded-bl-full -mr-2 -mt-2 transition-transform group-hover:scale-110"></div>
-                          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest relative z-10">Izin</p>
-                          <div class="flex items-center justify-between mt-2 relative z-10">
-                              <h3 id="admStatIzin" class="text-2xl font-bold text-gray-800">0</h3>
-                              <div class="text-blue-500 bg-blue-50 p-2.5 rounded-xl"><i class="fas fa-paper-plane"></i></div>
-                          </div>
-                      </div>
+                       <!-- Baris 2 - Kotak 3: Izin -->
+                       <div onclick="showAttendanceDetailModal('Izin')" class="bg-white p-5 rounded-2xl shadow-sm border border-blue-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-blue-300 active:scale-[0.98] transition-all">
+                           <div class="absolute right-0 top-0 w-20 h-20 bg-blue-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110"></div>
+                           <div class="flex items-center justify-between relative z-10">
+                               <p class="text-xs font-extrabold text-blue-700 uppercase tracking-wider flex items-center gap-2">
+                                   <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Siswa Izin
+                               </p>
+                               <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                   <i class="fas fa-search-plus mr-1"></i> Klik untuk lihat
+                               </span>
+                           </div>
+                           <div class="flex items-center justify-between mt-4 relative z-10">
+                               <div>
+                                   <h3 id="admStatIzin" class="text-3xl font-extrabold text-gray-800">0</h3>
+                                   <p class="text-[10px] text-gray-400 font-medium mt-0.5">Izin berhalangan hadir</p>
+                               </div>
+                               <div class="text-blue-500 bg-blue-50 group-hover:bg-blue-100 p-3 rounded-2xl text-xl shadow-xs transition"><i class="fas fa-paper-plane"></i></div>
+                           </div>
+                       </div>
 
-                      <div class="bg-white p-5 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between relative overflow-hidden group">
-                          <div class="absolute right-0 top-0 w-16 h-16 bg-red-50 rounded-bl-full -mr-2 -mt-2 transition-transform group-hover:scale-110"></div>
-                          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest relative z-10">Alpa</p>
-                          <div class="flex items-center justify-between mt-2 relative z-10">
-                              <h3 id="admStatAlpa" class="text-2xl font-bold text-gray-800">0</h3>
-                              <div class="text-red-500 bg-red-50 p-2.5 rounded-xl"><i class="fas fa-times"></i></div>
-                          </div>
-                      </div>
-                  </div>
+                       <!-- Baris 2 - Kotak 4: Alpa -->
+                       <div onclick="showAttendanceDetailModal('Alpa')" class="bg-white p-5 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-red-300 active:scale-[0.98] transition-all">
+                           <div class="absolute right-0 top-0 w-20 h-20 bg-red-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110"></div>
+                           <div class="flex items-center justify-between relative z-10">
+                               <p class="text-xs font-extrabold text-red-700 uppercase tracking-wider flex items-center gap-2">
+                                   <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Siswa Alpa (Tanpa Keterangan)
+                               </p>
+                               <span class="text-[10px] font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                                   <i class="fas fa-search-plus mr-1"></i> Klik untuk lihat
+                               </span>
+                           </div>
+                           <div class="flex items-center justify-between mt-4 relative z-10">
+                               <div>
+                                   <h3 id="admStatAlpa" class="text-3xl font-extrabold text-gray-800">0</h3>
+                                   <p class="text-[10px] text-gray-400 font-medium mt-0.5">Belum ada keterangan</p>
+                               </div>
+                               <div class="text-red-500 bg-red-50 group-hover:bg-red-100 p-3 rounded-2xl text-xl shadow-xs transition"><i class="fas fa-times-circle"></i></div>
+                           </div>
+                       </div>
+                   </div>
 
                   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                       
@@ -463,57 +514,101 @@
                       </div>
                   </div>
 
-                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                      
-                      <div class="relative overflow-hidden bg-white p-6 rounded-2xl shadow-sm border border-indigo-100 group hover:shadow-md transition-all">
-                          <div class="absolute top-0 right-0 w-24 h-24 bg-indigo-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-                          <div class="relative z-10 flex flex-col h-full justify-between">
-                              <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-xl mb-4 shadow-sm">
-                                  <i class="fas fa-user-graduate"></i>
-                              </div>
+                  <!-- Ringkasan Total Siswa Kelas & Filter Cepat Guru -->
+                  <div class="flex items-center justify-between bg-white p-4 md:p-5 rounded-2xl border border-indigo-100 shadow-sm mb-4">
+                      <div class="flex items-center gap-3.5">
+                          <div class="w-11 h-11 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xl shadow-xs">
+                              <i class="fas fa-user-graduate"></i>
+                          </div>
+                          <div>
+                              <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Siswa Kelas</p>
+                              <h3 id="statGuruTotal" class="text-2xl font-extrabold text-gray-800 leading-tight">0</h3>
+                          </div>
+                      </div>
+                      <button onclick="showAttendanceDetailModal('Semua')" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-4 py-2 rounded-xl transition flex items-center gap-2 border border-indigo-100">
+                          <i class="fas fa-list-ul"></i> <span>Lihat Semua Siswa</span>
+                      </button>
+                  </div>
+
+                  <!-- Informasi Presensi Guru: 2 Baris dan 2 Kotak (Hadir, Sakit, Izin, Alpa) Interaktif & Dapat Diklik -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                      <!-- Baris 1 - Kotak 1: Hadir -->
+                      <div onclick="showAttendanceDetailModal('Hadir')" class="bg-white p-5 rounded-2xl shadow-sm border border-emerald-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-emerald-300 active:scale-[0.98] transition-all">
+                          <div class="absolute right-0 top-0 w-20 h-20 bg-emerald-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110"></div>
+                          <div class="flex items-center justify-between relative z-10">
+                              <p class="text-xs font-extrabold text-emerald-700 uppercase tracking-wider flex items-center gap-2">
+                                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Siswa Hadir
+                              </p>
+                              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                  <i class="fas fa-search-plus mr-1"></i> Klik untuk lihat
+                              </span>
+                          </div>
+                          <div class="flex items-center justify-between mt-4 relative z-10">
                               <div>
-                                  <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Siswa</p>
-                                  <h3 id="statGuruTotal" class="text-3xl font-bold text-gray-800 mt-1">0</h3>
+                                  <h3 id="statGuruHadir" class="text-3xl font-extrabold text-gray-800">0</h3>
+                                  <p class="text-[10px] text-gray-400 font-medium mt-0.5">Hadir di kelas hari ini</p>
                               </div>
+                              <div class="text-emerald-500 bg-emerald-50 group-hover:bg-emerald-100 p-3 rounded-2xl text-xl shadow-xs transition"><i class="fas fa-check-circle"></i></div>
                           </div>
                       </div>
 
-                      <div class="relative overflow-hidden bg-white p-6 rounded-2xl shadow-sm border border-yellow-100 group hover:shadow-md transition-all">
-                          <div class="absolute top-0 right-0 w-24 h-24 bg-yellow-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-                          <div class="relative z-10 flex flex-col h-full justify-between">
-                              <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-xl flex items-center justify-center text-xl mb-4 shadow-sm">
-                                  <i class="fas fa-procedures"></i>
-                              </div>
+                      <!-- Baris 1 - Kotak 2: Sakit -->
+                      <div onclick="showAttendanceDetailModal('Sakit')" class="bg-white p-5 rounded-2xl shadow-sm border border-yellow-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-yellow-300 active:scale-[0.98] transition-all">
+                          <div class="absolute right-0 top-0 w-20 h-20 bg-yellow-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110"></div>
+                          <div class="flex items-center justify-between relative z-10">
+                              <p class="text-xs font-extrabold text-yellow-700 uppercase tracking-wider flex items-center gap-2">
+                                  <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span> Siswa Sakit
+                              </p>
+                              <span class="text-[10px] font-bold text-yellow-600 bg-yellow-50 px-2.5 py-1 rounded-full border border-yellow-200 group-hover:bg-yellow-500 group-hover:text-white transition-colors">
+                                  <i class="fas fa-search-plus mr-1"></i> Klik untuk lihat
+                              </span>
+                          </div>
+                          <div class="flex items-center justify-between mt-4 relative z-10">
                               <div>
-                                  <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Sakit</p>
-                                  <h3 id="statGuruSakit" class="text-3xl font-bold text-gray-800 mt-1">0</h3>
+                                  <h3 id="statGuruSakit" class="text-3xl font-extrabold text-gray-800">0</h3>
+                                  <p class="text-[10px] text-gray-400 font-medium mt-0.5">Keterangan sakit hari ini</p>
                               </div>
+                              <div class="text-yellow-500 bg-yellow-50 group-hover:bg-yellow-100 p-3 rounded-2xl text-xl shadow-xs transition"><i class="fas fa-procedures"></i></div>
                           </div>
                       </div>
 
-                      <div class="relative overflow-hidden bg-white p-6 rounded-2xl shadow-sm border border-blue-100 group hover:shadow-md transition-all">
-                          <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-                          <div class="relative z-10 flex flex-col h-full justify-between">
-                              <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl mb-4 shadow-sm">
-                                  <i class="fas fa-envelope-open-text"></i>
-                              </div>
+                      <!-- Baris 2 - Kotak 3: Izin -->
+                      <div onclick="showAttendanceDetailModal('Izin')" class="bg-white p-5 rounded-2xl shadow-sm border border-blue-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-blue-300 active:scale-[0.98] transition-all">
+                          <div class="absolute right-0 top-0 w-20 h-20 bg-blue-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110"></div>
+                          <div class="flex items-center justify-between relative z-10">
+                              <p class="text-xs font-extrabold text-blue-700 uppercase tracking-wider flex items-center gap-2">
+                                  <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Siswa Izin
+                              </p>
+                              <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                  <i class="fas fa-search-plus mr-1"></i> Klik untuk lihat
+                              </span>
+                          </div>
+                          <div class="flex items-center justify-between mt-4 relative z-10">
                               <div>
-                                  <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Izin</p>
-                                  <h3 id="statGuruIzin" class="text-3xl font-bold text-gray-800 mt-1">0</h3>
+                                  <h3 id="statGuruIzin" class="text-3xl font-extrabold text-gray-800">0</h3>
+                                  <p class="text-[10px] text-gray-400 font-medium mt-0.5">Izin berhalangan hadir</p>
                               </div>
+                              <div class="text-blue-500 bg-blue-50 group-hover:bg-blue-100 p-3 rounded-2xl text-xl shadow-xs transition"><i class="fas fa-paper-plane"></i></div>
                           </div>
                       </div>
 
-                      <div class="relative overflow-hidden bg-white p-6 rounded-2xl shadow-sm border border-red-100 group hover:shadow-md transition-all">
-                          <div class="absolute top-0 right-0 w-24 h-24 bg-red-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
-                          <div class="relative z-10 flex flex-col h-full justify-between">
-                              <div class="w-12 h-12 bg-red-100 text-red-600 rounded-xl flex items-center justify-center text-xl mb-4 shadow-sm">
-                                  <i class="fas fa-times-circle"></i>
-                              </div>
+                      <!-- Baris 2 - Kotak 4: Alpa -->
+                      <div onclick="showAttendanceDetailModal('Alpa')" class="bg-white p-5 rounded-2xl shadow-sm border border-red-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-red-300 active:scale-[0.98] transition-all">
+                          <div class="absolute right-0 top-0 w-20 h-20 bg-red-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110"></div>
+                          <div class="flex items-center justify-between relative z-10">
+                              <p class="text-xs font-extrabold text-red-700 uppercase tracking-wider flex items-center gap-2">
+                                  <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Siswa Alpa (Tanpa Keterangan)
+                              </p>
+                              <span class="text-[10px] font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-200 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                                  <i class="fas fa-search-plus mr-1"></i> Klik untuk lihat
+                              </span>
+                          </div>
+                          <div class="flex items-center justify-between mt-4 relative z-10">
                               <div>
-                                  <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Alpa</p>
-                                  <h3 id="statGuruAlpa" class="text-3xl font-bold text-gray-800 mt-1">0</h3>
+                                  <h3 id="statGuruAlpa" class="text-3xl font-extrabold text-gray-800">0</h3>
+                                  <p class="text-[10px] text-gray-400 font-medium mt-0.5">Belum ada keterangan</p>
                               </div>
+                              <div class="text-red-500 bg-red-50 group-hover:bg-red-100 p-3 rounded-2xl text-xl shadow-xs transition"><i class="fas fa-times-circle"></i></div>
                           </div>
                       </div>
                   </div>
@@ -2797,6 +2892,7 @@
         google.script.run.withSuccessHandler(result => {
             if (result.success) {
                 const data = result.data;
+                window.cachedAttendanceMonitoringData = data;
                 const total = data.length;
                 const hadir = data.filter(d => d.status === 'Hadir').length;
                 const sakit = data.filter(d => d.status === 'Sakit').length;
@@ -2897,6 +2993,7 @@
         google.script.run.withSuccessHandler(result => {
             if (result.success) {
                 const data = result.data; 
+                window.cachedAttendanceMonitoringData = data;
                 if(myClass) {
                      const h2 = document.querySelector('#view-guru-dashboard h2');
                      if (h2) h2.textContent = `Dashboard Guru (${myClass})`;
@@ -2910,6 +3007,7 @@
                 const belumAbsen = data.filter(d => d.status === 'Belum Absen').length;
 
                 animateValue("statGuruTotal", 0, totalSiswa, 600);
+                animateValue("statGuruHadir", 0, hadir, 600);
                 animateValue("statGuruSakit", 0, sakit, 600);
                 animateValue("statGuruIzin", 0, izin, 600);
                 animateValue("statGuruAlpa", 0, alpa, 600);
@@ -3000,6 +3098,190 @@
             }
         };
         window.requestAnimationFrame(step);
+    }
+
+    // Modal Rincian Kehadiran Siswa (Hadir, Sakit, Izin, Alpa) Interaktif
+    let currentAttendanceFilter = 'Hadir';
+
+    function showAttendanceDetailModal(statusFilter) {
+        currentAttendanceFilter = statusFilter || 'Hadir';
+        const myClass = (currentUser && currentUser.role === 'guru') ? currentUser.kelas : null;
+        
+        const renderModalContent = (dataList) => {
+            window.cachedAttendanceMonitoringData = dataList;
+            
+            let filtered = dataList;
+            if (statusFilter && statusFilter !== 'Semua') {
+                filtered = dataList.filter(d => d.status === statusFilter);
+            }
+
+            const count = filtered.length;
+            let badgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            let iconHeader = 'fa-check-circle text-emerald-500';
+            if (statusFilter === 'Sakit') {
+                badgeColor = 'bg-yellow-50 text-yellow-700 border-yellow-200';
+                iconHeader = 'fa-procedures text-yellow-500';
+            } else if (statusFilter === 'Izin') {
+                badgeColor = 'bg-blue-50 text-blue-700 border-blue-200';
+                iconHeader = 'fa-paper-plane text-blue-500';
+            } else if (statusFilter === 'Alpa') {
+                badgeColor = 'bg-rose-50 text-rose-700 border-rose-200';
+                iconHeader = 'fa-times-circle text-rose-500';
+            } else if (statusFilter === 'Semua') {
+                badgeColor = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+                iconHeader = 'fa-users text-indigo-500';
+            }
+
+            const modalHTML = `
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 font-sans">
+                <!-- Modal Header -->
+                <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/70">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-xl">
+                            <i class="fas ${iconHeader}"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-extrabold text-slate-800">Daftar Siswa ${statusFilter === 'Semua' ? 'Keseluruhan' : statusFilter}</h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeColor}">
+                                    ${count} Siswa
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">${myClass ? 'Kelas ' + myClass + ' • ' : ''}Monitoring Kehadiran Realtime Hari Ini</p>
+                        </div>
+                    </div>
+                    <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Status Tabs & Search -->
+                <div class="p-4 bg-slate-50/40 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                    <!-- Status Filter Tabs -->
+                    <div class="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                        <button onclick="showAttendanceDetailModal('Hadir')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${statusFilter === 'Hadir' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                            <i class="fas fa-check text-[10px]"></i> Hadir
+                        </button>
+                        <button onclick="showAttendanceDetailModal('Sakit')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${statusFilter === 'Sakit' ? 'bg-yellow-500 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                            <i class="fas fa-procedures text-[10px]"></i> Sakit
+                        </button>
+                        <button onclick="showAttendanceDetailModal('Izin')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${statusFilter === 'Izin' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                            <i class="fas fa-paper-plane text-[10px]"></i> Izin
+                        </button>
+                        <button onclick="showAttendanceDetailModal('Alpa')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${statusFilter === 'Alpa' ? 'bg-rose-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                            <i class="fas fa-times text-[10px]"></i> Alpa
+                        </button>
+                        <button onclick="showAttendanceDetailModal('Semua')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${statusFilter === 'Semua' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                            <i class="fas fa-list text-[10px]"></i> Semua
+                        </button>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative w-full sm:w-56">
+                        <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="modalAttendanceSearch" oninput="filterAttendanceModalList(this.value)" placeholder="Cari nama / kelas..." class="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- List Content Body -->
+                <div class="p-4 max-h-[58vh] overflow-y-auto" id="modalAttendanceListContainer">
+                    ${renderAttendanceListRows(filtered)}
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center text-xs">
+                    <span class="text-slate-500 font-medium">Total: <strong id="modalAttendanceCountText" class="text-slate-800">${count}</strong> siswa</span>
+                    <button onclick="closeModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold transition shadow-sm">
+                        Tutup
+                    </button>
+                </div>
+            </div>`;
+
+            showModal(modalHTML);
+        };
+
+        if (window.cachedAttendanceMonitoringData && window.cachedAttendanceMonitoringData.length > 0) {
+            renderModalContent(window.cachedAttendanceMonitoringData);
+        } else {
+            showLoading();
+            google.script.run.withSuccessHandler(res => {
+                hideLoading();
+                if (res.success) {
+                    renderModalContent(res.data);
+                } else {
+                    showAlert('error', 'Gagal memuat data presensi.');
+                }
+            }).getMonitoringRealtime(myClass);
+        }
+    }
+
+    function renderAttendanceListRows(items) {
+        if (!items || items.length === 0) {
+            return `
+            <div class="py-12 text-center">
+                <div class="w-14 h-14 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="far fa-folder-open"></i>
+                </div>
+                <p class="text-slate-700 font-bold text-sm">Tidak Ada Siswa</p>
+                <p class="text-slate-400 text-xs mt-0.5">Tidak ditemukan siswa dengan status ini untuk hari ini.</p>
+            </div>`;
+        }
+
+        let rowsHTML = `<div class="divide-y divide-slate-100">`;
+
+        items.forEach((s, idx) => {
+            let stBadge = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            let stIcon = 'fa-check';
+            if (s.status === 'Sakit') { stBadge = 'bg-yellow-50 text-yellow-700 border-yellow-200'; stIcon = 'fa-procedures'; }
+            else if (s.status === 'Izin') { stBadge = 'bg-blue-50 text-blue-700 border-blue-200'; stIcon = 'fa-paper-plane'; }
+            else if (s.status === 'Alpa') { stBadge = 'bg-rose-50 text-rose-700 border-rose-200'; stIcon = 'fa-times'; }
+            else if (s.status === 'Belum Absen') { stBadge = 'bg-slate-50 text-slate-600 border-slate-200'; stIcon = 'fa-clock'; }
+
+            rowsHTML += `
+            <div class="attendance-item-row py-2.5 flex items-center justify-between hover:bg-slate-50 px-2 rounded-xl transition" data-nama="${(s.nama||'').toLowerCase()}" data-kelas="${(s.kelas||'').toLowerCase()}" data-nisn="${String(s.nisn||'').toLowerCase()}">
+                <div class="flex items-center gap-3">
+                    <span class="w-5 text-center text-xs font-bold text-slate-400">${idx + 1}</span>
+                    <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-700 font-extrabold flex items-center justify-center text-xs border border-indigo-100 shadow-2xs">
+                        ${(s.nama || 'S').charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-xs">${s.nama}</h4>
+                        <p class="text-[10.5px] text-slate-400 font-mono">NISN: ${s.nisn} • <span class="font-sans font-semibold text-indigo-600">Kelas ${s.kelas}</span></p>
+                    </div>
+                </div>
+
+                <div class="text-right flex items-center gap-3">
+                    <div class="hidden sm:block text-[11px] text-slate-500 font-mono">
+                        ${s.status === 'Hadir' ? `<span class="text-emerald-700 font-bold"><i class="far fa-clock mr-1"></i>${s.jamDatang || '-'}</span>` : `<span class="italic text-slate-400">${s.keterangan && s.keterangan !== '-' ? s.keterangan : s.status}</span>`}
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl text-[10.5px] font-bold border ${stBadge} flex items-center gap-1">
+                        <i class="fas ${stIcon} text-[9px]"></i> ${s.status}
+                    </span>
+                </div>
+            </div>`;
+        });
+
+        rowsHTML += `</div>`;
+        return rowsHTML;
+    }
+
+    function filterAttendanceModalList(query) {
+        const q = (query || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('.attendance-item-row');
+        let visibleCount = 0;
+        rows.forEach(r => {
+            const nama = r.getAttribute('data-nama') || '';
+            const kelas = r.getAttribute('data-kelas') || '';
+            const nisn = r.getAttribute('data-nisn') || '';
+            if (!q || nama.includes(q) || kelas.includes(q) || nisn.includes(q)) {
+                r.style.display = 'flex';
+                visibleCount++;
+            } else {
+                r.style.display = 'none';
+            }
+        });
+        const countEl = document.getElementById('modalAttendanceCountText');
+        if (countEl) countEl.textContent = visibleCount;
     }
 
     function loadSiswaDashboard() {
