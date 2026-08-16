@@ -5843,6 +5843,7 @@
         const jabatanKelas = currentUser.jabatan || currentUser.kelas || (role === 'guru' ? 'Guru Mata Pelajaran' : (role === 'tendik' ? 'Tenaga Kependidikan' : 'X MIPA 1'));
         const noHp = currentUser.noHp || '-';
         const fotoUser = currentUser.foto || '';
+        const userPhoto = fotoUser;
         const initial = nama.charAt(0).toUpperCase();
 
         let cardHeaderGrad = 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 55%, #2563eb 100%)';
