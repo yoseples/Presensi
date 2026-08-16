@@ -755,6 +755,15 @@
                                   <option value="">Semua Kelas</option>
                             </select>
 
+                            <select onchange="handleTableSortOrder('siswa', this.value)" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 w-full sm:w-auto font-bold shadow-sm" title="Urutkan Data">
+                                <option value="nama_asc">Urut: Nama (A-Z)</option>
+                                <option value="nama_desc">Urut: Nama (Z-A)</option>
+                                <option value="nisn_asc">Urut: NISN (Kecil-Besar)</option>
+                                <option value="nisn_desc">Urut: NISN (Besar-Kecil)</option>
+                                <option value="kelas_asc">Urut: Kelas (A-Z)</option>
+                                <option value="kelas_desc">Urut: Kelas (Z-A)</option>
+                            </select>
+
                         </div>
 
                         <div class="relative w-full md:w-64">
@@ -770,9 +779,24 @@
                             <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-semibold">
                                 <tr>
                                     <th class="p-3 text-center w-10">No</th>
-                                    <th class="p-3">Nama</th>
-                                    <th class="p-3">NISN</th>
-                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('siswa', 'nama')" data-sort-type="siswa" data-sort-col="nama">
+                                        <div class="flex items-center gap-1">
+                                            <span>Nama</span>
+                                            <i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i>
+                                        </div>
+                                    </th>
+                                    <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('siswa', 'nisn')" data-sort-type="siswa" data-sort-col="nisn">
+                                        <div class="flex items-center gap-1">
+                                            <span>NISN</span>
+                                            <i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i>
+                                        </div>
+                                    </th>
+                                    <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('siswa', 'kelas')" data-sort-type="siswa" data-sort-col="kelas">
+                                        <div class="flex items-center gap-1">
+                                            <span>Kelas</span>
+                                            <i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i>
+                                        </div>
+                                    </th>
                                     <th class="p-3 text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -831,6 +855,15 @@
                                   <option value="">Semua Kelas</option>
                             </select>
 
+                            <select onchange="handleTableSortOrder('guru', this.value)" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-purple-500 focus:border-purple-500 block p-2 w-full sm:w-auto font-bold shadow-sm" title="Urutkan Data">
+                                <option value="nama_asc">Urut: Nama (A-Z)</option>
+                                <option value="nama_desc">Urut: Nama (Z-A)</option>
+                                <option value="nip_asc">Urut: NIP (Kecil-Besar)</option>
+                                <option value="nip_desc">Urut: NIP (Besar-Kecil)</option>
+                                <option value="jabatan_asc">Urut: Jabatan (A-Z)</option>
+                                <option value="kelas_asc">Urut: Wali Kelas (A-Z)</option>
+                            </select>
+
                         </div>
 
                         <div class="relative w-full md:w-64">
@@ -846,12 +879,24 @@
                           <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-semibold">
                               <tr>
                                   <th class="p-3 text-center w-10">No</th>
-                                  <th class="p-3">NIP</th>
-                                  <th class="p-3">Nama Lengkap</th>
-                                  <th class="p-3">Username</th>
-                                  <th class="p-3">Jabatan</th>
-                                  <th class="p-3">Wali Kelas</th>
-                                  <th class="p-3">No HP</th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('guru', 'nip')" data-sort-type="guru" data-sort-col="nip">
+                                      <div class="flex items-center gap-1"><span>NIP</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('guru', 'nama')" data-sort-type="guru" data-sort-col="nama">
+                                      <div class="flex items-center gap-1"><span>Nama Lengkap</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('guru', 'username')" data-sort-type="guru" data-sort-col="username">
+                                      <div class="flex items-center gap-1"><span>Username</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('guru', 'jabatan')" data-sort-type="guru" data-sort-col="jabatan">
+                                      <div class="flex items-center gap-1"><span>Jabatan</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('guru', 'kelas')" data-sort-type="guru" data-sort-col="kelas">
+                                      <div class="flex items-center gap-1"><span>Wali Kelas</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('guru', 'noHp')" data-sort-type="guru" data-sort-col="noHp">
+                                      <div class="flex items-center gap-1"><span>No HP</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
                                   <th class="p-3">Password</th>
                                   <th class="p-3 text-center">Aksi</th>
                               </tr>
@@ -905,6 +950,14 @@
                                     <option value="all">Semua</option>
                                 </select>
                             </div>
+
+                            <select onchange="handleTableSortOrder('tendik', this.value)" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-amber-500 focus:border-amber-500 block p-2 w-full sm:w-auto font-bold shadow-sm" title="Urutkan Data">
+                                <option value="nama_asc">Urut: Nama (A-Z)</option>
+                                <option value="nama_desc">Urut: Nama (Z-A)</option>
+                                <option value="nip_asc">Urut: NIP/NIK (Kecil-Besar)</option>
+                                <option value="nip_desc">Urut: NIP/NIK (Besar-Kecil)</option>
+                                <option value="jabatan_asc">Urut: Jabatan (A-Z)</option>
+                            </select>
                         </div>
 
                         <div class="relative w-full md:w-64">
@@ -920,11 +973,21 @@
                           <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-semibold">
                               <tr>
                                   <th class="p-3 text-center w-10">No</th>
-                                  <th class="p-3">NIP / NIK</th>
-                                  <th class="p-3">Nama Lengkap & Gelar</th>
-                                  <th class="p-3">Jabatan</th>
-                                  <th class="p-3">No. HP</th>
-                                  <th class="p-3">Username</th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('tendik', 'nip')" data-sort-type="tendik" data-sort-col="nip">
+                                      <div class="flex items-center gap-1"><span>NIP / NIK</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('tendik', 'nama')" data-sort-type="tendik" data-sort-col="nama">
+                                      <div class="flex items-center gap-1"><span>Nama Lengkap & Gelar</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('tendik', 'jabatan')" data-sort-type="tendik" data-sort-col="jabatan">
+                                      <div class="flex items-center gap-1"><span>Jabatan</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('tendik', 'noHp')" data-sort-type="tendik" data-sort-col="noHp">
+                                      <div class="flex items-center gap-1"><span>No. HP</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
+                                  <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('tendik', 'username')" data-sort-type="tendik" data-sort-col="username">
+                                      <div class="flex items-center gap-1"><span>Username</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                  </th>
                                   <th class="p-3 text-center">Aksi</th>
                               </tr>
                           </thead>
@@ -1026,8 +1089,12 @@
                                     <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-semibold">
                                         <tr>
                                             <th class="p-4 w-10 text-center">No</th>
-                                            <th class="p-4">Tanggal</th>
-                                            <th class="p-4">Keterangan</th>
+                                            <th class="p-4 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('libur', 'tanggal')" data-sort-type="libur" data-sort-col="tanggal">
+                                                <div class="flex items-center gap-1"><span>Tanggal</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                            </th>
+                                            <th class="p-4 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('libur', 'keterangan')" data-sort-type="libur" data-sort-col="keterangan">
+                                                <div class="flex items-center gap-1"><span>Keterangan</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                            </th>
                                             <th class="p-4 text-center w-20">Aksi</th>
                                         </tr>
                                     </thead>
@@ -1089,6 +1156,15 @@
                                   <option value="Alpa">Alpa</option>
                                   <option value="Belum Absen">Belum Absen</option>
                               </select>
+
+                              <select onchange="handleTableSortOrder('monitoring', this.value)" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 w-full sm:w-auto font-bold shadow-sm" title="Urutkan Data">
+                                  <option value="nama_asc">Urut: Nama (A-Z)</option>
+                                  <option value="nama_desc">Urut: Nama (Z-A)</option>
+                                  <option value="kelas_asc">Urut: Kelas (A-Z)</option>
+                                  <option value="jamDatang_asc">Urut: Jam Datang (Paling Awal)</option>
+                                  <option value="jamDatang_desc">Urut: Jam Datang (Paling Akhir)</option>
+                                  <option value="status_asc">Urut: Status Kehadiran (A-Z)</option>
+                              </select>
                           </div>
 
                           <div class="relative w-full md:w-64">
@@ -1104,12 +1180,24 @@
                             <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-semibold">
                                 <tr>
                                     <th class="p-4 text-center w-10">No</th>
-                                    <th class="p-4">Siswa</th>
-                                    <th class="p-4 text-center">Kelas</th>
-                                    <th class="p-4 text-center">Jam Datang</th>
-                                    <th class="p-4 text-center">Jam Pulang</th>
-                                    <th class="p-4 text-center">Keterangan</th>
-                                    <th class="p-4 text-center">Status Kehadiran</th>
+                                    <th class="p-4 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('monitoring', 'nama')" data-sort-type="monitoring" data-sort-col="nama">
+                                        <div class="flex items-center gap-1"><span>Siswa</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                    </th>
+                                    <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('monitoring', 'kelas')" data-sort-type="monitoring" data-sort-col="kelas">
+                                        <div class="flex items-center justify-center gap-1"><span>Kelas</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                    </th>
+                                    <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('monitoring', 'jamDatang')" data-sort-type="monitoring" data-sort-col="jamDatang">
+                                        <div class="flex items-center justify-center gap-1"><span>Jam Datang</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                    </th>
+                                    <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('monitoring', 'jamPulang')" data-sort-type="monitoring" data-sort-col="jamPulang">
+                                        <div class="flex items-center justify-center gap-1"><span>Jam Pulang</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                    </th>
+                                    <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('monitoring', 'keterangan')" data-sort-type="monitoring" data-sort-col="keterangan">
+                                        <div class="flex items-center justify-center gap-1"><span>Keterangan</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                    </th>
+                                    <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('monitoring', 'status')" data-sort-type="monitoring" data-sort-col="status">
+                                        <div class="flex items-center justify-center gap-1"><span>Status Kehadiran</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody id="tbody-monitoring" class="divide-y divide-gray-100 bg-white text-sm"></tbody>
@@ -1171,13 +1259,24 @@
 
                       <div id="rekapContainer" class="hidden">
                           <div class="p-4 bg-white border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
-                              <div class="flex items-center gap-2 text-xs">
-                                  <span class="text-gray-500 font-bold">Tampilkan</span>
-                                  <select onchange="handleTableLimit('rekap', this.value)" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2">
-                                      <option value="10">10</option>
-                                      <option value="25">25</option>
-                                      <option value="50">50</option>
-                                      <option value="all">Semua</option>
+                              <div class="flex flex-col sm:flex-row items-center gap-2 text-xs w-full md:w-auto">
+                                  <div class="flex items-center gap-2 w-full sm:w-auto">
+                                      <span class="text-gray-500 font-bold">Tampilkan</span>
+                                      <select onchange="handleTableLimit('rekap', this.value)" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 w-full sm:w-auto">
+                                          <option value="10">10</option>
+                                          <option value="25">25</option>
+                                          <option value="50">50</option>
+                                          <option value="all">Semua</option>
+                                      </select>
+                                  </div>
+
+                                  <select onchange="handleTableSortOrder('rekap', this.value)" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 w-full sm:w-auto font-bold shadow-sm" title="Urutkan Data">
+                                      <option value="tanggal_desc">Urut: Tanggal (Terbaru - Terlama)</option>
+                                      <option value="tanggal_asc">Urut: Tanggal (Terlama - Terbaru)</option>
+                                      <option value="nama_asc">Urut: Nama Siswa (A-Z)</option>
+                                      <option value="nama_desc">Urut: Nama Siswa (Z-A)</option>
+                                      <option value="kelas_asc">Urut: Kelas (A-Z)</option>
+                                      <option value="status_asc">Urut: Status Kehadiran (A-Z)</option>
                                   </select>
                               </div>
                               <div class="relative w-full md:w-64">
@@ -1193,13 +1292,27 @@
                                 <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-semibold">
                                     <tr>
                                         <th class="p-4 text-center w-10">No</th>
-                                        <th class="p-4">Tanggal</th>
-                                        <th class="p-4">Nama Siswa</th>
-                                        <th class="p-4 text-center">Kelas</th>
-                                        <th class="p-4 text-center">Jam Datang</th>
-                                        <th class="p-4 text-center">Jam Pulang</th>
-                                        <th class="p-4 text-center">Keterangan</th>
-                                        <th class="p-4 text-center">Status</th>
+                                        <th class="p-4 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'tanggal')" data-sort-type="rekap" data-sort-col="tanggal">
+                                            <div class="flex items-center gap-1"><span>Tanggal</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                        </th>
+                                        <th class="p-4 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'nama')" data-sort-type="rekap" data-sort-col="nama">
+                                            <div class="flex items-center gap-1"><span>Nama Siswa</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                        </th>
+                                        <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'kelas')" data-sort-type="rekap" data-sort-col="kelas">
+                                            <div class="flex items-center justify-center gap-1"><span>Kelas</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                        </th>
+                                        <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'jamDatang')" data-sort-type="rekap" data-sort-col="jamDatang">
+                                            <div class="flex items-center justify-center gap-1"><span>Jam Datang</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                        </th>
+                                        <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'jamPulang')" data-sort-type="rekap" data-sort-col="jamPulang">
+                                            <div class="flex items-center justify-center gap-1"><span>Jam Pulang</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                        </th>
+                                        <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'keterangan')" data-sort-type="rekap" data-sort-col="keterangan">
+                                            <div class="flex items-center justify-center gap-1"><span>Keterangan</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                        </th>
+                                        <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'status')" data-sort-type="rekap" data-sort-col="status">
+                                            <div class="flex items-center justify-center gap-1"><span>Status</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                        </th>
                                     </tr>
                                 </thead>
                                   <tbody id="tbody-rekap" class="bg-white divide-y divide-gray-100 text-sm"></tbody>
@@ -2158,11 +2271,12 @@
     }
 
     const tableState = {
-      siswa: { fullData: [], filtered: [], limit: 10, page: 1, search: '', classFilter: '' },
-      guru: { fullData: [], filtered: [], limit: 10, page: 1, search: '', classFilter: '' },
-      libur: { fullData: [], filtered: [], limit: 10, page: 1, search: '' },
-      rekap: { fullData: [], filtered: [], limit: 10, page: 1, search: '' },
-      monitoring: { fullData: [], filtered: [], limit: 10, page: 1, search: '', statusFilter: '' }
+      siswa: { fullData: [], filtered: [], limit: 10, page: 1, search: '', classFilter: '', sortColumn: 'nama', sortDirection: 'asc' },
+      guru: { fullData: [], filtered: [], limit: 10, page: 1, search: '', classFilter: '', sortColumn: 'nama', sortDirection: 'asc' },
+      tendik: { fullData: [], filtered: [], limit: 10, page: 1, search: '', sortColumn: 'nama', sortDirection: 'asc' },
+      libur: { fullData: [], filtered: [], limit: 10, page: 1, search: '', sortColumn: 'tanggal', sortDirection: 'asc' },
+      rekap: { fullData: [], filtered: [], limit: 10, page: 1, search: '', sortColumn: 'tanggal', sortDirection: 'desc' },
+      monitoring: { fullData: [], filtered: [], limit: 10, page: 1, search: '', statusFilter: '', sortColumn: 'nama', sortDirection: 'asc' }
     };
 
     function quickFillNISN(val) {
@@ -2176,9 +2290,54 @@
     }
 
     function handleTableSearch(type, query) {
-        tableState[type].search = query.toLowerCase();
+        if (!tableState[type]) return;
+        tableState[type].search = (query || '').trim().toLowerCase();
         tableState[type].page = 1;
         processTableData(type);
+    }
+
+    function handleTableSort(type, column) {
+        if (!tableState[type]) return;
+        const state = tableState[type];
+        if (state.sortColumn === column) {
+            state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            state.sortColumn = column;
+            state.sortDirection = 'asc';
+        }
+        state.page = 1;
+        processTableData(type);
+    }
+
+    function handleTableSortOrder(type, sortValue) {
+        if (!tableState[type] || !sortValue) return;
+        const parts = sortValue.split('_');
+        const dir = parts.pop();
+        const col = parts.join('_');
+        tableState[type].sortColumn = col;
+        tableState[type].sortDirection = dir || 'asc';
+        tableState[type].page = 1;
+        processTableData(type);
+    }
+
+    function updateSortIcons(type) {
+        const state = tableState[type];
+        if (!state) return;
+        document.querySelectorAll(`th[data-sort-type="${type}"]`).forEach(th => {
+            const col = th.getAttribute('data-sort-col');
+            const icon = th.querySelector('.sort-icon');
+            if (icon) {
+                if (state.sortColumn === col) {
+                    if (state.sortDirection === 'asc') {
+                        icon.className = 'sort-icon fas fa-sort-up text-indigo-600 font-bold ml-1 text-xs';
+                    } else {
+                        icon.className = 'sort-icon fas fa-sort-down text-indigo-600 font-bold ml-1 text-xs';
+                    }
+                } else {
+                    icon.className = 'sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]';
+                }
+            }
+        });
     }
 
     function handleTableClassFilter(type, value) {
@@ -2216,23 +2375,47 @@
 
     function processTableData(type) {
         const state = tableState[type];
+        if (!state) return;
         let result = [...state.fullData];
 
         if ((type === 'siswa' || type === 'guru') && state.classFilter) {
-            result = result.filter(item => item.kelas === state.classFilter);
+            result = result.filter(item => String(item.kelas || '').trim() === String(state.classFilter).trim());
         }
 
         if (type === 'monitoring' && state.statusFilter) {
-            result = result.filter(item => item.status === state.statusFilter);
+            result = result.filter(item => String(item.status || '').toLowerCase() === String(state.statusFilter).toLowerCase());
         }
 
         if (state.search) {
             const query = state.search.toLowerCase();
             result = result.filter(item => 
-                Object.values(item).some(val => 
-                    String(val).toLowerCase().includes(query)
-                )
+                Object.values(item).some(val => {
+                    if (val === null || val === undefined) return false;
+                    return String(val).toLowerCase().includes(query);
+                })
             );
+        }
+
+        if (state.sortColumn) {
+            const col = state.sortColumn;
+            const dir = state.sortDirection === 'desc' ? -1 : 1;
+            result.sort((a, b) => {
+                let valA = a[col];
+                let valB = b[col];
+                if (valA === undefined || valA === null) valA = '';
+                if (valB === undefined || valB === null) valB = '';
+
+                if (typeof valA === 'string') valA = valA.replace(/^'/, '').trim();
+                if (typeof valB === 'string') valB = valB.replace(/^'/, '').trim();
+
+                const numA = Number(valA);
+                const numB = Number(valB);
+                if (!isNaN(numA) && !isNaN(numB) && valA !== '' && valB !== '') {
+                    return (numA - numB) * dir;
+                }
+
+                return String(valA).localeCompare(String(valB), 'id', { numeric: true, sensitivity: 'base' }) * dir;
+            });
         }
 
         state.filtered = result;
@@ -2248,11 +2431,13 @@
 
         if (type === 'siswa') renderSiswaRows(pagedData, startIdx);
         else if (type === 'guru') renderGuruRows(pagedData, startIdx);
+        else if (type === 'tendik') renderTendikRows(pagedData, startIdx);
         else if (type === 'libur') renderLiburRows(pagedData, startIdx);
-        else if (type === 'rekap') renderRekapRows(pagedData);
+        else if (type === 'rekap') renderRekapRows(pagedData, startIdx);
         else if (type === 'monitoring') renderMonitoringRows(pagedData, startIdx);
 
         updatePaginationUI(type, startIdx, pagedData.length, total, state.page, totalPages);
+        updateSortIcons(type);
     }
 
     function updatePaginationUI(type, startIdx, currentCount, total, currentPage, totalPages) {
@@ -3385,7 +3570,7 @@
         .generateExcel('laporan_absensi', filters);
     }
 
-    function renderRekapRows(data) {
+    function renderRekapRows(data, startIdx) {
         const tbody = document.getElementById('tbody-rekap');
         if (data.length === 0) {
             tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-gray-400">Tidak ada data ditemukan pada periode ini.</td></tr>';
@@ -3400,6 +3585,7 @@
              return 'bg-gray-100 text-gray-600';
         };
 
+        const baseIdx = typeof startIdx === 'number' ? startIdx : 0;
         tbody.innerHTML = data.map((d, i) => {
             let ketText = d.keterangan || "-";
             let ketStyle = "text-gray-500 text-xs";
@@ -3418,7 +3604,7 @@
 
             return `
             <tr class="hover:bg-gray-50 border-b border-gray-100 transition">
-                <td class="p-4 text-center text-gray-500 text-xs">${i + 1}</td>
+                <td class="p-4 text-center text-gray-500 text-xs">${baseIdx + i + 1}</td>
                 <td class="p-4 text-sm text-gray-600 font-medium">
                    ${new Date(d.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}
                 </td>
@@ -4880,11 +5066,6 @@
         }
     }
 
-    let allTendikData = [];
-    let tendikSearchQuery = '';
-    let tendikPageLimit = 10;
-    let tendikCurrentPage = 1;
-
     function loadDataTendik() {
         stopAndBack(false);
         setActiveMenu('Data Tendik');
@@ -4893,68 +5074,56 @@
     }
 
     function fetchTendikData() {
+        if (tableState.tendik.fullData && tableState.tendik.fullData.length > 0) {
+            processTableData('tendik');
+            return;
+        }
         showLoading();
         google.script.run
             .withSuccessHandler(result => {
                 hideLoading();
                 if (result && result.success) {
-                    allTendikData = result.data || [];
-                    renderTendikTable();
+                    tableState.tendik.fullData = result.data || [];
+                    processTableData('tendik');
                 } else {
+                    document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500 font-bold">${result ? result.message : 'Gagal memuat data'}</td></tr>`;
                     showAlert('error', (result ? result.message : 'Gagal memuat data tendik'));
                 }
             })
             .withFailureHandler(err => {
                 hideLoading();
+                document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">Gagal koneksi: ${err}</td></tr>`;
                 showAlert('error', 'Gagal memuat data tendik: ' + err);
             })
-            .getTendikList(currentUser.token);
+            .getTendikList(currentUser ? currentUser.token : null);
     }
 
-    function renderTendikTable() {
+    function renderTendikRows(data, startIdx) {
         const tbody = document.getElementById('tbody-tendik');
         if (!tbody) return;
 
-        let filtered = allTendikData.filter(item => {
-            const q = tendikSearchQuery.toLowerCase();
-            return (
-                String(item.nama || '').toLowerCase().includes(q) ||
-                String(item.nip || '').toLowerCase().includes(q) ||
-                String(item.jabatan || '').toLowerCase().includes(q) ||
-                String(item.username || '').toLowerCase().includes(q)
-            );
-        });
-
-        const totalData = filtered.length;
-        const limit = tendikPageLimit === 'all' ? totalData : parseInt(tendikPageLimit);
-        const totalPages = Math.ceil(totalData / limit) || 1;
-        if (tendikCurrentPage > totalPages) tendikCurrentPage = totalPages;
-
-        const start = (tendikCurrentPage - 1) * limit;
-        const pageData = tendikPageLimit === 'all' ? filtered : filtered.slice(start, start + limit);
-
-        if (pageData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">Tidak ada data tendik/staf ditemukan</td></tr>`;
-        } else {
-            tbody.innerHTML = pageData.map((item, idx) => `
-                <tr class="hover:bg-amber-50/50 transition">
-                    <td class="p-3 text-center font-bold text-slate-500">${start + idx + 1}</td>
-                    <td class="p-3 font-mono font-bold text-amber-700">${item.nip || '-'}</td>
-                    <td class="p-3 font-bold text-slate-800">${item.nama || item.username}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-semibold text-[11px]">${item.jabatan || 'Staf Kependidikan'}</span></td>
-                    <td class="p-3 text-slate-600">${item.noHp || '-'}</td>
-                    <td class="p-3 text-slate-500 font-mono">${item.username}</td>
-                    <td class="p-3 text-center space-x-1">
-                        <button onclick="loadQRCodeTendik('${item.nip || item.username}', '${item.nama || item.username}', '${item.jabatan || 'Staf Tendik'}')" class="p-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition" title="Cetak Kartu Tendik"><i class="fas fa-qrcode"></i></button>
-                        <button onclick="showEditTendikModal('${item.username}')" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="Edit"><i class="fas fa-edit"></i></button>
-                        <button onclick="deleteTendikPrompt('${item.username}')" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition" title="Hapus"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-bold">Data tendik/staf tidak ditemukan.</td></tr>`;
+            return;
         }
 
-        const info = document.getElementById('info-tendik');
-        if (info) info.textContent = `Menampilkan ${pageData.length} dari ${totalData} data tendik`;
+        tbody.innerHTML = data.map((item, idx) => `
+            <tr class="hover:bg-amber-50/50 transition border-b border-gray-100 group">
+                <td class="p-4 text-center font-bold text-slate-500 text-sm">${startIdx + idx + 1}</td>
+                <td class="p-4 font-mono font-bold text-amber-700 text-sm">${item.nip || '-'}</td>
+                <td class="p-4 font-bold text-slate-800 text-sm">${item.nama || item.username}</td>
+                <td class="p-4"><span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg font-bold text-xs">${item.jabatan || 'Staf Kependidikan'}</span></td>
+                <td class="p-4 text-slate-600 text-sm">${item.noHp || '-'}</td>
+                <td class="p-4 text-slate-500 font-mono text-sm">${item.username}</td>
+                <td class="p-4 text-center">
+                    <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
+                        <button onclick="loadQRCodeTendik('${item.nip || item.username}', '${item.nama || item.username}', '${item.jabatan || 'Staf Tendik'}')" class="p-2 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition" title="Cetak Kartu Tendik"><i class="fas fa-qrcode"></i></button>
+                        <button onclick="showEditTendikModal('${item.username}')" class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="Edit"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteTendikPrompt('${item.username}')" class="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition" title="Hapus"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
     }
 
     function showAddTendikModal() {
@@ -5017,6 +5186,7 @@
                 if (res.success) {
                     showAlert('success', res.message);
                     closeModal();
+                    tableState.tendik.fullData = [];
                     fetchTendikData();
                 } else {
                     showAlert('error', res.message);
@@ -5030,7 +5200,7 @@
     }
 
     function showEditTendikModal(username) {
-        const item = allTendikData.find(x => x.username === username);
+        const item = (tableState.tendik.fullData || []).find(x => x.username === username);
         if (!item) return;
 
         showModal(`
@@ -5092,6 +5262,7 @@
                 if (res.success) {
                     showAlert('success', res.message);
                     closeModal();
+                    tableState.tendik.fullData = [];
                     fetchTendikData();
                 } else {
                     showAlert('error', res.message);
@@ -5112,6 +5283,7 @@
                     hideLoading();
                     if (res.success) {
                         showAlert('success', res.message);
+                        tableState.tendik.fullData = [];
                         fetchTendikData();
                     } else {
                         showAlert('error', res.message);
