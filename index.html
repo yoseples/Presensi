@@ -426,6 +426,9 @@
                               <button onclick="doSelfPresensiGuru()" class="flex-1 bg-white text-purple-900 hover:bg-purple-50 font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md">
                                   <i class="fas fa-fingerprint text-base text-purple-700"></i> Presensi Mandiri
                               </button>
+                              <button onclick="loadQRCodeGuru()" class="bg-white/20 hover:bg-white/30 text-white font-bold p-2.5 rounded-xl text-xs transition" title="Kartu Identitas Guru">
+                                  <i class="fas fa-id-card text-base"></i>
+                              </button>
                               <button onclick="showUserProfileAndSecurityModal()" class="bg-white/20 hover:bg-white/30 text-white font-bold p-2.5 rounded-xl text-xs transition" title="Profil & Ganti Password">
                                   <i class="fas fa-user-cog text-base"></i>
                               </button>
@@ -2464,6 +2467,7 @@
         } 
         else if (currentUser.role === 'guru') {
             menuHTML += createItem('Dashboard', 'fa-home', 'loadGuruDashboard()', true);
+            menuHTML += createItem('Kartu Saya', 'fa-id-card', 'loadQRCodeGuru()');
             menuHTML += createItem('Monitoring', 'fa-eye', 'loadMonitoringAbsensi()');
             menuHTML += createItem('Scan Absensi', 'fa-qrcode', 'loadScanAbsensi()');
             menuHTML += createItem('Profil & Akun', 'fa-user-cog', 'showUserProfileAndSecurityModal()');
@@ -3188,7 +3192,8 @@
             <td class="p-4 text-sm text-gray-600">${guru.noHp || '-'}</td>
             <td class="p-4 text-sm text-gray-400 font-mono">••••••••</td>
             <td class="p-4 text-center">
-                <div class="flex justify-center space-x-2 opacity-80 group-hover:opacity-100">
+                <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
+                    <button onclick="loadQRCodeGuru('${guru.nip || guru.username}', '${guru.nama || guru.username}', '${guru.jabatan || (guru.kelas ? 'Wali Kelas ' + guru.kelas : 'Guru SMANSA')}')" class="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition" title="Cetak Kartu Guru"><i class="fas fa-qrcode"></i></button>
                     <button onclick='editGuru(${JSON.stringify(guru)})' class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit Akun"><i class="fas fa-edit"></i></button>
                     <button onclick="deleteGuruConfirm('${guru.username}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition" title="Hapus Akun"><i class="fas fa-trash"></i></button>
                 </div>
@@ -3556,62 +3561,37 @@
         } 
         
         showView('view-kartu-siswa');
+        document.getElementById('pageTitle').textContent = "Kartu Tanda Siswa";
         const container = document.getElementById('kartuSiswaContainer');
         
-        const namaSiswa = namaParam || currentUser.nama || currentUser.username || "Pengguna";
-        const nisnSiswa = nisnParam || currentUser.nisn || currentUser.nip || currentUser.username || "1234567890";
-        const kelasSiswa = kelasParam || currentUser.kelas || currentUser.jabatan || "X RPL 1";
-
-        // Tentukan jenis kartu: Siswa vs Guru vs Tendik
-        let cardTitle = 'KARTU PELAJAR DIGITAL';
-        let idLabel = 'NISN';
-        let badgeColor = 'bg-indigo-50 text-indigo-700 border-indigo-200';
-        let headerGradient = 'from-indigo-600 to-purple-600';
-        let backFunction = "loadSiswaDashboard()";
-
-        const lowerKelas = String(kelasSiswa).toLowerCase();
-        const isGuru = lowerKelas.includes('guru') || lowerKelas.includes('wali kelas') || lowerKelas.includes('pengajar') || (currentUser.role === 'guru' && !kelasParam);
-        const isTendik = lowerKelas.includes('tendik') || lowerKelas.includes('staf') || lowerKelas.includes('perpustakaan') || lowerKelas.includes('satpam') || lowerKelas.includes('tata usaha') || lowerKelas.includes('keamanan') || (currentUser.role === 'tendik' && !kelasParam);
-
-        if (isGuru) {
-            cardTitle = 'KARTU IDENTITAS GURU';
-            idLabel = 'NIP / ID GURU';
-            badgeColor = 'bg-purple-50 text-purple-700 border-purple-200';
-            headerGradient = 'from-slate-900 to-purple-800';
-            backFunction = (currentUser.role === 'admin') ? "loadDataGuru()" : "loadGuruDashboard()";
-        } else if (isTendik) {
-            cardTitle = 'KARTU IDENTITAS TENDIK';
-            idLabel = 'NIP / NIK STAF';
-            badgeColor = 'bg-amber-50 text-amber-800 border-amber-200';
-            headerGradient = 'from-amber-700 to-amber-900';
-            backFunction = (currentUser.role === 'admin') ? "loadDataTendik()" : "loadTendikDashboard()";
-        } else {
-            if (currentUser.role === 'admin') backFunction = "loadDataSiswa()";
-        }
+        const namaSiswa = namaParam || currentUser.nama || currentUser.username || "Siswa SMANSA";
+        const nisnSiswa = nisnParam || currentUser.nisn || currentUser.username || "1234567890";
+        const kelasSiswa = kelasParam || currentUser.kelas || "X MIPA 1";
+        const backFunction = (currentUser.role === 'admin') ? "loadDataSiswa()" : "loadSiswaDashboard()";
 
         container.innerHTML = `
             <div class="flex justify-center items-center h-full py-10 animate-slide-up">
                 <div class="bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-sm relative transform hover:scale-[1.02] transition duration-300 border border-slate-100">
-                    <div class="bg-gradient-to-r ${headerGradient} p-6 text-white text-center relative overflow-hidden flex flex-col items-center">
+                    <div class="bg-gradient-to-r from-blue-700 via-indigo-700 to-indigo-900 p-6 text-white text-center relative overflow-hidden flex flex-col items-center">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl"></div>
                         <div class="w-16 h-16 flex items-center justify-center mb-2">
                             <img src="logo.png" onerror="this.src='favicon.png'" alt="Logo SMANSA Lhoksukon" class="w-full h-full object-contain filter drop-shadow">
                         </div>
-                        <h2 class="text-lg font-extrabold tracking-tight">${cardTitle}</h2>
+                        <h2 class="text-lg font-extrabold tracking-tight">KARTU TANDA SISWA</h2>
                         <p class="text-[10px] tracking-[0.2em] uppercase opacity-90 font-semibold">SMA NEGERI 1 LHOKSUKON</p>
                     </div>
             
-                    <div class="p-8 text-center bg-gray-50/50">
-                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-200 inline-block mb-4">
+                    <div class="p-8 text-center bg-blue-50/20">
+                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-blue-100 inline-block mb-4">
                             <div id="myQrcode"></div>
                         </div>
     
                         <h3 class="text-xl font-bold text-gray-800 mb-1">${namaSiswa}</h3>
-                        <p class="text-slate-500 font-mono font-bold text-xs uppercase mb-2">${idLabel}: <span class="text-slate-900 text-sm font-black tracking-wider">${nisnSiswa}</span></p>
-                        <span class="inline-block px-4 py-1.5 ${badgeColor} border rounded-full text-xs font-bold shadow-sm">${kelasSiswa}</span>
+                        <p class="text-slate-500 font-mono font-bold text-xs uppercase mb-2">NISN: <span class="text-indigo-900 text-sm font-black tracking-wider">${nisnSiswa}</span></p>
+                        <span class="inline-block px-4 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-xs font-bold shadow-sm">Kelas ${kelasSiswa}</span>
                     </div>
                     <div class="p-5 bg-white border-t border-gray-100 flex gap-3">
-                        <button onclick="window.print()" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-xs shadow hover:bg-black transition flex items-center justify-center gap-1.5">
+                        <button onclick="window.print()" class="flex-1 bg-indigo-700 hover:bg-indigo-800 text-white py-3 rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
                             <i class="fas fa-print"></i> Cetak Kartu
                         </button>
                         <button onclick="${backFunction}" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
@@ -3628,7 +3608,141 @@
                     text: String(nisnSiswa),
                     width: 170,
                     height: 170,
-                    colorDark: "#0F172A",
+                    colorDark: "#1E1B4B",
+                    colorLight: "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+        }, 100);
+    }
+
+    function loadQRCodeGuru(nipParam, namaParam, jabatanParam) {
+        stopAndBack(false);
+        if (!currentUser) return;
+        
+        if (currentUser.role === 'admin') {
+            setActiveMenu('Data Guru');
+        } else {
+            setActiveMenu('Kartu Saya');
+        } 
+        
+        showView('view-kartu-siswa');
+        document.getElementById('pageTitle').textContent = "Kartu Tanda Guru";
+        const container = document.getElementById('kartuSiswaContainer');
+        
+        const namaGuru = namaParam || currentUser.nama || currentUser.username || "Guru SMANSA";
+        const nipGuru = nipParam || currentUser.nip || currentUser.username || "-";
+        const jabatanGuru = jabatanParam || currentUser.jabatan || (currentUser.kelas ? 'Wali Kelas ' + currentUser.kelas : 'Guru Mata Pelajaran');
+        const qrContent = nipParam || currentUser.nip || currentUser.username || "GURU";
+        const backFunction = (currentUser.role === 'admin') ? "loadDataGuru()" : "loadGuruDashboard()";
+
+        container.innerHTML = `
+            <div class="flex justify-center items-center h-full py-10 animate-slide-up">
+                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-sm relative transform hover:scale-[1.02] transition duration-300 border border-slate-100">
+                    <div class="bg-gradient-to-r from-slate-950 via-purple-950 to-indigo-950 p-6 text-white text-center relative overflow-hidden flex flex-col items-center">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full -mr-10 -mt-10 blur-xl"></div>
+                        <div class="w-16 h-16 flex items-center justify-center mb-2">
+                            <img src="logo.png" onerror="this.src='favicon.png'" alt="Logo SMANSA Lhoksukon" class="w-full h-full object-contain filter drop-shadow">
+                        </div>
+                        <h2 class="text-lg font-extrabold tracking-tight">KARTU TANDA GURU</h2>
+                        <p class="text-[10px] tracking-[0.2em] uppercase opacity-90 font-semibold text-purple-200">SMA NEGERI 1 LHOKSUKON</p>
+                    </div>
+            
+                    <div class="p-8 text-center bg-purple-50/20">
+                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-purple-100 inline-block mb-4">
+                            <div id="myQrcode"></div>
+                        </div>
+    
+                        <h3 class="text-xl font-bold text-gray-900 mb-1">${namaGuru}</h3>
+                        <p class="text-slate-500 font-mono font-bold text-xs uppercase mb-2">NIP: <span class="text-purple-900 text-sm font-black tracking-wider">${nipGuru}</span></p>
+                        <span class="inline-block px-4 py-1.5 bg-purple-100 text-purple-800 border border-purple-200 rounded-full text-xs font-bold shadow-sm">${jabatanGuru}</span>
+                    </div>
+                    <div class="p-5 bg-white border-t border-gray-100 flex gap-3">
+                        <button onclick="window.print()" class="flex-1 bg-purple-900 hover:bg-purple-950 text-white py-3 rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+                            <i class="fas fa-print"></i> Cetak Kartu
+                        </button>
+                        <button onclick="${backFunction}" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+
+        setTimeout(() => {
+            if (qrContent) {
+                document.getElementById("myQrcode").innerHTML = "";
+                new QRCode(document.getElementById("myQrcode"), {
+                    text: String(qrContent),
+                    width: 170,
+                    height: 170,
+                    colorDark: "#1E1B4B",
+                    colorLight: "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
+        }, 100);
+    }
+
+    function loadQRCodeTendik(nipParam, namaParam, jabatanParam) {
+        stopAndBack(false);
+        if (!currentUser) return;
+        
+        if (currentUser.role === 'admin') {
+            setActiveMenu('Data Tendik');
+        } else {
+            setActiveMenu('Kartu Saya');
+        } 
+        
+        showView('view-kartu-siswa');
+        document.getElementById('pageTitle').textContent = "Kartu Tanda Tendik";
+        const container = document.getElementById('kartuSiswaContainer');
+        
+        const namaTendik = namaParam || currentUser.nama || currentUser.username || "Staf Tendik SMANSA";
+        const nipTendik = nipParam || currentUser.nip || currentUser.username || "-";
+        const jabatanTendik = jabatanParam || currentUser.jabatan || "Tenaga Kependidikan";
+        const qrContent = nipParam || currentUser.nip || currentUser.username || "TENDIK";
+        const backFunction = (currentUser.role === 'admin') ? "loadDataTendik()" : "loadTendikDashboard()";
+
+        container.innerHTML = `
+            <div class="flex justify-center items-center h-full py-10 animate-slide-up">
+                <div class="bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-sm relative transform hover:scale-[1.02] transition duration-300 border border-slate-100">
+                    <div class="bg-gradient-to-r from-amber-700 via-amber-800 to-slate-900 p-6 text-white text-center relative overflow-hidden flex flex-col items-center">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl"></div>
+                        <div class="w-16 h-16 flex items-center justify-center mb-2">
+                            <img src="logo.png" onerror="this.src='favicon.png'" alt="Logo SMANSA Lhoksukon" class="w-full h-full object-contain filter drop-shadow">
+                        </div>
+                        <h2 class="text-lg font-extrabold tracking-tight">KARTU TANDA TENDIK</h2>
+                        <p class="text-[10px] tracking-[0.2em] uppercase opacity-90 font-semibold text-amber-200">SMA NEGERI 1 LHOKSUKON</p>
+                    </div>
+            
+                    <div class="p-8 text-center bg-amber-50/20">
+                        <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-amber-100 inline-block mb-4">
+                            <div id="myQrcode"></div>
+                        </div>
+    
+                        <h3 class="text-xl font-bold text-gray-900 mb-1">${namaTendik}</h3>
+                        <p class="text-slate-500 font-mono font-bold text-xs uppercase mb-2">NIP / NIK: <span class="text-amber-900 text-sm font-black tracking-wider">${nipTendik}</span></p>
+                        <span class="inline-block px-4 py-1.5 bg-amber-100 text-amber-900 border border-amber-200 rounded-full text-xs font-bold shadow-sm">${jabatanTendik}</span>
+                    </div>
+                    <div class="p-5 bg-white border-t border-gray-100 flex gap-3">
+                        <button onclick="window.print()" class="flex-1 bg-amber-700 hover:bg-amber-800 text-white py-3 rounded-xl font-bold text-xs shadow transition flex items-center justify-center gap-1.5">
+                            <i class="fas fa-print"></i> Cetak Kartu
+                        </button>
+                        <button onclick="${backFunction}" class="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl font-bold text-xs hover:bg-gray-50 transition">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+
+        setTimeout(() => {
+            if (qrContent) {
+                document.getElementById("myQrcode").innerHTML = "";
+                new QRCode(document.getElementById("myQrcode"), {
+                    text: String(qrContent),
+                    width: 170,
+                    height: 170,
+                    colorDark: "#451A03",
                     colorLight: "#ffffff",
                     correctLevel : QRCode.CorrectLevel.H
                 });
@@ -4302,7 +4416,7 @@
                     <td class="p-3 text-slate-600">${item.noHp || '-'}</td>
                     <td class="p-3 text-slate-500 font-mono">${item.username}</td>
                     <td class="p-3 text-center space-x-1">
-                        <button onclick="loadQRCodeSiswa('${item.nip || item.username}', '${item.nama || item.username}', '${item.jabatan || 'Tendik'}')" class="p-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition" title="Cetak Kartu QR"><i class="fas fa-qrcode"></i></button>
+                        <button onclick="loadQRCodeTendik('${item.nip || item.username}', '${item.nama || item.username}', '${item.jabatan || 'Staf Tendik'}')" class="p-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition" title="Cetak Kartu Tendik"><i class="fas fa-qrcode"></i></button>
                         <button onclick="showEditTendikModal('${item.username}')" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="Edit"><i class="fas fa-edit"></i></button>
                         <button onclick="deleteTendikPrompt('${item.username}')" class="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition" title="Hapus"><i class="fas fa-trash"></i></button>
                     </td>
@@ -4526,11 +4640,6 @@
             .scanAbsensi(targetId, currentUser.role, currentUser.kelas);
     }
 
-    function loadQRCodeTendik() {
-        if (!currentUser) return;
-        loadQRCodeSiswa(currentUser.nip || currentUser.username, currentUser.nama || currentUser.username, currentUser.jabatan || 'Staf Tendik');
-    }
-
     function showUserProfileAndSecurityModal() {
         if (!currentUser) return;
 
@@ -4603,6 +4712,12 @@
                                 <span class="text-[10px] text-slate-400 font-bold uppercase">Status Akun</span>
                                 <p class="font-bold text-emerald-600 mt-0.5"><i class="fas fa-check-circle mr-1"></i> Aktif</p>
                             </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button onclick="closeModal(); ${role === 'guru' ? 'loadQRCodeGuru()' : (role === 'tendik' ? 'loadQRCodeTendik()' : 'loadQRCodeSiswa()')}" class="w-full py-2.5 px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl flex items-center justify-center gap-2 transition">
+                                <i class="fas fa-id-card"></i> Buka Kartu Tanda ${role === 'guru' ? 'Guru' : (role === 'tendik' ? 'Tendik' : 'Siswa')} Digital
+                            </button>
                         </div>
                     </div>
 
