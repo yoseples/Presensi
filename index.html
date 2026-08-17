@@ -5304,8 +5304,23 @@
             generateCardQR(qrContainer.id, window.activeCardQRText, window.activeCardQRColor || "#0F243A");
         }
 
-        // 3. Beri jeda 150ms agar DOM layout stabil
-        await new Promise(resolve => setTimeout(resolve, 150));
+        // 3. Tunggu SEMUA gambar di dalam elemen benar-benar ter-load (termasuk barcode base64 PNG)
+        const allImages = el.querySelectorAll('img');
+        if (allImages.length > 0) {
+            const imageLoadPromises = Array.from(allImages).map(img => {
+                if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+                return new Promise((resolve) => {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                    // Fallback timeout: jika gambar tidak load dalam 3 detik, lanjutkan saja
+                    setTimeout(resolve, 3000);
+                });
+            });
+            await Promise.all(imageLoadPromises);
+        }
+
+        // 4. Beri jeda tambahan 300ms agar browser selesai layout & paint
+        await new Promise(resolve => setTimeout(resolve, 300));
 
         try {
             const canvas = await html2canvas(el, {
