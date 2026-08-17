@@ -1314,6 +1314,15 @@ function getAbsensiList(filter = {}) {
         if (fEnd && tanggalStr > fEnd) match = false;
         if (filter.nama && !String(item.nama).toLowerCase().includes(filter.nama.toLowerCase())) match = false;
         if (fKelas && item.kelas != fKelas) match = false;
+        if (filter.kategori) {
+          if (filter.kategori === 'Siswa') {
+            if (item.tipeUser && item.tipeUser !== 'Siswa') match = false;
+          } else if (filter.kategori === 'Guru') {
+            if (item.tipeUser !== 'Guru' && !String(item.kelas).includes('Guru') && !String(item.kelas).includes('Wali')) match = false;
+          } else if (filter.kategori === 'Tendik') {
+            if (item.tipeUser !== 'Tendik' && !String(item.kelas).includes('Tendik') && !String(item.kelas).includes('Staf')) match = false;
+          }
+        }
 
         if (match) {
           absensiList.push(item);
@@ -1863,5 +1872,58 @@ function changeCredentials(token, oldUsername, newUsername, oldPassword, newPass
     return { success: true, message: 'Username & Password berhasil diubah di Google Sheet!' };
   } catch (e) {
     return { success: false, message: e.toString() };
+  }
+}
+
+function updateUserProfilePhoto(token, userId, fotoBase64) {
+  try {
+    const ss = getSpreadsheet();
+    const cleanId = String(userId || '').trim().toLowerCase();
+
+    // 1. Siswa
+    const siswaSheet = ss.getSheetByName('siswa');
+    if (siswaSheet) {
+      const data = siswaSheet.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        const sNisn = String(data[i][1]).replace(/^'/, '').trim().toLowerCase();
+        const sNama = String(data[i][0]).trim().toLowerCase();
+        if (sNisn === cleanId || sNama === cleanId) {
+          siswaSheet.getRange(i + 1, 11).setValue(fotoBase64);
+          return { success: true, message: 'Foto profil siswa berhasil diperbarui!' };
+        }
+      }
+    }
+
+    // 2. Guru
+    const guruSheet = ss.getSheetByName('guru');
+    if (guruSheet) {
+      const data = guruSheet.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        const gNip = String(data[i][0]).replace(/^'/, '').trim().toLowerCase();
+        const gUser = String(data[i][4] || '').trim().toLowerCase();
+        if (gNip === cleanId || gUser === cleanId) {
+          guruSheet.getRange(i + 1, 7).setValue(fotoBase64);
+          return { success: true, message: 'Foto profil guru berhasil diperbarui!' };
+        }
+      }
+    }
+
+    // 3. Tendik
+    const tendikSheet = ss.getSheetByName('tendik');
+    if (tendikSheet) {
+      const data = tendikSheet.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        const tNip = String(data[i][0]).replace(/^'/, '').trim().toLowerCase();
+        const tUser = String(data[i][4] || '').trim().toLowerCase();
+        if (tNip === cleanId || tUser === cleanId) {
+          tendikSheet.getRange(i + 1, 7).setValue(fotoBase64);
+          return { success: true, message: 'Foto profil tendik berhasil diperbarui!' };
+        }
+      }
+    }
+
+    return { success: true, message: 'Foto profil berhasil disimpan!' };
+  } catch (e) {
+    return { success: false, message: 'Gagal update foto: ' + e.toString() };
   }
 }

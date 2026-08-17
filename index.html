@@ -1320,14 +1320,15 @@
               </div>
 
               <!-- 8. REKAP & LAPORAN -->
+              <!-- 8. REKAP & LAPORAN -->
               <div id="view-rekap-absensi" class="view-section animate-fade-in">
                   <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                       
                       <div class="p-5 border-b border-gray-100 bg-gray-50/50">
                           <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                               <div>
-                                  <h3 class="font-bold text-lg text-gray-800">Laporan Kehadiran Siswa</h3>
-                                  <p class="text-xs text-gray-500">Rekap data absensi siswa berdasarkan periode dan kelas.</p>
+                                  <h3 class="font-bold text-lg text-gray-800">Laporan & Rekap Presensi</h3>
+                                  <p class="text-xs text-gray-500">Rekap data kehadiran Siswa, Guru / Pendidik, dan Tenaga Kependidikan (Tendik).</p>
                               </div>
                           </div>
 
@@ -1341,6 +1342,16 @@
                               <div class="w-full md:flex-1">
                                  <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1 block">Sampai Tanggal</label>
                                  <input type="date" id="fEnd" class="w-full border-gray-300 rounded-lg text-xs p-2.5 focus:ring-indigo-500 focus:border-indigo-500">
+                              </div>
+
+                              <div class="w-full md:flex-1">
+                                 <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1 block">Kategori / Peran</label>
+                                 <select id="fKategoriRekap" class="w-full border-gray-300 rounded-lg text-xs p-2.5 focus:ring-indigo-500 focus:border-indigo-500 bg-white font-bold text-slate-700">
+                                     <option value="">Semua (Siswa, Guru, Tendik)</option>
+                                     <option value="Siswa">Siswa</option>
+                                     <option value="Guru">Guru / Pendidik</option>
+                                     <option value="Tendik">Tenaga Kependidikan (Tendik)</option>
+                                 </select>
                               </div>
                               
                               <div class="w-full md:flex-1">
@@ -1378,9 +1389,9 @@
                                   <select onchange="handleTableSortOrder('rekap', this.value)" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 w-full sm:w-auto font-bold shadow-sm" title="Urutkan Data">
                                       <option value="tanggal_desc">Urut: Tanggal (Terbaru - Terlama)</option>
                                       <option value="tanggal_asc">Urut: Tanggal (Terlama - Terbaru)</option>
-                                      <option value="nama_asc">Urut: Nama Siswa (A-Z)</option>
-                                      <option value="nama_desc">Urut: Nama Siswa (Z-A)</option>
-                                      <option value="kelas_asc">Urut: Kelas (A-Z)</option>
+                                      <option value="nama_asc">Urut: Nama (A-Z)</option>
+                                      <option value="nama_desc">Urut: Nama (Z-A)</option>
+                                      <option value="kelas_asc">Urut: Kelas / Jabatan (A-Z)</option>
                                       <option value="status_asc">Urut: Status Kehadiran (A-Z)</option>
                                   </select>
                               </div>
@@ -1388,7 +1399,7 @@
                                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                       <i class="fas fa-search text-gray-400 text-xs"></i>
                                   </div>
-                                  <input type="text" oninput="handleTableSearch('rekap', this.value)" class="bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2" placeholder="Cari Siswa / Kelas...">
+                                  <input type="text" oninput="handleTableSearch('rekap', this.value)" class="bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2" placeholder="Cari Nama / ID / Kelas...">
                               </div>
                           </div>
 
@@ -1401,10 +1412,13 @@
                                             <div class="flex items-center gap-1"><span>Tanggal</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
                                         </th>
                                         <th class="p-4 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'nama')" data-sort-type="rekap" data-sort-col="nama">
-                                            <div class="flex items-center gap-1"><span>Nama Siswa</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                            <div class="flex items-center gap-1"><span>Nama</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                        </th>
+                                        <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'tipeUser')" data-sort-type="rekap" data-sort-col="tipeUser">
+                                            <div class="flex items-center justify-center gap-1"><span>Peran</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
                                         </th>
                                         <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'kelas')" data-sort-type="rekap" data-sort-col="kelas">
-                                            <div class="flex items-center justify-center gap-1"><span>Kelas</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
+                                            <div class="flex items-center justify-center gap-1"><span>Kelas / Jabatan</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
                                         </th>
                                         <th class="p-4 text-center cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('rekap', 'jamDatang')" data-sort-type="rekap" data-sort-col="jamDatang">
                                             <div class="flex items-center justify-center gap-1"><span>Jam Datang</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
@@ -2038,15 +2052,36 @@
 
       getAbsensiToday: async (nisn) => {
         const today = getTodayString();
+        const searchId = String(nisn || '').trim().toLowerCase();
         const liburList = await getDB('libur');
         const isLibur = liburList.find(x => x.tanggal === today);
-        if (isLibur) {
-          return { success: true, isLibur: true, keteranganLibur: isLibur.keterangan };
+
+        const guruList = await getDB('guru');
+        const guru = guruList.find(g => (g.username && g.username.toLowerCase() === searchId) || (g.nip && String(g.nip).toLowerCase() === searchId));
+        const tendikList = await getDB('tendik');
+        const tendik = tendikList.find(t => (t.username && t.username.toLowerCase() === searchId) || (t.nip && String(t.nip).toLowerCase() === searchId));
+
+        const validIds = new Set([searchId]);
+        if (guru) {
+          if (guru.username) validIds.add(guru.username.toLowerCase());
+          if (guru.nip) validIds.add(String(guru.nip).toLowerCase());
+        }
+        if (tendik) {
+          if (tendik.username) validIds.add(tendik.username.toLowerCase());
+          if (tendik.nip) validIds.add(String(tendik.nip).toLowerCase());
         }
 
         const absensiList = await getDB('absensi');
-        const rec = absensiList.find(a => a.tanggal === today && String(a.nisn) === String(nisn));
-        return { success: true, isLibur: false, data: rec || null };
+        const rec = absensiList.find(a => a.tanggal === today && (
+          validIds.has(String(a.nisn || '').trim().toLowerCase()) ||
+          (a.username && validIds.has(String(a.username).trim().toLowerCase()))
+        ));
+        return {
+          success: true,
+          isLibur: Boolean(isLibur),
+          keteranganLibur: isLibur ? isLibur.keterangan : '',
+          data: rec || null
+        };
       },
 
       scanAbsensi: async (rawNisn, role, roleKelas) => {
@@ -2061,7 +2096,7 @@
         const guru = guruList.find(g => String(g.nip || '').trim() === nisn || g.username.toLowerCase() === nisn.toLowerCase());
         if (guru) {
           const targetId = guru.nip || guru.username;
-          const existingIdx = absensiList.findIndex(a => a.tanggal === today && String(a.nisn) === targetId);
+          const existingIdx = absensiList.findIndex(a => a.tanggal === today && (String(a.nisn) === targetId || (a.username && a.username.toLowerCase() === guru.username.toLowerCase())));
           if (existingIdx !== -1) {
             const rec = absensiList[existingIdx];
             if (rec.jamPulang && rec.jamPulang !== '-') {
@@ -2090,6 +2125,7 @@
           absensiList.push({
             tanggal: today,
             nisn: targetId,
+            username: guru.username,
             nama: guru.nama || guru.username,
             kelas: guru.jabatan || (guru.kelas ? 'Wali Kelas ' + guru.kelas : 'Guru SMANSA'),
             jamDatang: nowTime,
@@ -2115,7 +2151,7 @@
         const tendik = tendikList.find(t => String(t.nip || '').trim() === nisn || t.username.toLowerCase() === nisn.toLowerCase());
         if (tendik) {
           const targetId = tendik.nip || tendik.username;
-          const existingIdx = absensiList.findIndex(a => a.tanggal === today && String(a.nisn) === targetId);
+          const existingIdx = absensiList.findIndex(a => a.tanggal === today && (String(a.nisn) === targetId || (a.username && a.username.toLowerCase() === tendik.username.toLowerCase())));
           if (existingIdx !== -1) {
             const rec = absensiList[existingIdx];
             if (rec.jamPulang && rec.jamPulang !== '-') {
@@ -2144,8 +2180,9 @@
           absensiList.push({
             tanggal: today,
             nisn: targetId,
+            username: tendik.username,
             nama: tendik.nama || tendik.username,
-            kelas: tendik.jabatan || 'Staf Tendik SMANSA',
+            kelas: tendik.jabatan || 'Tendik SMANSA',
             jamDatang: nowTime,
             jamPulang: '-',
             keterangan: ket,
@@ -2158,7 +2195,7 @@
             success: true,
             type: 'datang',
             nama: tendik.nama || tendik.username,
-            kelas: tendik.jabatan || 'Staf Tendik SMANSA',
+            kelas: tendik.jabatan || 'Tendik SMANSA',
             jamDatang: nowTime,
             message: 'Absen Masuk Tendik Berhasil'
           };
@@ -2261,6 +2298,15 @@
         if (filters.tanggalAkhir) {
           filtered = filtered.filter(x => x.tanggal <= filters.tanggalAkhir);
         }
+        if (filters.kategori) {
+          if (filters.kategori === 'Siswa') {
+            filtered = filtered.filter(x => !x.tipeUser || x.tipeUser === 'Siswa');
+          } else if (filters.kategori === 'Guru') {
+            filtered = filtered.filter(x => x.tipeUser === 'Guru');
+          } else if (filters.kategori === 'Tendik') {
+            filtered = filtered.filter(x => x.tipeUser === 'Tendik');
+          }
+        }
         if (filters.kelas) {
           filtered = filtered.filter(x => x.kelas === filters.kelas);
         }
@@ -2274,18 +2320,20 @@
 
         if (type === 'laporan_absensi') {
           const res = await BackendAPI.getAbsensiList(filters);
+          const kategoriStr = filters.kategori ? `_${filters.kategori}` : '';
           data = res.data.map((d, i) => ({
             'No': i + 1,
             'Tanggal': d.tanggal,
-            'NISN': d.nisn,
-            'Nama Siswa': d.nama,
-            'Kelas': d.kelas,
-            'Jam Datang': d.jamDatang,
+            'NIP / NISN': d.nisn,
+            'Nama': d.nama,
+            'Kategori / Peran': d.tipeUser || 'Siswa',
+            'Kelas / Jabatan': d.kelas,
+            'Jam Masuk': d.jamDatang,
             'Jam Pulang': d.jamPulang,
             'Keterangan': d.keterangan,
             'Status': d.status
           }));
-          filename = `Laporan_Absensi_${filters.tanggalMulai || 'all'}_sd_${filters.tanggalAkhir || 'all'}.xlsx`;
+          filename = `Laporan_Absensi${kategoriStr}_${filters.tanggalMulai || 'all'}_sd_${filters.tanggalAkhir || 'all'}.xlsx`;
         } else {
           const res = await BackendAPI.getMonitoringRealtime(filters ? filters.kelas : null);
           data = res.data.map((d, i) => ({
@@ -2768,7 +2816,15 @@
         const name = currentUser.nama || currentUser.username;
         document.getElementById('navUserName').textContent = name;
         document.getElementById('navUserRole').textContent = currentUser.role.toUpperCase();
-        document.getElementById('navUserInitial').textContent = name.charAt(0).toUpperCase();
+        
+        const navInit = document.getElementById('navUserInitial');
+        if (navInit) {
+            if (currentUser.foto) {
+                navInit.innerHTML = `<img src="${currentUser.foto}" class="w-full h-full object-cover rounded-xl">`;
+            } else {
+                navInit.textContent = name.charAt(0).toUpperCase();
+            }
+        }
 
         const menuContainer = document.getElementById('sidebarMenu');
         let menuHTML = '';
@@ -3703,26 +3759,33 @@
             tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-gray-400">Data guru tidak ditemukan.</td></tr>';
             return;
         }
-        tbody.innerHTML = data.map((guru, i) => `
-        <tr class="hover:bg-gray-50 transition border-b border-gray-100 group">
-            <td class="p-4 text-center text-gray-500 text-sm">${startIdx + i + 1}</td>
-            <td class="p-4 text-sm text-gray-600 font-mono">${guru.nip || '-'}</td>
-            <td class="p-4 text-sm font-bold text-gray-800">${guru.nama || guru.username}</td>
-            <td class="p-4 text-sm text-gray-600">${guru.username}</td>
-            <td class="p-4 text-sm text-gray-600">${guru.jabatan || '-'}</td>
-            <td class="p-4 text-sm text-gray-600">
-                ${guru.kelas ? `<span class="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg text-xs font-bold">${guru.kelas}</span>` : '<span class="text-gray-400 italic text-xs">-</span>'}
-            </td>
-            <td class="p-4 text-sm text-gray-600">${guru.noHp || '-'}</td>
-            <td class="p-4 text-sm text-gray-400 font-mono">••••••••</td>
-            <td class="p-4 text-center">
-                <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
-                    <button onclick="loadQRCodeGuru('${guru.nip || guru.username}', '${guru.nama || guru.username}', '${guru.jabatan || (guru.kelas ? 'Wali Kelas ' + guru.kelas : 'Guru SMANSA')}')" class="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition" title="Cetak Kartu Guru"><i class="fas fa-qrcode"></i></button>
-                    <button onclick='editGuru(${JSON.stringify(guru)})' class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit Akun"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteGuruConfirm('${guru.username}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition" title="Hapus Akun"><i class="fas fa-trash"></i></button>
-                </div>
-            </td>
-        </tr>`).join('');
+        tbody.innerHTML = data.map((guru, i) => {
+            const initial = (guru.nama || guru.username || 'G').charAt(0).toUpperCase();
+            const avatarHtml = guru.foto ? `<img src="${guru.foto}" class="w-8 h-8 rounded-xl object-cover border border-purple-200 shrink-0">` : `<div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 font-extrabold flex items-center justify-center text-xs shrink-0">${initial}</div>`;
+            return `
+            <tr class="hover:bg-gray-50 transition border-b border-gray-100 group">
+                <td class="p-4 text-center text-gray-500 text-sm">${startIdx + i + 1}</td>
+                <td class="p-4 text-sm text-gray-600 font-mono">${guru.nip || '-'}</td>
+                <td class="p-4 text-sm font-bold text-gray-800 flex items-center gap-2.5">
+                    ${avatarHtml}
+                    <span>${guru.nama || guru.username}</span>
+                </td>
+                <td class="p-4 text-sm text-gray-600">${guru.username}</td>
+                <td class="p-4 text-sm text-gray-600">${guru.jabatan || '-'}</td>
+                <td class="p-4 text-sm text-gray-600">
+                    ${guru.kelas ? `<span class="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg text-xs font-bold">${guru.kelas}</span>` : '<span class="text-gray-400 italic text-xs">-</span>'}
+                </td>
+                <td class="p-4 text-sm text-gray-600">${guru.noHp || '-'}</td>
+                <td class="p-4 text-sm text-gray-400 font-mono">••••••••</td>
+                <td class="p-4 text-center">
+                    <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
+                        <button onclick="loadQRCodeGuru('${guru.nip || guru.username}', '${guru.nama || guru.username}', '${guru.jabatan || (guru.kelas ? 'Wali Kelas ' + guru.kelas : 'Guru SMANSA')}', '${guru.foto || ''}')" class="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition" title="Cetak Kartu Guru"><i class="fas fa-qrcode"></i></button>
+                        <button onclick='editGuru(${JSON.stringify(guru)})' class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit Akun"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteGuruConfirm('${guru.username}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition" title="Hapus Akun"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
     }
 
     function saveSiswa(e, isEdit) {
@@ -3813,6 +3876,7 @@
         const filter = {
             tanggalMulai: document.getElementById('fStart').value,
             tanggalAkhir: document.getElementById('fEnd').value,
+            kategori: document.getElementById('fKategoriRekap') ? document.getElementById('fKategoriRekap').value : '',
             kelas: document.getElementById('fKelasRekap').value
         };
 
@@ -3833,6 +3897,7 @@
     function exportToExcel() {
         const start = document.getElementById('fStart').value;
         const end = document.getElementById('fEnd').value;
+        const kategori = document.getElementById('fKategoriRekap') ? document.getElementById('fKategoriRekap').value : '';
         const kelas = document.getElementById('fKelasRekap').value; 
 
         if (!start || !end) {
@@ -3849,6 +3914,7 @@
         const filters = {
             tanggalMulai: start,
             tanggalAkhir: end,
+            kategori: kategori,
             kelas: kelas
         };
 
@@ -3872,7 +3938,7 @@
     function renderRekapRows(data, startIdx) {
         const tbody = document.getElementById('tbody-rekap');
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-gray-400">Tidak ada data ditemukan pada periode ini.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-gray-400 font-bold">Tidak ada data ditemukan pada periode ini.</td></tr>';
             return;
         }
         
@@ -3901,6 +3967,9 @@
                 ketIcon = '<i class="fas fa-check-double mr-1"></i>';
             }
 
+            const role = d.tipeUser || (d.kelas && (d.kelas.includes('Wali') || d.kelas.includes('Guru')) ? 'Guru' : (d.kelas && (d.kelas.includes('Tendik') || d.kelas.includes('Staf')) ? 'Tendik' : 'Siswa'));
+            const roleBadgeStyle = role === 'Guru' ? 'bg-purple-100 text-purple-700 border-purple-200' : (role === 'Tendik' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-indigo-50 text-indigo-700 border-indigo-100');
+
             return `
             <tr class="hover:bg-gray-50 border-b border-gray-100 transition">
                 <td class="p-4 text-center text-gray-500 text-xs">${baseIdx + i + 1}</td>
@@ -3908,8 +3977,11 @@
                    ${new Date(d.tanggal).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}
                 </td>
                 <td class="p-4 text-sm font-bold text-gray-900">${d.nama}</td>
-                <td class="p-4 text-center text-sm text-gray-600">
-                   <span class="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg text-xs font-bold">${d.kelas}</span>
+                <td class="p-4 text-center text-sm">
+                   <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${roleBadgeStyle}">${role}</span>
+                </td>
+                <td class="p-4 text-center text-sm text-gray-600 font-medium">
+                   ${d.kelas || '-'}
                 </td>
                 <td class="p-4 text-center text-sm font-mono text-gray-600">${d.jamDatang || '-'}</td>
                 <td class="p-4 text-center text-sm font-mono text-gray-600">${d.jamPulang || '-'}</td>
@@ -4390,7 +4462,7 @@
         }, 80);
     }
 
-    function loadQRCodeGuru(nipParam, namaParam, jabatanParam) {
+    function loadQRCodeGuru(nipParam, namaParam, jabatanParam, fotoParam) {
         stopAndBack(false);
         if (!currentUser) return;
         
@@ -4401,13 +4473,14 @@
         } 
         
         showView('view-kartu-siswa');
-        document.getElementById('pageTitle').textContent = "Kartu Tanda Guru";
+        document.getElementById('pageTitle').textContent = "Kartu Tanda Pendidik";
         const container = document.getElementById('kartuSiswaContainer');
         
         const namaGuru = namaParam || currentUser.nama || currentUser.username || "Guru SMANSA";
         const nipGuru = String(nipParam || currentUser.nip || currentUser.username || "-").replace(/'/g, '');
         const jabatanGuru = jabatanParam || currentUser.jabatan || (currentUser.kelas ? 'Wali Kelas ' + currentUser.kelas : 'Guru Mata Pelajaran');
-        const fotoGuru = (currentUser.username && (currentUser.username === nipParam || currentUser.nip === nipParam)) ? currentUser.foto : (currentUser.foto || '');
+        const isSelf = currentUser && (currentUser.nip === nipParam || currentUser.username === nipParam || !nipParam);
+        const fotoGuru = fotoParam || (isSelf ? currentUser.foto : '') || '';
         const qrContent = nipParam || currentUser.nip || currentUser.username || "GURU";
         const backFunction = (currentUser.role === 'admin') ? "loadDataGuru()" : "loadGuruDashboard()";
         const initial = namaGuru.charAt(0).toUpperCase();
@@ -4596,7 +4669,7 @@
         }, 80);
     }
 
-    function loadQRCodeTendik(nipParam, namaParam, jabatanParam) {
+    function loadQRCodeTendik(nipParam, namaParam, jabatanParam, fotoParam) {
         stopAndBack(false);
         if (!currentUser) return;
         
@@ -4613,7 +4686,8 @@
         const namaTendik = namaParam || currentUser.nama || currentUser.username || "Staf Tendik SMANSA";
         const nipTendik = String(nipParam || currentUser.nip || currentUser.username || "-").replace(/'/g, '');
         const jabatanTendik = jabatanParam || currentUser.jabatan || "Tenaga Kependidikan";
-        const fotoTendik = (currentUser.username && (currentUser.username === nipParam || currentUser.nip === nipParam)) ? currentUser.foto : (currentUser.foto || '');
+        const isSelf = currentUser && (currentUser.nip === nipParam || currentUser.username === nipParam || !nipParam);
+        const fotoTendik = fotoParam || (isSelf ? currentUser.foto : '') || '';
         const qrContent = nipParam || currentUser.nip || currentUser.username || "TENDIK";
         const backFunction = (currentUser.role === 'admin') ? "loadDataTendik()" : "loadTendikDashboard()";
         const initial = namaTendik.charAt(0).toUpperCase();
@@ -5515,23 +5589,29 @@
             return;
         }
 
-        tbody.innerHTML = data.map((item, idx) => `
+        tbody.innerHTML = data.map((item, idx) => {
+            const initial = (item.nama || item.username || 'T').charAt(0).toUpperCase();
+            const avatarHtml = item.foto ? `<img src="${item.foto}" class="w-8 h-8 rounded-xl object-cover border border-amber-200 shrink-0">` : `<div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 font-extrabold flex items-center justify-center text-xs shrink-0">${initial}</div>`;
+            return `
             <tr class="hover:bg-amber-50/50 transition border-b border-gray-100 group">
                 <td class="p-4 text-center font-bold text-slate-500 text-sm">${startIdx + idx + 1}</td>
                 <td class="p-4 font-mono font-bold text-amber-700 text-sm">${item.nip || '-'}</td>
-                <td class="p-4 font-bold text-slate-800 text-sm">${item.nama || item.username}</td>
+                <td class="p-4 font-bold text-slate-800 text-sm flex items-center gap-2.5">
+                    ${avatarHtml}
+                    <span>${item.nama || item.username}</span>
+                </td>
                 <td class="p-4"><span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg font-bold text-xs">${item.jabatan || 'Staf Kependidikan'}</span></td>
                 <td class="p-4 text-slate-600 text-sm">${item.noHp || '-'}</td>
                 <td class="p-4 text-slate-500 font-mono text-sm">${item.username}</td>
                 <td class="p-4 text-center">
                     <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
-                        <button onclick="loadQRCodeTendik('${item.nip || item.username}', '${item.nama || item.username}', '${item.jabatan || 'Staf Tendik'}')" class="p-2 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition" title="Cetak Kartu Tendik"><i class="fas fa-qrcode"></i></button>
+                        <button onclick="loadQRCodeTendik('${item.nip || item.username}', '${item.nama || item.username}', '${item.jabatan || 'Staf Tendik'}', '${item.foto || ''}')" class="p-2 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition" title="Cetak Kartu Tendik"><i class="fas fa-qrcode"></i></button>
                         <button onclick="showEditTendikModal('${item.username}')" class="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition" title="Edit"><i class="fas fa-edit"></i></button>
                         <button onclick="deleteTendikPrompt('${item.username}')" class="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg transition" title="Hapus"><i class="fas fa-trash"></i></button>
                     </div>
                 </td>
-            </tr>
-        `).join('');
+            </tr>`;
+        }).join('');
     }
 
     function showAddTendikModal() {
@@ -5810,7 +5890,12 @@
                                 modalInit.classList.add('hidden');
                             }
 
-                            // Update Header Avatar Previews
+                            // Update Header / Sidebar Avatar Previews
+                            const navInit = document.getElementById('navUserInitial');
+                            if (navInit) {
+                                navInit.innerHTML = `<img src="${resizedBase64}" class="w-full h-full object-cover rounded-xl">`;
+                            }
+
                             const cardPhotoImg = document.getElementById('modalCardPhotoImg');
                             const cardPhotoInit = document.getElementById('modalCardPhotoInitial');
                             if (cardPhotoImg) {
