@@ -385,6 +385,133 @@
                        </div>
                    </div>
 
+                    <!-- Ringkasan Total Guru & Total Tendik beserta Detail Hadir & Izin/Sakit -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 sm:mb-8">
+                        <!-- 1. KOTAK TOTAL GURU & DETAIL -->
+                        <div class="space-y-2.5 sm:space-y-3.5">
+                            <!-- Header Card Total Guru -->
+                            <div class="flex items-center justify-between bg-white p-4 md:p-5 rounded-2xl border border-purple-100 shadow-sm">
+                                <div class="flex items-center gap-3.5">
+                                    <div class="w-11 h-11 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xl shadow-xs">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Guru Terdaftar</p>
+                                        <h3 id="admStatGuruTotal" class="text-2xl font-extrabold text-gray-800 leading-tight">0</h3>
+                                    </div>
+                                </div>
+                                <button onclick="showStaffAttendanceDetailModal('guru', 'Semua')" class="text-xs font-bold text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-4 py-2 rounded-xl transition flex items-center gap-2 border border-purple-100">
+                                    <i class="fas fa-list-ul"></i> <span>Rincian Guru</span>
+                                </button>
+                            </div>
+
+                            <!-- Sub-grid Guru: Hadir & Izin/Sakit -->
+                            <div class="grid grid-cols-2 gap-2.5 sm:gap-4">
+                                <!-- Kotak Hadir Guru -->
+                                <div onclick="showStaffAttendanceDetailModal('guru', 'Hadir')" class="bg-white p-3.5 sm:p-5 rounded-2xl shadow-sm border border-emerald-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-emerald-300 active:scale-[0.97] transition-all">
+                                    <div class="absolute right-0 top-0 w-16 sm:w-20 h-16 sm:h-20 bg-emerald-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110 pointer-events-none"></div>
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 relative z-10">
+                                        <p class="text-[11px] sm:text-xs font-extrabold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+                                            <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Hadir
+                                        </p>
+                                        <span class="inline-flex items-center text-[8.5px] sm:text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border border-emerald-200 group-hover:bg-emerald-600 group-hover:text-white transition-colors w-fit">
+                                            <i class="fas fa-search-plus mr-1"></i> Rincian
+                                        </span>
+                                    </div>
+                                    <div class="flex items-end justify-between mt-3 sm:mt-4 relative z-10">
+                                        <div>
+                                            <h3 id="admStatGuruHadir" class="text-2xl sm:text-3xl font-extrabold text-gray-800 leading-none">0</h3>
+                                            <p class="text-[9px] sm:text-[10px] text-gray-400 font-medium mt-1">Guru hadir</p>
+                                        </div>
+                                        <div class="text-emerald-500 bg-emerald-50 group-hover:bg-emerald-100 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-base sm:text-xl shadow-xs transition"><i class="fas fa-check-circle"></i></div>
+                                    </div>
+                                </div>
+
+                                <!-- Kotak Izin/Sakit Guru -->
+                                <div onclick="showStaffAttendanceDetailModal('guru', 'IzinSakit')" class="bg-white p-3.5 sm:p-5 rounded-2xl shadow-sm border border-amber-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-amber-300 active:scale-[0.97] transition-all">
+                                    <div class="absolute right-0 top-0 w-16 sm:w-20 h-16 sm:h-20 bg-amber-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110 pointer-events-none"></div>
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 relative z-10">
+                                        <p class="text-[11px] sm:text-xs font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
+                                            <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-500"></span> Izin / Sakit
+                                        </p>
+                                        <span class="inline-flex items-center text-[8.5px] sm:text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border border-amber-200 group-hover:bg-amber-500 group-hover:text-white transition-colors w-fit">
+                                            <i class="fas fa-search-plus mr-1"></i> Rincian
+                                        </span>
+                                    </div>
+                                    <div class="flex items-end justify-between mt-3 sm:mt-4 relative z-10">
+                                        <div>
+                                            <h3 id="admStatGuruIzinSakit" class="text-2xl sm:text-3xl font-extrabold text-gray-800 leading-none">0</h3>
+                                            <p class="text-[9px] sm:text-[10px] text-gray-400 font-medium mt-1">Guru izin/sakit</p>
+                                        </div>
+                                        <div class="text-amber-500 bg-amber-50 group-hover:bg-amber-100 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-base sm:text-xl shadow-xs transition"><i class="fas fa-user-clock"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. KOTAK TOTAL TENDIK & DETAIL -->
+                        <div class="space-y-2.5 sm:space-y-3.5">
+                            <!-- Header Card Total Tendik -->
+                            <div class="flex items-center justify-between bg-white p-4 md:p-5 rounded-2xl border border-amber-100 shadow-sm">
+                                <div class="flex items-center gap-3.5">
+                                    <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xl shadow-xs">
+                                        <i class="fas fa-user-tie"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Tendik Terdaftar</p>
+                                        <h3 id="admStatTendikTotal" class="text-2xl font-extrabold text-gray-800 leading-tight">0</h3>
+                                    </div>
+                                </div>
+                                <button onclick="showStaffAttendanceDetailModal('tendik', 'Semua')" class="text-xs font-bold text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-xl transition flex items-center gap-2 border border-amber-100">
+                                    <i class="fas fa-list-ul"></i> <span>Rincian Tendik</span>
+                                </button>
+                            </div>
+
+                            <!-- Sub-grid Tendik: Hadir & Izin/Sakit -->
+                            <div class="grid grid-cols-2 gap-2.5 sm:gap-4">
+                                <!-- Kotak Hadir Tendik -->
+                                <div onclick="showStaffAttendanceDetailModal('tendik', 'Hadir')" class="bg-white p-3.5 sm:p-5 rounded-2xl shadow-sm border border-emerald-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-emerald-300 active:scale-[0.97] transition-all">
+                                    <div class="absolute right-0 top-0 w-16 sm:w-20 h-16 sm:h-20 bg-emerald-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110 pointer-events-none"></div>
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 relative z-10">
+                                        <p class="text-[11px] sm:text-xs font-extrabold text-emerald-700 uppercase tracking-wider flex items-center gap-1.5">
+                                            <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Hadir
+                                        </p>
+                                        <span class="inline-flex items-center text-[8.5px] sm:text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border border-emerald-200 group-hover:bg-emerald-600 group-hover:text-white transition-colors w-fit">
+                                            <i class="fas fa-search-plus mr-1"></i> Rincian
+                                        </span>
+                                    </div>
+                                    <div class="flex items-end justify-between mt-3 sm:mt-4 relative z-10">
+                                        <div>
+                                            <h3 id="admStatTendikHadir" class="text-2xl sm:text-3xl font-extrabold text-gray-800 leading-none">0</h3>
+                                            <p class="text-[9px] sm:text-[10px] text-gray-400 font-medium mt-1">Tendik hadir</p>
+                                        </div>
+                                        <div class="text-emerald-500 bg-emerald-50 group-hover:bg-emerald-100 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-base sm:text-xl shadow-xs transition"><i class="fas fa-check-circle"></i></div>
+                                    </div>
+                                </div>
+
+                                <!-- Kotak Izin/Sakit Tendik -->
+                                <div onclick="showStaffAttendanceDetailModal('tendik', 'IzinSakit')" class="bg-white p-3.5 sm:p-5 rounded-2xl shadow-sm border border-amber-100 flex flex-col justify-between relative overflow-hidden group cursor-pointer hover:shadow-md hover:border-amber-300 active:scale-[0.97] transition-all">
+                                    <div class="absolute right-0 top-0 w-16 sm:w-20 h-16 sm:h-20 bg-amber-50 rounded-bl-full -mr-3 -mt-3 transition-transform group-hover:scale-110 pointer-events-none"></div>
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 relative z-10">
+                                        <p class="text-[11px] sm:text-xs font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1.5">
+                                            <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-500"></span> Izin / Sakit
+                                        </p>
+                                        <span class="inline-flex items-center text-[8.5px] sm:text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full border border-amber-200 group-hover:bg-amber-500 group-hover:text-white transition-colors w-fit">
+                                            <i class="fas fa-search-plus mr-1"></i> Rincian
+                                        </span>
+                                    </div>
+                                    <div class="flex items-end justify-between mt-3 sm:mt-4 relative z-10">
+                                        <div>
+                                            <h3 id="admStatTendikIzinSakit" class="text-2xl sm:text-3xl font-extrabold text-gray-800 leading-none">0</h3>
+                                            <p class="text-[9px] sm:text-[10px] text-gray-400 font-medium mt-1">Tendik izin/sakit</p>
+                                        </div>
+                                        <div class="text-amber-500 bg-amber-50 group-hover:bg-amber-100 p-2 sm:p-3 rounded-xl sm:rounded-2xl text-base sm:text-xl shadow-xs transition"><i class="fas fa-user-clock"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                       
                       <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
@@ -2962,6 +3089,7 @@
         
         document.getElementById('adminDateDisplay').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
+        // 1. Load Data Siswa Realtime
         google.script.run.withSuccessHandler(result => {
             if (result.success) {
                 const data = result.data;
@@ -2982,6 +3110,71 @@
                 renderAdminChart(hadir, sakit, izin, alpa, belum);
             }
         }).getMonitoringRealtime();
+
+        // 2. Load Data Guru, Tendik & Presensi Hari Ini
+        const today = (typeof getTodayString === 'function') ? getTodayString() : new Date().toISOString().split('T')[0];
+        const token = currentUser ? currentUser.token : null;
+
+        google.script.run.withSuccessHandler(guruRes => {
+            const guruList = (guruRes && guruRes.success) ? (guruRes.data || []) : [];
+            window.cachedGuruList = guruList;
+
+            google.script.run.withSuccessHandler(tendikRes => {
+                const tendikList = (tendikRes && tendikRes.success) ? (tendikRes.data || []) : [];
+                window.cachedTendikList = tendikList;
+
+                google.script.run.withSuccessHandler(absRes => {
+                    const absToday = (absRes && absRes.success) ? (absRes.data || []) : [];
+                    window.cachedAbsensiTodayAll = absToday;
+
+                    // Hitung statistik Guru
+                    const totalGuru = guruList.length;
+                    let hadirGuru = 0;
+                    let izinSakitGuru = 0;
+
+                    guruList.forEach(g => {
+                        const gNip = String(g.nip || '').trim().toLowerCase();
+                        const gUser = String(g.username || '').trim().toLowerCase();
+                        const rec = absToday.find(a => 
+                            (a.username && a.username.toLowerCase() === gUser) ||
+                            (String(a.nisn).trim().toLowerCase() === gNip) ||
+                            (String(a.nisn).trim().toLowerCase() === gUser)
+                        );
+                        if (rec) {
+                            if (rec.status === 'Hadir') hadirGuru++;
+                            else if (rec.status === 'Izin' || rec.status === 'Sakit') izinSakitGuru++;
+                        }
+                    });
+
+                    // Hitung statistik Tendik
+                    const totalTendik = tendikList.length;
+                    let hadirTendik = 0;
+                    let izinSakitTendik = 0;
+
+                    tendikList.forEach(t => {
+                        const tNip = String(t.nip || '').trim().toLowerCase();
+                        const tUser = String(t.username || '').trim().toLowerCase();
+                        const rec = absToday.find(a => 
+                            (a.username && a.username.toLowerCase() === tUser) ||
+                            (String(a.nisn).trim().toLowerCase() === tNip) ||
+                            (String(a.nisn).trim().toLowerCase() === tUser)
+                        );
+                        if (rec) {
+                            if (rec.status === 'Hadir') hadirTendik++;
+                            else if (rec.status === 'Izin' || rec.status === 'Sakit') izinSakitTendik++;
+                        }
+                    });
+
+                    animateValue("admStatGuruTotal", 0, totalGuru, 600);
+                    animateValue("admStatGuruHadir", 0, hadirGuru, 600);
+                    animateValue("admStatGuruIzinSakit", 0, izinSakitGuru, 600);
+
+                    animateValue("admStatTendikTotal", 0, totalTendik, 600);
+                    animateValue("admStatTendikHadir", 0, hadirTendik, 600);
+                    animateValue("admStatTendikIzinSakit", 0, izinSakitTendik, 600);
+                }).getAbsensiList({ tanggalMulai: today, tanggalAkhir: today });
+            }).getTendikList(token);
+        }).getGuruList(token);
     }
 
     function renderAdminChart(hadir, sakit, izin, alpa, belum) {
@@ -3355,6 +3548,149 @@
         });
         const countEl = document.getElementById('modalAttendanceCountText');
         if (countEl) countEl.textContent = visibleCount;
+    }
+
+    // Modal Rincian Kehadiran Guru & Tendik
+    function showStaffAttendanceDetailModal(staffType, statusFilter) {
+        const isGuru = staffType === 'guru';
+        const titleType = isGuru ? 'Guru' : 'Tendik';
+        const list = isGuru ? (window.cachedGuruList || []) : (window.cachedTendikList || []);
+        const absList = window.cachedAbsensiTodayAll || [];
+
+        // Gabungkan profil staff dengan absensi hari ini
+        const combined = list.map(item => {
+            const uId = String(item.username || '').toLowerCase();
+            const nId = String(item.nip || '').toLowerCase();
+            const rec = absList.find(a => 
+                (a.username && a.username.toLowerCase() === uId) ||
+                (String(a.nisn).trim().toLowerCase() === nId) ||
+                (String(a.nisn).trim().toLowerCase() === uId)
+            );
+            return {
+                nama: item.nama || item.username,
+                nip: item.nip || '-',
+                username: item.username,
+                jabatan: item.jabatan || (isGuru ? (item.kelas ? 'Wali Kelas ' + item.kelas : 'Guru Mata Pelajaran') : 'Staf Kependidikan'),
+                foto: item.foto || '',
+                jamDatang: rec ? (rec.jamDatang || '-') : '-',
+                jamPulang: rec ? (rec.jamPulang || '-') : '-',
+                keterangan: rec ? (rec.keterangan || '-') : '-',
+                status: rec ? (rec.status || 'Hadir') : 'Belum Absen'
+            };
+        });
+
+        let filtered = combined;
+        if (statusFilter === 'Hadir') {
+            filtered = combined.filter(x => x.status === 'Hadir');
+        } else if (statusFilter === 'IzinSakit') {
+            filtered = combined.filter(x => x.status === 'Izin' || x.status === 'Sakit');
+        }
+
+        const count = filtered.length;
+        const badgeColor = isGuru ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-amber-50 text-amber-800 border-amber-200';
+        const iconHeader = isGuru ? 'fa-chalkboard-teacher text-purple-600' : 'fa-user-tie text-amber-600';
+
+        const modalHTML = `
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 font-sans">
+            <!-- Modal Header -->
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/70">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-white shadow-sm border border-slate-200 flex items-center justify-center text-xl">
+                        <i class="fas ${iconHeader}"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base font-extrabold text-slate-800">Daftar ${titleType} ${statusFilter === 'Semua' ? 'Keseluruhan' : (statusFilter === 'IzinSakit' ? 'Izin / Sakit' : statusFilter)}</h3>
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeColor}">
+                                ${count} Orang
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium mt-0.5">Monitoring Presensi Realtime Hari Ini</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Status Tabs & Search -->
+            <div class="p-4 bg-slate-50/40 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div class="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+                    <button onclick="showStaffAttendanceDetailModal('${staffType}', 'Semua')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${statusFilter === 'Semua' ? (isGuru ? 'bg-purple-600 text-white shadow-sm' : 'bg-amber-600 text-white shadow-sm') : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                        <i class="fas fa-list text-[10px]"></i> Semua (${combined.length})
+                    </button>
+                    <button onclick="showStaffAttendanceDetailModal('${staffType}', 'Hadir')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${statusFilter === 'Hadir' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                        <i class="fas fa-check text-[10px]"></i> Hadir (${combined.filter(x => x.status === 'Hadir').length})
+                    </button>
+                    <button onclick="showStaffAttendanceDetailModal('${staffType}', 'IzinSakit')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${statusFilter === 'IzinSakit' ? 'bg-amber-500 text-white shadow-sm' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}">
+                        <i class="fas fa-user-clock text-[10px]"></i> Izin / Sakit (${combined.filter(x => x.status === 'Izin' || x.status === 'Sakit').length})
+                    </button>
+                </div>
+                <div class="relative w-full sm:w-56">
+                    <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                    <input type="text" id="modalStaffSearch" oninput="filterStaffModalList(this.value)" placeholder="Cari nama / NIP..." class="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+            </div>
+
+            <!-- List Content Body -->
+            <div class="p-4 max-h-[58vh] overflow-y-auto" id="modalStaffListContainer">
+                ${renderStaffModalItems(filtered, isGuru)}
+            </div>
+        </div>`;
+
+        window.cachedCurrentStaffFiltered = filtered;
+        window.cachedCurrentStaffIsGuru = isGuru;
+        showModal(modalHTML);
+    }
+
+    function renderStaffModalItems(list, isGuru) {
+        if (!list || list.length === 0) {
+            return `<div class="p-8 text-center text-slate-400 font-bold text-xs">Tidak ada data ditemukan.</div>`;
+        }
+        return list.map(item => {
+            const initial = (item.nama || item.username || (isGuru ? 'G' : 'T')).charAt(0).toUpperCase();
+            const avatarHtml = item.foto ? `<img src="${item.foto}" class="w-10 h-10 rounded-2xl object-cover border border-slate-200 shrink-0 shadow-xs">` : `<div class="w-10 h-10 rounded-2xl ${isGuru ? 'bg-purple-100 text-purple-700' : 'bg-amber-100 text-amber-800'} font-extrabold flex items-center justify-center text-sm shrink-0 shadow-xs">${initial}</div>`;
+            
+            let statusBadge = 'bg-slate-100 text-slate-600 border-slate-200';
+            if (item.status === 'Hadir') statusBadge = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+            else if (item.status === 'Sakit') statusBadge = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            else if (item.status === 'Izin') statusBadge = 'bg-blue-100 text-blue-800 border-blue-200';
+            else if (item.status === 'Alpa') statusBadge = 'bg-rose-100 text-rose-800 border-rose-200';
+
+            return `
+            <div class="staff-modal-item-row p-3.5 bg-white hover:bg-slate-50 border border-slate-100 rounded-2xl mb-2 flex items-center justify-between gap-3 transition" data-nama="${String(item.nama || '').toLowerCase()}" data-nip="${String(item.nip || '').toLowerCase()}" data-user="${String(item.username || '').toLowerCase()}">
+                <div class="flex items-center gap-3 min-w-0">
+                    ${avatarHtml}
+                    <div class="min-w-0">
+                        <h4 class="text-xs font-bold text-slate-800 truncate">${item.nama}</h4>
+                        <p class="text-[11px] text-slate-500 font-medium truncate">${item.jabatan}</p>
+                        <p class="text-[10px] text-slate-400 font-mono">NIP: ${item.nip || '-'}</p>
+                    </div>
+                </div>
+                <div class="text-right shrink-0">
+                    <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${statusBadge}">${item.status}</span>
+                    <div class="text-[10px] text-slate-500 font-mono mt-1">
+                        ${item.jamDatang && item.jamDatang !== '-' ? `<span class="text-emerald-700 font-bold">${item.jamDatang}</span>` : '<span class="text-slate-400">-</span>'}
+                        ${item.jamPulang && item.jamPulang !== '-' ? ` • <span class="text-blue-700 font-bold">${item.jamPulang}</span>` : ''}
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function filterStaffModalList(query) {
+        const q = String(query || '').toLowerCase().trim();
+        const container = document.getElementById('modalStaffListContainer');
+        if (!container) return;
+        const list = window.cachedCurrentStaffFiltered || [];
+        const isGuru = window.cachedCurrentStaffIsGuru;
+        const filtered = list.filter(x => 
+            String(x.nama || '').toLowerCase().includes(q) ||
+            String(x.nip || '').toLowerCase().includes(q) ||
+            String(x.username || '').toLowerCase().includes(q) ||
+            String(x.jabatan || '').toLowerCase().includes(q)
+        );
+        container.innerHTML = renderStaffModalItems(filtered, isGuru);
     }
 
     function loadSiswaDashboard() {
