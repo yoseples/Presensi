@@ -5216,7 +5216,145 @@
         }
     }
 
-    function downloadCardAsJPEG(elementId, filename) {
+    function generateQRCodeDataURL(text, colorDark = "#000000") {
+        return new Promise((resolve) => {
+            try {
+                if (!text) return resolve('');
+                const tempDiv = document.createElement('div');
+                tempDiv.style.position = 'fixed';
+                tempDiv.style.left = '-9999px';
+                tempDiv.style.top = '-9999px';
+                tempDiv.style.width = '240px';
+                tempDiv.style.height = '240px';
+                tempDiv.style.background = '#ffffff';
+                tempDiv.style.display = 'block';
+                tempDiv.style.visibility = 'visible';
+                document.body.appendChild(tempDiv);
+
+                new QRCode(tempDiv, {
+                    text: String(text),
+                    width: 220,
+                    height: 220,
+                    colorDark: colorDark,
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                setTimeout(() => {
+                    let dataUrl = '';
+                    const canvas = tempDiv.querySelector('canvas');
+                    const img = tempDiv.querySelector('img');
+                    if (canvas) {
+                        try {
+                            dataUrl = canvas.toDataURL('image/png');
+                        } catch(e) {}
+                    }
+                    if (!dataUrl && img && img.src) {
+                        dataUrl = img.src;
+                    }
+                    try { document.body.removeChild(tempDiv); } catch(e) {}
+                    resolve(dataUrl);
+                }, 120);
+            } catch(e) {
+                console.error("QR DataURL Gen Error:", e);
+                resolve('');
+            }
+        });
+    }
+
+    async function renderCardQRCode(targetContainerId, qrText, colorDark = "#0F243A") {
+        const box = document.getElementById(targetContainerId);
+        if (!box) return;
+        box.innerHTML = '<div style="width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; color: #94a3b8;"><i class="fas fa-circle-notch fa-spin text-2xl"></i></div>';
+
+        const dataUrl = await generateQRCodeDataURL(qrText, colorDark);
+        if (dataUrl) {
+            box.innerHTML = `<img src="${dataUrl}" alt="QR Barcode" data-barcode="true" style="width: 200px; height: 200px; object-fit: contain; display: block; margin: 0 auto; image-rendering: pixelated; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.05));" />`;
+        } else {
+            box.innerHTML = "";
+            new QRCode(box, {
+                text: String(qrText),
+                width: 200,
+                height: 200,
+                colorDark: colorDark,
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+    }
+
+    async function exportElementToCanvas(el) {
+        if (!el) return null;
+
+        // Simpan style asli sebelum clone/unhide
+        const origDisplay = el.style.display;
+        const origPosition = el.style.position;
+        const origLeft = el.style.left;
+        const origTop = el.style.top;
+        const origVisibility = el.style.visibility;
+        const origZIndex = el.style.zIndex;
+        const origTransform = el.style.transform;
+        const wasHiddenClass = el.classList.contains('hidden');
+
+        // Pastikan elemen aktif dan ter-render di layout browser saat html2canvas membaca DOM
+        if (wasHiddenClass || origDisplay === 'none') {
+            el.classList.remove('hidden');
+            el.style.display = 'flex';
+            el.style.position = 'fixed';
+            el.style.left = '-9999px';
+            el.style.top = '0px';
+            el.style.visibility = 'visible';
+            el.style.zIndex = '-9999';
+            el.style.transform = 'none';
+        }
+
+        // Pastikan semua canvas QR di dalam elemen sudah berbentuk dataURL gambar siap cetak
+        const innerCanvases = el.querySelectorAll('canvas');
+        innerCanvases.forEach(cv => {
+            try {
+                const parent = cv.parentElement;
+                if (parent && !parent.querySelector('img[data-barcode="true"]')) {
+                    const imgData = cv.toDataURL('image/png');
+                    const imgEl = document.createElement('img');
+                    imgEl.src = imgData;
+                    imgEl.setAttribute('data-barcode', 'true');
+                    imgEl.style.width = '200px';
+                    imgEl.style.height = '200px';
+                    imgEl.style.display = 'block';
+                    imgEl.style.margin = '0 auto';
+                    parent.appendChild(imgEl);
+                    cv.style.display = 'none';
+                }
+            } catch(e) {}
+        });
+
+        // Beri waktu 200ms agar browser selesai me-render gambar & layout
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        try {
+            const canvas = await html2canvas(el, {
+                scale: 3,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                imageTimeout: 8000
+            });
+            return canvas;
+        } finally {
+            // Kembalikan status style elemen ke semula
+            if (wasHiddenClass) el.classList.add('hidden');
+            el.style.display = origDisplay;
+            el.style.position = origPosition;
+            el.style.left = origLeft;
+            el.style.top = origTop;
+            el.style.visibility = origVisibility;
+            el.style.zIndex = origZIndex;
+            el.style.transform = origTransform;
+        }
+    }
+
+    async function downloadCardAsJPEG(elementId, filename) {
         const cardEl = document.getElementById(elementId);
         if (!cardEl) {
             showAlert('error', 'Elemen kartu tidak ditemukan.');
@@ -5229,60 +5367,62 @@
             return;
         }
 
-        html2canvas(cardEl, {
-            scale: 3,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff',
-            logging: false
-        }).then(canvas => {
+        try {
+            const canvas = await exportElementToCanvas(cardEl);
             hideLoading();
-            const link = document.createElement('a');
-            link.download = (filename || 'Kartu_Identitas') + '.jpeg';
-            link.href = canvas.toDataURL('image/jpeg', 0.95);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showAlert('success', 'Kartu berhasil diunduh sebagai JPEG!');
-        }).catch(err => {
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = (filename || 'Kartu_Identitas') + '.jpeg';
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showAlert('success', 'Kartu beserta Barcode/QR Code berhasil diunduh!');
+            } else {
+                showAlert('error', 'Gagal memproses gambar kartu.');
+            }
+        } catch (err) {
             hideLoading();
             showAlert('error', 'Gagal memproses kartu: ' + err);
-        });
+        }
     }
 
-    function downloadBothCardSides(frontId, backId, baseFilename) {
+    async function downloadBothCardSides(frontId, backId, baseFilename) {
         const elFront = document.getElementById(frontId);
         const elBack = document.getElementById(backId);
         if (!elFront || !elBack) return;
 
         showLoading();
-        // Ensure both are temporarily visible for capture
-        const isBackHidden = elBack.classList.contains('hidden');
-        elBack.classList.remove('hidden');
+        try {
+            const cFront = await exportElementToCanvas(elFront);
+            if (cFront) {
+                const linkFront = document.createElement('a');
+                linkFront.download = baseFilename + '_Depan.jpeg';
+                linkFront.href = cFront.toDataURL('image/jpeg', 0.95);
+                document.body.appendChild(linkFront);
+                linkFront.click();
+                document.body.removeChild(linkFront);
+            }
 
-        html2canvas(elFront, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' }).then(cFront => {
-            const linkFront = document.createElement('a');
-            linkFront.download = baseFilename + '_Depan.jpeg';
-            linkFront.href = cFront.toDataURL('image/jpeg', 0.95);
-            document.body.appendChild(linkFront);
-            linkFront.click();
-            document.body.removeChild(linkFront);
+            // Beri jeda sejenak untuk export sisi belakang (QR Code)
+            await new Promise(r => setTimeout(r, 250));
 
-            html2canvas(elBack, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' }).then(cBack => {
-                if (isBackHidden) elBack.classList.add('hidden');
-                hideLoading();
+            const cBack = await exportElementToCanvas(elBack);
+            if (cBack) {
                 const linkBack = document.createElement('a');
                 linkBack.download = baseFilename + '_Belakang.jpeg';
                 linkBack.href = cBack.toDataURL('image/jpeg', 0.95);
                 document.body.appendChild(linkBack);
                 linkBack.click();
                 document.body.removeChild(linkBack);
-                showAlert('success', 'Kedua sisi kartu (Depan & Belakang) berhasil diunduh!');
-            });
-        }).catch(err => {
-            if (isBackHidden) elBack.classList.add('hidden');
+            }
+
+            hideLoading();
+            showAlert('success', 'Kedua sisi kartu (Depan & Belakang lengkap dengan Barcode) berhasil diunduh!');
+        } catch (err) {
+            hideLoading();
             showAlert('error', 'Gagal memproses kartu: ' + err);
-        });
+        }
     }
 
     function loadQRCodeSiswa(nisnParam, namaParam, kelasParam) {
@@ -5461,22 +5601,9 @@
                 </div>
             </div>`;
 
-        setTimeout(() => {
-            if (nisnSiswa) {
-                const qrBox = document.getElementById("cardSiswaQrcode");
-                if (qrBox) {
-                    qrBox.innerHTML = "";
-                    new QRCode(qrBox, {
-                        text: String(nisnSiswa),
-                        width: 200,
-                        height: 200,
-                        colorDark: "#0F243A",
-                        colorLight: "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
-                    });
-                }
-            }
-        }, 80);
+        if (nisnSiswa) {
+            renderCardQRCode("cardSiswaQrcode", String(nisnSiswa), "#0F243A");
+        }
     }
 
     function loadQRCodeGuru(nipParam, namaParam, jabatanParam, fotoParam) {
@@ -5657,22 +5784,9 @@
                 </div>
             </div>`;
 
-        setTimeout(() => {
-            if (qrContent) {
-                const qrBox = document.getElementById("cardGuruQrcode");
-                if (qrBox) {
-                    qrBox.innerHTML = "";
-                    new QRCode(qrBox, {
-                        text: String(qrContent),
-                        width: 200,
-                        height: 200,
-                        colorDark: "#3B0764",
-                        colorLight: "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
-                    });
-                }
-            }
-        }, 80);
+        if (qrContent) {
+            renderCardQRCode("cardGuruQrcode", String(qrContent), "#3B0764");
+        }
     }
 
     function loadQRCodeTendik(nipParam, namaParam, jabatanParam, fotoParam) {
@@ -5853,22 +5967,9 @@
                 </div>
             </div>`;
 
-        setTimeout(() => {
-            if (qrContent) {
-                const qrBox = document.getElementById("cardTendikQrcode");
-                if (qrBox) {
-                    qrBox.innerHTML = "";
-                    new QRCode(qrBox, {
-                        text: String(qrContent),
-                        width: 200,
-                        height: 200,
-                        colorDark: "#78350F",
-                        colorLight: "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
-                    });
-                }
-            }
-        }, 80);
+        if (qrContent) {
+            renderCardQRCode("cardTendikQrcode", String(qrContent), "#78350F");
+        }
     }
 
     function loadScanAbsensi() {
