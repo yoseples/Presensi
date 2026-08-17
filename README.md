@@ -29,7 +29,7 @@ Aplikasi web presensi siswa dan manajemen kehadiran sekolah modern, responsif, d
 
 | Role | Username / NISN | Password | Keterangan |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `admin` | `admin123` / `12345` | Administrator SMANSA Lhoksukon |
+| **Admin** | `admin` | `admin123` / `12345` | Administrator |
 | **Guru (Wali Kelas)** | `guru1` | `guru123` / `12345` | Wali Kelas `X MIPA 1` |
 | **Guru (Wali Kelas)** | `guru2` | `guru123` / `12345` | Wali Kelas `XI IPS 1` |
 | **Siswa (Contoh 1)** | `1234567890` | `12345` | Ahmad Fauzi (`X MIPA 1`) |

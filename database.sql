@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 -- Data awal users
 INSERT INTO `users` (`username`, `password`, `role`, `kelas`, `nip`, `nama_lengkap`, `jabatan`, `no_handphone`) VALUES
-('admin',   'admin123',   'admin',  NULL,         '198001012005011001', 'Administrator SMANSA',     'Kepala Tata Usaha',      '081234567800'),
-('mukhlis', 'admin123',   'admin',  NULL,         '198904152026211006', 'MUHAMMAD MUKHLIS',         'Administrator SMANSA',   '081234567808'),
+('admin',   'admin123',   'admin',  NULL,         '198001012005011001', 'Administrator',            'Kepala Tata Usaha',      '081234567800'),
+('mukhlis', 'admin123',   'admin',  NULL,         '198904152026211006', 'MUHAMMAD MUKHLIS',         'Administrator',          '081234567808'),
 ('guru1',   'guru123',    'guru',   'X MIPA 1',   '197503122002121002', 'Drs. Usman, M.Pd',        'Wali Kelas X MIPA 1',    '081234567801'),
 ('guru2',   'guru123',    'guru',   'XI IPS 1',   '198207182008042003', 'Cut Rahmah, S.Pd',        'Wali Kelas XI IPS 1',    '081234567802'),
 ('tendik1', 'tendik123',  'tendik', NULL,         '198505102010011005', 'Rahmat Hidayat, A.Md',    'Staf Perpustakaan',      '081234567805'),
