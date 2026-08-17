@@ -11,12 +11,45 @@
   <meta name="author" content="SMA Negeri 1 Lhoksukon">
   <meta name="keywords" content="Presensi, Absensi, SMA Negeri 1 Lhoksukon, SMANSA LHOKSUKON, QR Code, GPS, Presensi Digital">
 
+  <!-- PWA & Android Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#021B79">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Presensi SMANSA">
+
   <!-- Open Graph / Facebook / WhatsApp -->
   <!-- Favicon SMANSA Lhoksukon (GitHub Hosted) -->
   <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.ico">
   <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png">
   <link rel="shortcut icon" type="image/png" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png">
   <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png">
+
+  <script>
+    let deferredPrompt = null;
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('btnDownloadApk');
+      if (btn) {
+        btn.innerHTML = '<i class="fab fa-android text-emerald-600 text-base"></i><span>Install Aplikasi Android</span>';
+        btn.onclick = async (ev) => {
+          if (deferredPrompt) {
+            ev.preventDefault();
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+          }
+        };
+      }
+    });
+  </script>
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -173,8 +206,16 @@
             </div>
         </div>
 
+        <!-- Download APK & PWA Banner -->
+        <div class="mt-4 pt-3 border-t border-slate-100">
+            <a id="btnDownloadApk" href="https://github.com/yoseples/Presensi/releases" target="_blank" class="w-full py-2.5 px-4 bg-slate-50 hover:bg-slate-100 active:scale-[0.98] border border-slate-200 text-slate-700 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 transition shadow-xs">
+                <i class="fab fa-android text-emerald-600 text-base"></i>
+                <span>Download APK Android</span>
+            </a>
+        </div>
+
         <!-- Footer Text (Sesuai Permintaan: SMANSA LHOKSUKON) -->
-        <div class="mt-6 text-center">
+        <div class="mt-5 text-center">
             <h4 class="text-xs font-bold text-slate-800 tracking-wide">SMA Negeri 1 Lhoksukon</h4>
             <p class="text-[9px] text-slate-400 mt-1 leading-relaxed max-w-[290px] mx-auto">
                 Sistem Presensi Digital dengan QR Code dan GPS SMA Negeri 1 Lhoksukon.

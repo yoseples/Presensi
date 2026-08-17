@@ -1,0 +1,22 @@
+{
+  "appId": "id.sch.smansalhoksukon.presensi",
+  "appName": "Presensi SMANSA",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": [
+      "absensi.smansalhoksukon.sch.id",
+      "yoseples.github.io",
+      "raw.githubusercontent.com",
+      "*.firebaseio.com",
+      "*.googleapis.com",
+      "*.firebasedatabase.app"
+    ]
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}
