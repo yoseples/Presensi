@@ -3029,6 +3029,45 @@
         }
     }
 
+    async function ensureActiveSessionLogged(user) {
+        if (!user) return;
+        try {
+            const dev = typeof getDeviceInformation === 'function' ? getDeviceInformation() : { os: 'Perangkat', browser: 'Browser Web', type: 'Desktop', icon: 'fa-laptop', fullString: 'Browser Web' };
+            let logs = await getDB('login_logs');
+            if (!Array.isArray(logs)) logs = [];
+
+            const myUser = (user.username || user.nisn || '').toLowerCase();
+            const existingActive = logs.find(l => ((l.username && l.username.toLowerCase() === myUser) || (l.userId && String(l.userId).toLowerCase() === myUser)) && l.status === 'Aktif');
+
+            if (!existingActive) {
+                const sessionId = user.sessionId || ('sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+                user.sessionId = sessionId;
+                localStorage.setItem('absensiAppSession', JSON.stringify(user));
+
+                const now = new Date();
+                const logEntry = {
+                    id: sessionId,
+                    userId: user.nip || user.nisn || user.username,
+                    username: user.username || user.nisn,
+                    nama: user.nama || user.username,
+                    role: user.role,
+                    jabatanOrKelas: user.jabatan || (user.kelas ? 'Kelas ' + user.kelas : '-'),
+                    foto: user.foto || '',
+                    device: dev,
+                    tanggal: getTodayString(),
+                    jam: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                    timestamp: Date.now(),
+                    status: 'Aktif'
+                };
+                logs.unshift(logEntry);
+                if (logs.length > 300) logs = logs.slice(0, 300);
+                await setDB('login_logs', logs);
+            }
+        } catch(e) {
+            console.warn('ensureActiveSessionLogged notice:', e);
+        }
+    }
+
     function checkSession() {
         const storedSession = localStorage.getItem('absensiAppSession');
         if (storedSession) {
@@ -3043,7 +3082,10 @@
                          document.getElementById('sidebar').classList.add('-translate-x-full');
                     }
                     
-                    initDashboard();
+                    ensureActiveSessionLogged(currentUser).finally(() => {
+                        initDashboard();
+                    });
+                    return;
                 }
             } catch (e) {
                 localStorage.removeItem('absensiAppSession');
@@ -3352,6 +3394,7 @@
             menuHTML += createItem('Data Tendik', 'fa-user-tie', 'loadDataTendik()');
             menuHTML += createItem('Laporan', 'fa-clipboard-list', 'loadRekapAbsensi()');
             menuHTML += createItem('Kelola Absen', 'fa-calendar-times', 'loadKelolaAbsen()');
+            menuHTML += createItem('Sesi Login', 'fa-laptop-code', 'scrollToLoginLogs()');
             menuHTML += createItem('Scan Absensi', 'fa-qrcode', 'loadScanAbsensi()');
             menuHTML += createItem('Profil & Akun', 'fa-user-cog', 'showUserProfileAndSecurityModal()');
             loadAdminDashboard();
@@ -3554,10 +3597,45 @@
     }
 
     let cachedLoginLogs = [];
+    let loginLogsListenerAttached = false;
+
+    function scrollToLoginLogs() {
+        loadAdminDashboard();
+        setActiveMenu('Sesi Login');
+        setTimeout(() => {
+            const el = document.getElementById('badgeActiveSessionCount');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+    }
 
     function loadAdminLoginLogs() {
         const tbody = document.getElementById('tableLoginLogsBody');
         if (!tbody) return;
+
+        // Ensure active current user session is recorded
+        if (currentUser) {
+            ensureActiveSessionLogged(currentUser);
+        }
+
+        // Attach Realtime Listener to Firebase Realtime Database
+        if (fbDb && !loginLogsListenerAttached) {
+            loginLogsListenerAttached = true;
+            try {
+                fbDb.ref('login_logs').on('value', (snap) => {
+                    if (snap && snap.exists()) {
+                        let val = snap.val();
+                        let arr = [];
+                        if (Array.isArray(val)) arr = val.filter(x => x !== null && x !== undefined);
+                        else if (typeof val === 'object' && val !== null) arr = Object.values(val);
+                        localStorage.setItem(DB_KEYS.LOGIN_LOGS, JSON.stringify(arr));
+                        cachedLoginLogs = arr;
+                        renderAdminLoginLogs(cachedLoginLogs);
+                    }
+                });
+            } catch(e) {
+                console.warn('Firebase login_logs listener notice:', e);
+            }
+        }
         
         google.script.run.withSuccessHandler(res => {
             if (res && res.success) {
