@@ -65,6 +65,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -5229,67 +5230,56 @@
 
         const box = document.getElementById(containerId);
         if (!box || !text) return;
-        box.innerHTML = "";
 
-        const size = 400; // Resolusi tinggi 400x400px (Sangat tajam saat diexport 300 DPI ke JPEG)
+        // Hapus konten lama
+        while (box.firstChild) box.removeChild(box.firstChild);
 
-        // 1. Prioritas Utama: qrcode-generator Canvas -> Synchronous Base64 PNG (100% kompatibel html2canvas & print)
+        const displaySize = 200;
+
+        // Prioritas: qrcode-generator → inline SVG (dom-to-image menangkap SVG secara native & sempurna)
         if (typeof qrcode === 'function') {
             try {
                 const qr = qrcode(0, 'H');
                 qr.addData(String(text));
                 qr.make();
                 const count = qr.getModuleCount();
+                const cellSize = displaySize / count;
 
-                const cv = document.createElement('canvas');
-                cv.width = size;
-                cv.height = size;
-                const ctx = cv.getContext('2d');
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, size, size);
-                ctx.fillStyle = colorDark;
-                const cellSize = size / count;
+                let svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + displaySize + ' ' + displaySize + '" width="' + displaySize + '" height="' + displaySize + '" style="display:block;margin:0 auto;">';
+                svg += '<rect width="' + displaySize + '" height="' + displaySize + '" fill="#ffffff"/>';
                 for (let r = 0; r < count; r++) {
                     for (let c = 0; c < count; c++) {
                         if (qr.isDark(r, c)) {
-                            ctx.fillRect(Math.round(c * cellSize), Math.round(r * cellSize), Math.ceil(cellSize), Math.ceil(cellSize));
+                            svg += '<rect x="' + (c * cellSize).toFixed(2) + '" y="' + (r * cellSize).toFixed(2) + '" width="' + (cellSize + 0.5).toFixed(2) + '" height="' + (cellSize + 0.5).toFixed(2) + '" fill="' + colorDark + '"/>';
                         }
                     }
                 }
-
-                const dataUrl = cv.toDataURL('image/png');
-                box.innerHTML = `<img src="${dataUrl}" alt="QR Barcode" data-barcode="true" style="width: 200px; height: 200px; object-fit: contain; display: block; margin: 0 auto; image-rendering: pixelated;" />`;
+                svg += '</svg>';
+                box.innerHTML = svg;
                 return;
             } catch(e) {
-                console.warn("qrcode-generator canvas error:", e);
+                console.warn("qrcode-generator error:", e);
             }
         }
 
-        // 2. Fallback: QRCodeJS
+        // Fallback: QRCodeJS
         try {
             new QRCode(box, {
                 text: String(text),
-                width: 200,
-                height: 200,
+                width: displaySize,
+                height: displaySize,
                 colorDark: colorDark,
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
-            setTimeout(() => {
-                const c = box.querySelector('canvas');
-                if (c) {
-                    try {
-                        const dUrl = c.toDataURL('image/png');
-                        box.innerHTML = `<img src="${dUrl}" alt="QR Barcode" data-barcode="true" style="width: 200px; height: 200px; object-fit: contain; display: block; margin: 0 auto;" />`;
-                    } catch(err) {}
-                }
-            }, 80);
         } catch(e) {
-            console.error("generateCardQR error:", e);
+            console.error("generateCardQR fallback error:", e);
         }
     }
 
-    async function exportElementToCanvas(el) {
+    // Export elemen kartu ke data URL JPEG menggunakan dom-to-image
+    // (dom-to-image mendukung inline SVG secara native, berbeda dengan html2canvas yang gagal)
+    async function exportElementToDataURL(el) {
         if (!el) return null;
 
         // 1. Simpan status tampilan awal
@@ -5304,34 +5294,23 @@
             generateCardQR(qrContainer.id, window.activeCardQRText, window.activeCardQRColor || "#0F243A");
         }
 
-        // 3. Tunggu SEMUA gambar di dalam elemen benar-benar ter-load (termasuk barcode base64 PNG)
-        const allImages = el.querySelectorAll('img');
-        if (allImages.length > 0) {
-            const imageLoadPromises = Array.from(allImages).map(img => {
-                if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-                return new Promise((resolve) => {
-                    img.onload = resolve;
-                    img.onerror = resolve;
-                    // Fallback timeout: jika gambar tidak load dalam 3 detik, lanjutkan saja
-                    setTimeout(resolve, 3000);
-                });
-            });
-            await Promise.all(imageLoadPromises);
-        }
-
-        // 4. Beri jeda tambahan 300ms agar browser selesai layout & paint
+        // 3. Tunggu browser selesai layout & paint
         await new Promise(resolve => setTimeout(resolve, 300));
 
         try {
-            const canvas = await html2canvas(el, {
-                scale: 3,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#f0f6fb',
-                logging: false,
-                imageTimeout: 8000
+            // Gunakan dom-to-image untuk export (mendukung SVG native)
+            const scale = 3;
+            const dataUrl = await domtoimage.toJpeg(el, {
+                quality: 0.95,
+                bgcolor: '#f0f6fb',
+                width: el.offsetWidth * scale,
+                height: el.offsetHeight * scale,
+                style: {
+                    transform: 'scale(' + scale + ')',
+                    transformOrigin: 'top left'
+                }
             });
-            return canvas;
+            return dataUrl;
         } finally {
             if (wasHidden) {
                 el.classList.add('hidden');
@@ -5346,19 +5325,14 @@
             return;
         }
         showLoading();
-        if (typeof html2canvas === 'undefined') {
-            hideLoading();
-            showAlert('error', 'Library html2canvas belum siap.');
-            return;
-        }
 
         try {
-            const canvas = await exportElementToCanvas(cardEl);
+            const dataUrl = await exportElementToDataURL(cardEl);
             hideLoading();
-            if (canvas) {
+            if (dataUrl) {
                 const link = document.createElement('a');
                 link.download = (filename || 'Kartu_Identitas') + '.jpeg';
-                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.href = dataUrl;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -5379,11 +5353,11 @@
 
         showLoading();
         try {
-            const cFront = await exportElementToCanvas(elFront);
-            if (cFront) {
+            const urlFront = await exportElementToDataURL(elFront);
+            if (urlFront) {
                 const linkFront = document.createElement('a');
                 linkFront.download = baseFilename + '_Depan.jpeg';
-                linkFront.href = cFront.toDataURL('image/jpeg', 0.95);
+                linkFront.href = urlFront;
                 document.body.appendChild(linkFront);
                 linkFront.click();
                 document.body.removeChild(linkFront);
@@ -5392,11 +5366,11 @@
             // Beri jeda sejenak untuk export sisi belakang (QR Code)
             await new Promise(r => setTimeout(r, 250));
 
-            const cBack = await exportElementToCanvas(elBack);
-            if (cBack) {
+            const urlBack = await exportElementToDataURL(elBack);
+            if (urlBack) {
                 const linkBack = document.createElement('a');
                 linkBack.download = baseFilename + '_Belakang.jpeg';
-                linkBack.href = cBack.toDataURL('image/jpeg', 0.95);
+                linkBack.href = urlBack;
                 document.body.appendChild(linkBack);
                 linkBack.click();
                 document.body.removeChild(linkBack);
