@@ -590,6 +590,123 @@
                       </div>
 
                   </div>
+
+                  <!-- ======================================================== -->
+                  <!-- 3. RIWAYAT & PERANGKAT LOGIN PENGGUNA (DEVICE TRACKER) -->
+                  <!-- ======================================================== -->
+                  <div class="mt-8 bg-white rounded-3xl p-5 md:p-7 border border-slate-200/80 shadow-sm">
+                      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-5 border-b border-slate-100">
+                          <div>
+                              <div class="flex items-center gap-2.5">
+                                  <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg font-bold shadow-xs">
+                                      <i class="fas fa-laptop-code"></i>
+                                  </div>
+                                  <div>
+                                      <h3 class="text-base md:text-lg font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                                          <span>Daftar Pengguna Login & Perangkat Terdeteksi</span>
+                                          <span id="badgeActiveSessionCount" class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 animate-pulse">0 Aktif</span>
+                                      </h3>
+                                      <p class="text-xs text-slate-500 mt-0.5">Monitoring realtime sesi pengguna beserta tipe perangkat (HP/Laptop), OS, dan browser.</p>
+                                  </div>
+                              </div>
+                          </div>
+                          
+                          <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                              <button onclick="loadAdminLoginLogs()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 active:scale-95">
+                                  <i class="fas fa-sync-alt"></i> <span>Refresh Sesi</span>
+                              </button>
+                              <button onclick="confirmClearLoginLogs()" class="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold rounded-xl transition flex items-center gap-1.5 border border-rose-100 active:scale-95">
+                                  <i class="fas fa-trash-alt"></i> <span>Bersihkan Log</span>
+                              </button>
+                          </div>
+                      </div>
+
+                      <!-- Mini Stats Sesi -->
+                      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-5">
+                          <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/60 flex items-center gap-3">
+                              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-base">
+                                  <i class="fas fa-user-check"></i>
+                              </div>
+                              <div>
+                                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sesi Aktif</p>
+                                  <h4 id="statLogAktif" class="text-lg font-black text-slate-800">0</h4>
+                              </div>
+                          </div>
+                          <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/60 flex items-center gap-3">
+                              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-base">
+                                  <i class="fas fa-mobile-alt"></i>
+                              </div>
+                              <div>
+                                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Smartphone (HP)</p>
+                                  <h4 id="statLogMobile" class="text-lg font-black text-slate-800">0</h4>
+                              </div>
+                          </div>
+                          <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/60 flex items-center gap-3">
+                              <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-base">
+                                  <i class="fas fa-laptop"></i>
+                              </div>
+                              <div>
+                                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Komputer / PC</p>
+                                  <h4 id="statLogDesktop" class="text-lg font-black text-slate-800">0</h4>
+                              </div>
+                          </div>
+                          <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/60 flex items-center gap-3">
+                              <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-base">
+                                  <i class="fas fa-history"></i>
+                              </div>
+                              <div>
+                                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Riwayat</p>
+                                  <h4 id="statLogTotal" class="text-lg font-black text-slate-800">0</h4>
+                              </div>
+                          </div>
+                      </div>
+
+                      <!-- Filter Controls -->
+                      <div class="flex flex-col md:flex-row gap-3 items-center justify-between mb-4">
+                          <div class="relative w-full md:w-80">
+                              <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                              <input type="text" id="searchLoginLogsInput" oninput="filterAdminLoginLogs()" placeholder="Cari nama, username, atau perangkat..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+                          </div>
+                          <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+                              <select id="filterLogRole" onchange="filterAdminLoginLogs()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                  <option value="Semua">Semua Role</option>
+                                  <option value="admin">Administrator</option>
+                                  <option value="guru">Guru</option>
+                                  <option value="tendik">Tendik</option>
+                                  <option value="siswa">Siswa</option>
+                              </select>
+                              <select id="filterLogStatus" onchange="filterAdminLoginLogs()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                                  <option value="Semua">Semua Status</option>
+                                  <option value="Aktif">🟢 Sedang Aktif</option>
+                                  <option value="Logout">⚪ Telah Logout</option>
+                              </select>
+                          </div>
+                      </div>
+
+                      <!-- Table Data Sesi -->
+                      <div class="overflow-x-auto rounded-2xl border border-slate-100">
+                          <table class="w-full text-left text-xs text-slate-600">
+                              <thead class="bg-slate-50 text-[11px] font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200/80">
+                                  <tr>
+                                      <th class="py-3 px-4 w-12 text-center">No</th>
+                                      <th class="py-3 px-4">Pengguna</th>
+                                      <th class="py-3 px-4">Peran & Jabatan</th>
+                                      <th class="py-3 px-4">Perangkat & Browser</th>
+                                      <th class="py-3 px-4">Waktu Login</th>
+                                      <th class="py-3 px-4 text-center">Status Sesi</th>
+                                      <th class="py-3 px-4 text-center">Aksi</th>
+                                  </tr>
+                              </thead>
+                              <tbody id="tableLoginLogsBody" class="divide-y divide-slate-100">
+                                  <tr>
+                                      <td colspan="7" class="py-8 text-center text-slate-400">
+                                          <i class="fas fa-circle-notch fa-spin mr-2"></i> Memuat data sesi login...
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
               </div>
 
               <!-- 2. GURU DASHBOARD -->
@@ -1702,7 +1819,8 @@
       ABSENSI: 'absensi_db_absensi',
       LIBUR: 'absensi_db_libur',
       CONFIG: 'absensi_db_config',
-      API_URL: 'absensi_api_url'
+      API_URL: 'absensi_api_url',
+      LOGIN_LOGS: 'absensi_db_login_logs'
     };
 
     const SEED_DATA = {
@@ -1725,7 +1843,8 @@
         { tanggal: '2026-08-17', keterangan: 'HUT Kemerdekaan RI' },
         { tanggal: '2026-12-25', keterangan: 'Hari Raya Natal' }
       ],
-      absensi: []
+      absensi: [],
+      login_logs: []
     };
 
     function initLocalStorage() {
@@ -1735,6 +1854,7 @@
       if (!localStorage.getItem(DB_KEYS.CONFIG)) localStorage.setItem(DB_KEYS.CONFIG, JSON.stringify(SEED_DATA.config));
       if (!localStorage.getItem(DB_KEYS.LIBUR)) localStorage.setItem(DB_KEYS.LIBUR, JSON.stringify(SEED_DATA.libur));
       if (!localStorage.getItem(DB_KEYS.ABSENSI)) localStorage.setItem(DB_KEYS.ABSENSI, JSON.stringify(SEED_DATA.absensi));
+      if (!localStorage.getItem(DB_KEYS.LOGIN_LOGS)) localStorage.setItem(DB_KEYS.LOGIN_LOGS, JSON.stringify(SEED_DATA.login_logs));
     }
     initLocalStorage();
 
@@ -1801,7 +1921,7 @@
       initLocalStorage();
       if (fbDb) {
         try {
-          const keys = ['siswa', 'guru', 'tendik', 'config', 'libur', 'absensi'];
+          const keys = ['siswa', 'guru', 'tendik', 'config', 'libur', 'absensi', 'login_logs'];
           for (const k of keys) {
             const snap = await withTimeout(fbDb.ref(k).once('value'), 2000);
             if (!snap.exists()) {
@@ -1829,7 +1949,7 @@
     }
 
     const BackendAPI = {
-      login: async (username, password, nisn) => {
+      login: async (username, password, nisn, deviceInfo) => {
         const inputUser = String(username || nisn || '').trim();
         const inputPass = String(password || '').trim();
 
@@ -1837,11 +1957,15 @@
           return { success: false, message: 'Masukkan NISN, NIP, atau Username Anda.' };
         }
 
+        const sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+        const device = deviceInfo || (typeof getDeviceInformation === 'function' ? getDeviceInformation() : { os: 'Perangkat', browser: 'Browser', type: 'Desktop', icon: 'fa-laptop' });
+        let userResult = null;
+
         // 1. Cek Apakah Siswa (berdasarkan NISN)
         const siswaList = await getDB('siswa');
         const siswa = siswaList.find(x => String(x.nisn).trim() === inputUser);
         if (siswa) {
-          return {
+          userResult = {
             success: true,
             role: 'siswa',
             nama: siswa.nama,
@@ -1851,55 +1975,131 @@
             jenisKelamin: siswa.jenisKelamin || '',
             tanggalLahir: siswa.tanggalLahir || '',
             alamat: siswa.alamat || '',
-            token: 'tok_' + siswa.nisn
+            token: 'tok_' + siswa.nisn,
+            sessionId: sessionId
           };
         }
 
         // 2. Cek Apakah Guru / Admin (berdasarkan Username atau NIP)
-        const guruList = await getDB('guru');
-        const guru = guruList.find(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
-        if (guru) {
-          if (guru.password === inputPass || inputPass === '12345' || inputPass === 'admin123' || inputPass === 'guru123') {
-            return {
-              success: true,
-              role: guru.role,
-              username: guru.username,
-              nama: guru.nama || guru.username,
-              nip: guru.nip || '-',
-              jabatan: guru.jabatan || (guru.kelas ? 'Wali Kelas ' + guru.kelas : 'Guru Mata Pelajaran'),
-              noHp: guru.noHp || '-',
-              kelas: guru.kelas || '',
-              foto: guru.foto || '',
-              token: 'tok_' + guru.username
-            };
-          } else {
-            return { success: false, message: 'Password salah untuk akun ' + guru.username };
+        if (!userResult) {
+          const guruList = await getDB('guru');
+          const guru = guruList.find(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
+          if (guru) {
+            if (guru.password === inputPass || inputPass === '12345' || inputPass === 'admin123' || inputPass === 'guru123') {
+              userResult = {
+                success: true,
+                role: guru.role,
+                username: guru.username,
+                nama: guru.nama || guru.username,
+                nip: guru.nip || '-',
+                jabatan: guru.jabatan || (guru.kelas ? 'Wali Kelas ' + guru.kelas : 'Guru Mata Pelajaran'),
+                noHp: guru.noHp || '-',
+                kelas: guru.kelas || '',
+                foto: guru.foto || '',
+                token: 'tok_' + guru.username,
+                sessionId: sessionId
+              };
+            } else {
+              return { success: false, message: 'Password salah untuk akun ' + guru.username };
+            }
           }
         }
 
         // 3. Cek Apakah Tendik (berdasarkan Username atau NIP)
-        const tendikList = await getDB('tendik');
-        const tendik = tendikList.find(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
-        if (tendik) {
-          if (tendik.password === inputPass || inputPass === '12345' || inputPass === 'tendik123') {
-            return {
-              success: true,
-              role: 'tendik',
-              username: tendik.username,
-              nama: tendik.nama || tendik.username,
-              nip: tendik.nip || '-',
-              jabatan: tendik.jabatan || 'Staf Kependidikan',
-              noHp: tendik.noHp || '-',
-              kelas: tendik.jabatan || 'Tendik SMANSA',
-              foto: tendik.foto || '',
-              token: 'tok_' + tendik.username
-            };
-          } else {
-            return { success: false, message: 'Password salah untuk akun ' + tendik.username };
+        if (!userResult) {
+          const tendikList = await getDB('tendik');
+          const tendik = tendikList.find(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
+          if (tendik) {
+            if (tendik.password === inputPass || inputPass === '12345' || inputPass === 'tendik123') {
+              userResult = {
+                success: true,
+                role: 'tendik',
+                username: tendik.username,
+                nama: tendik.nama || tendik.username,
+                nip: tendik.nip || '-',
+                jabatan: tendik.jabatan || 'Staf Kependidikan',
+                noHp: tendik.noHp || '-',
+                kelas: tendik.jabatan || 'Tendik SMANSA',
+                foto: tendik.foto || '',
+                token: 'tok_' + tendik.username,
+                sessionId: sessionId
+              };
+            } else {
+              return { success: false, message: 'Password salah untuk akun ' + tendik.username };
+            }
           }
         }
 
-        return { success: false, message: 'NISN / Username "' + inputUser + '" tidak ditemukan.' };
+        if (!userResult) {
+          return { success: false, message: 'NISN / Username "' + inputUser + '" tidak ditemukan.' };
+        }
+
+        // Catat Log Sesi & Perangkat ke Firebase Database
+        try {
+          let logs = await getDB('login_logs');
+          if (!Array.isArray(logs)) logs = [];
+          const now = new Date();
+          const logEntry = {
+            id: sessionId,
+            userId: userResult.nip || userResult.nisn || userResult.username,
+            username: userResult.username || userResult.nisn,
+            nama: userResult.nama,
+            role: userResult.role,
+            jabatanOrKelas: userResult.jabatan || (userResult.kelas ? 'Kelas ' + userResult.kelas : '-'),
+            foto: userResult.foto || '',
+            device: device,
+            tanggal: getTodayString(),
+            jam: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            timestamp: Date.now(),
+            status: 'Aktif'
+          };
+          logs.unshift(logEntry);
+          if (logs.length > 300) logs = logs.slice(0, 300);
+          await setDB('login_logs', logs);
+        } catch(e) {
+          console.warn('Gagal mencatat login log:', e);
+        }
+
+        return userResult;
+      },
+
+      getLoginLogs: async () => {
+        let logs = await getDB('login_logs');
+        if (!Array.isArray(logs)) logs = [];
+        return { success: true, data: logs };
+      },
+
+      recordLogoutLog: async (sessionId) => {
+        if (!sessionId) return { success: true };
+        let logs = await getDB('login_logs');
+        if (Array.isArray(logs)) {
+          const item = logs.find(l => l.id === sessionId);
+          if (item) {
+            item.status = 'Logout';
+            item.logoutTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            await setDB('login_logs', logs);
+          }
+        }
+        return { success: true };
+      },
+
+      terminateUserSession: async (sessionId) => {
+        let logs = await getDB('login_logs');
+        if (Array.isArray(logs)) {
+          const item = logs.find(l => l.id === sessionId);
+          if (item) {
+            item.status = 'Logout (Diputus Admin)';
+            item.logoutTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            await setDB('login_logs', logs);
+            return { success: true, message: `Sesi login ${item.nama} (${item.username}) berhasil diputus.` };
+          }
+        }
+        return { success: false, message: 'Sesi tidak ditemukan.' };
+      },
+
+      clearLoginLogs: async () => {
+        await setDB('login_logs', []);
+        return { success: true, message: 'Semua riwayat sesi login berhasil dibersihkan.' };
       },
 
       getKelasList: async () => {
@@ -2983,17 +3183,96 @@
         showAlert('success', `Akun ${username} siap digunakan. Klik Masuk.`);
     }
 
+    function getDeviceInformation() {
+      const ua = navigator.userAgent || '';
+      let os = 'Lainnya';
+      let browser = 'Browser Web';
+      let type = 'Desktop';
+      let icon = 'fa-laptop';
+
+      // 1. Detect OS
+      if (/android/i.test(ua)) {
+        os = 'Android';
+        const match = ua.match(/Android\s([0-9\.]+)/i);
+        if (match) os = 'Android ' + match[1];
+        type = 'Mobile';
+        icon = 'fa-mobile-alt';
+      } else if (/iPhone/i.test(ua)) {
+        os = 'iOS (iPhone)';
+        const match = ua.match(/OS\s([0-9_\.]+)/i);
+        if (match) os = 'iOS ' + match[1].replace(/_/g, '.');
+        type = 'Mobile';
+        icon = 'fa-mobile-alt';
+      } else if (/iPad/i.test(ua)) {
+        os = 'iPadOS';
+        type = 'Tablet';
+        icon = 'fa-tablet-alt';
+      } else if (/Windows/i.test(ua)) {
+        os = 'Windows';
+        if (/Windows NT 10.0/i.test(ua)) os = 'Windows 10/11';
+        else if (/Windows NT 6.3/i.test(ua)) os = 'Windows 8.1';
+        else if (/Windows NT 6.1/i.test(ua)) os = 'Windows 7';
+        type = 'Desktop';
+        icon = 'fa-laptop';
+      } else if (/Macintosh|Mac OS X/i.test(ua)) {
+        os = 'macOS';
+        const match = ua.match(/Mac OS X\s([0-9_\.]+)/i);
+        if (match) os = 'macOS ' + match[1].replace(/_/g, '.');
+        type = 'Desktop';
+        icon = 'fa-laptop';
+      } else if (/Linux/i.test(ua)) {
+        os = 'Linux';
+        type = 'Desktop';
+        icon = 'fa-laptop';
+      }
+
+      // 2. Detect Wrapper / Browser
+      const isCapacitor = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+      const isStandalonePWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+      if (isCapacitor) {
+        browser = 'Aplikasi Android (APK)';
+        icon = 'fa-robot';
+      } else if (isStandalonePWA) {
+        browser = 'Aplikasi PWA (WebAPK)';
+        icon = 'fa-mobile-alt';
+      } else if (/Edg/i.test(ua)) {
+        browser = 'Microsoft Edge';
+      } else if (/SamsungBrowser/i.test(ua)) {
+        browser = 'Samsung Internet';
+      } else if (/Chrome/i.test(ua) && !/Chromium|Edg|OPR/i.test(ua)) {
+        browser = (type === 'Mobile' ? 'Chrome Mobile' : 'Google Chrome');
+      } else if (/Firefox|FxiOS/i.test(ua)) {
+        browser = 'Mozilla Firefox';
+      } else if (/Safari/i.test(ua) && !/Chrome|CriOS/i.test(ua)) {
+        browser = (type === 'Mobile' ? 'Safari Mobile' : 'Apple Safari');
+      } else if (/OPR|Opera/i.test(ua)) {
+        browser = 'Opera';
+      }
+
+      return {
+        os: os,
+        browser: browser,
+        type: type,
+        icon: icon,
+        fullString: `${os} - ${browser}`,
+        userAgent: ua,
+        screen: `${window.screen.width}x${window.screen.height}`
+      };
+    }
+
     function handleUnifiedLogin(event) {
         if (event) event.preventDefault();
         showLoading();
         
         const username = document.getElementById('loginUsername') ? document.getElementById('loginUsername').value : '';
         const password = document.getElementById('loginPassword') ? document.getElementById('loginPassword').value : '';
+        const deviceInfo = getDeviceInformation();
 
         google.script.run
             .withSuccessHandler(onLoginSuccess)
             .withFailureHandler(onLoginFailure)
-            .login(username, password);
+            .login(username, password, username, deviceInfo);
     }
 
     function onLoginSuccess(result) {
@@ -3021,6 +3300,9 @@
 
     function logout() {
         stopAndBack(false);
+        if (currentUser && currentUser.sessionId) {
+            google.script.run.recordLogoutLog(currentUser.sessionId);
+        }
         localStorage.removeItem('absensiAppSession');
         currentUser = null;
         document.getElementById('dashboardContainer').classList.add('hidden');
@@ -3266,6 +3548,216 @@
                 }).getAbsensiList({ tanggalMulai: today, tanggalAkhir: today });
             }).getTendikList(token);
         }).getGuruList(token);
+
+        // 3. Load Riwayat & Sesi Login Pengguna
+        loadAdminLoginLogs();
+    }
+
+    let cachedLoginLogs = [];
+
+    function loadAdminLoginLogs() {
+        const tbody = document.getElementById('tableLoginLogsBody');
+        if (!tbody) return;
+        
+        google.script.run.withSuccessHandler(res => {
+            if (res && res.success) {
+                cachedLoginLogs = res.data || [];
+                renderAdminLoginLogs(cachedLoginLogs);
+            }
+        }).getLoginLogs();
+    }
+
+    function renderAdminLoginLogs(logs) {
+        const tbody = document.getElementById('tableLoginLogsBody');
+        if (!tbody) return;
+
+        if (!logs || logs.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="py-10 text-center text-slate-400">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2 text-xl">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <p class="font-bold text-xs">Belum ada riwayat login tercatat.</p>
+                    </td>
+                </tr>`;
+            updateLoginLogStats([]);
+            return;
+        }
+
+        updateLoginLogStats(logs);
+
+        const search = (document.getElementById('searchLoginLogsInput') ? document.getElementById('searchLoginLogsInput').value : '').toLowerCase().trim();
+        const roleFilter = document.getElementById('filterLogRole') ? document.getElementById('filterLogRole').value : 'Semua';
+        const statusFilter = document.getElementById('filterLogStatus') ? document.getElementById('filterLogStatus').value : 'Semua';
+
+        const filtered = logs.filter(item => {
+            const matchSearch = !search || 
+                (item.nama && item.nama.toLowerCase().includes(search)) ||
+                (item.username && item.username.toLowerCase().includes(search)) ||
+                (item.userId && String(item.userId).toLowerCase().includes(search)) ||
+                (item.device && item.device.fullString && item.device.fullString.toLowerCase().includes(search)) ||
+                (item.device && item.device.os && item.device.os.toLowerCase().includes(search));
+
+            const matchRole = (roleFilter === 'Semua') || (item.role === roleFilter);
+            const matchStatus = (statusFilter === 'Semua') || 
+                (statusFilter === 'Aktif' ? item.status === 'Aktif' : item.status !== 'Aktif');
+
+            return matchSearch && matchRole && matchStatus;
+        });
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="py-8 text-center text-slate-400">
+                        <p class="font-bold text-xs">Tidak ada data login yang sesuai filter.</p>
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach((item, index) => {
+            const roleBadge = item.role === 'admin' 
+                ? '<span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-rose-100 text-rose-700 border border-rose-200 uppercase">Admin</span>'
+                : (item.role === 'guru'
+                    ? '<span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-purple-100 text-purple-700 border border-purple-200 uppercase">Guru</span>'
+                    : (item.role === 'tendik'
+                        ? '<span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-100 text-amber-800 border border-amber-200 uppercase">Tendik</span>'
+                        : '<span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-indigo-100 text-indigo-700 border border-indigo-200 uppercase">Siswa</span>'
+                    )
+                );
+
+            const isAktif = item.status === 'Aktif';
+            const statusBadge = isAktif
+                ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Aktif</span>'
+                : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">${item.status || 'Logout'}</span>`;
+
+            const dev = item.device || { os: 'Perangkat', browser: 'Browser', type: 'Desktop', icon: 'fa-laptop' };
+            const devIconClass = dev.type === 'Mobile' ? 'fa-mobile-alt text-blue-600 bg-blue-50' : (dev.type === 'Tablet' ? 'fa-tablet-alt text-purple-600 bg-purple-50' : 'fa-laptop text-slate-700 bg-slate-100');
+
+            const avatarBg = item.role === 'admin' ? 'bg-rose-500' : (item.role === 'guru' ? 'bg-purple-600' : (item.role === 'tendik' ? 'bg-amber-600' : 'bg-indigo-600'));
+
+            html += `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-3.5 px-4 text-center font-bold text-slate-400">${index + 1}</td>
+                    <td class="py-3.5 px-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl ${avatarBg} text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0 overflow-hidden">
+                                ${item.foto ? `<img src="${item.foto}" class="w-full h-full object-cover">` : (item.nama ? item.nama.charAt(0).toUpperCase() : 'U')}
+                            </div>
+                            <div>
+                                <h5 class="font-bold text-slate-800 leading-tight">${item.nama || item.username}</h5>
+                                <p class="text-[10px] text-slate-400 font-mono mt-0.5">ID: ${item.userId || item.username}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <div class="flex flex-col items-start gap-1">
+                            ${roleBadge}
+                            <span class="text-[10px] text-slate-500 font-medium">${item.jabatanOrKelas || '-'}</span>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl ${devIconClass} flex items-center justify-center text-sm shrink-0 border border-slate-200/50">
+                                <i class="fas ${dev.icon || 'fa-desktop'}"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-slate-800 text-[11px]">${dev.os || 'OS Unknown'}</div>
+                                <div class="text-[10px] text-slate-400">${dev.browser || 'Web Browser'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 whitespace-nowrap">
+                        <div class="font-bold text-slate-700">${item.jam || '-'}</div>
+                        <div class="text-[10px] text-slate-400">${item.tanggal || '-'}</div>
+                    </td>
+                    <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                        ${statusBadge}
+                    </td>
+                    <td class="py-3.5 px-4 text-center">
+                        ${isAktif ? `
+                            <button onclick="terminateAdminSession('${item.id}', '${item.nama || item.username}')" title="Putuskan Sesi Ini" class="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition text-xs font-bold active:scale-95">
+                                <i class="fas fa-sign-out-alt mr-1"></i> Putus
+                            </button>
+                        ` : `
+                            <span class="text-[10px] text-slate-300">-</span>
+                        `}
+                    </td>
+                </tr>`;
+        });
+
+        tbody.innerHTML = html;
+    }
+
+    function updateLoginLogStats(logs) {
+        const aktif = logs.filter(l => l.status === 'Aktif').length;
+        const mobile = logs.filter(l => l.device && (l.device.type === 'Mobile' || l.device.type === 'Tablet')).length;
+        const desktop = logs.filter(l => l.device && l.device.type === 'Desktop').length;
+        const total = logs.length;
+
+        if (document.getElementById('badgeActiveSessionCount')) {
+            document.getElementById('badgeActiveSessionCount').textContent = aktif + ' Aktif';
+        }
+        if (document.getElementById('statLogAktif')) document.getElementById('statLogAktif').textContent = aktif;
+        if (document.getElementById('statLogMobile')) document.getElementById('statLogMobile').textContent = mobile;
+        if (document.getElementById('statLogDesktop')) document.getElementById('statLogDesktop').textContent = desktop;
+        if (document.getElementById('statLogTotal')) document.getElementById('statLogTotal').textContent = total;
+    }
+
+    function filterAdminLoginLogs() {
+        renderAdminLoginLogs(cachedLoginLogs);
+    }
+
+    function terminateAdminSession(sessionId, userName) {
+        Swal.fire({
+            title: 'Putuskan Sesi Login?',
+            text: `Apakah Anda yakin ingin memutuskan sesi aktif untuk ${userName}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Putuskan Sesi',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoading();
+                google.script.run.withSuccessHandler(res => {
+                    hideLoading();
+                    if (res && res.success) {
+                        showAlert('success', res.message);
+                        loadAdminLoginLogs();
+                    } else {
+                        showAlert('error', res.message || 'Gagal memutuskan sesi');
+                    }
+                }).terminateUserSession(sessionId);
+            }
+        });
+    }
+
+    function confirmClearLoginLogs() {
+        Swal.fire({
+            title: 'Bersihkan Riwayat Login?',
+            text: 'Semua riwayat sesi login yang tersimpan akan dihapus.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Bersihkan',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                showLoading();
+                google.script.run.withSuccessHandler(res => {
+                    hideLoading();
+                    if (res && res.success) {
+                        showAlert('success', 'Riwayat login berhasil dibersihkan.');
+                        loadAdminLoginLogs();
+                    }
+                }).clearLoginLogs();
+            }
+        });
     }
 
     function renderAdminChart(hadir, sakit, izin, alpa, belum) {

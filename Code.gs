@@ -1992,3 +1992,71 @@ function updateUserProfilePhoto(token, userId, fotoBase64) {
     return { success: false, message: 'Gagal update foto: ' + e.toString() };
   }
 }
+
+function getLoginLogs() {
+  try {
+    const ss = getSpreadsheet();
+    let sheet = ss.getSheetByName('login_logs');
+    if (!sheet) return { success: true, data: [] };
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return { success: true, data: [] };
+
+    const list = [];
+    for (let i = 1; i < data.length; i++) {
+      let dev = { os: 'Perangkat', browser: 'Browser', type: 'Desktop', icon: 'fa-laptop' };
+      try {
+        if (data[i][4]) dev = JSON.parse(data[i][4]);
+      } catch(e) {}
+
+      list.push({
+        id: data[i][0],
+        userId: data[i][1],
+        nama: data[i][2],
+        role: data[i][3],
+        device: dev,
+        tanggal: Utilities.formatDate(new Date(data[i][5]), 'Asia/Jakarta', 'yyyy-MM-dd'),
+        jam: data[i][6],
+        status: data[i][7] || 'Aktif'
+      });
+    }
+    return { success: true, data: list.reverse() };
+  } catch(e) {
+    return { success: true, data: [] };
+  }
+}
+
+function recordLogoutLog(sessionId) {
+  try {
+    const ss = getSpreadsheet();
+    let sheet = ss.getSheetByName('login_logs');
+    if (!sheet) return { success: true };
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(sessionId)) {
+        sheet.getRange(i + 1, 8).setValue('Logout');
+        break;
+      }
+    }
+    return { success: true };
+  } catch(e) {
+    return { success: true };
+  }
+}
+
+function terminateUserSession(sessionId) {
+  return recordLogoutLog(sessionId);
+}
+
+function clearLoginLogs() {
+  try {
+    const ss = getSpreadsheet();
+    let sheet = ss.getSheetByName('login_logs');
+    if (sheet) {
+      sheet.clearContents();
+      sheet.appendRow(['Session ID', 'User ID', 'Nama', 'Role', 'Device JSON', 'Tanggal', 'Jam', 'Status']);
+    }
+    return { success: true, message: 'Riwayat login berhasil dibersihkan.' };
+  } catch(e) {
+    return { success: false, message: e.toString() };
+  }
+}
