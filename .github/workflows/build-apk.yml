@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Setup Java JDK 17
         uses: actions/setup-java@v4
@@ -32,35 +31,33 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install NPM Dependencies
-        run: |
-          npm install
-
       - name: Prepare Web Assets for Capacitor
         run: |
           mkdir -p www
           cp -r index.html manifest.json sw.js *.png *.ico *.jpg www/ 2>/dev/null || true
 
+      - name: Install NPM Dependencies
+        run: |
+          npm install --no-audit --no-fund
+
       - name: Initialize & Sync Capacitor Android
         run: |
           if [ ! -d "android" ]; then
-            npx cap add android
+            npx @capacitor/cli add android
           fi
-          npx cap sync android
+          npx @capacitor/cli sync android
 
       - name: Configure Android Permissions & Settings
         run: |
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           if [ -f "$MANIFEST" ]; then
-            # Add permissions if not already present
-            sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />' $MANIFEST
-            sed -i '/<application/i \    <uses-permission android:name="android.permission.CAMERA" />' $MANIFEST
-            sed -i '/<application/i \    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />' $MANIFEST
-            sed -i '/<application/i \    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />' $MANIFEST
-            sed -i '/<application/i \    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' $MANIFEST
-            sed -i '/<application/i \    <uses-feature android:name="android.hardware.camera" android:required="false" />' $MANIFEST
-            sed -i '/<application/i \    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />' $MANIFEST
-            sed -i '/<application/i \    <uses-feature android:name="android.hardware.location.gps" android:required="false" />' $MANIFEST
+            grep -q "android.permission.INTERNET" "$MANIFEST" || sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />' "$MANIFEST"
+            grep -q "android.permission.CAMERA" "$MANIFEST" || sed -i '/<application/i \    <uses-permission android:name="android.permission.CAMERA" />' "$MANIFEST"
+            grep -q "android.permission.ACCESS_FINE_LOCATION" "$MANIFEST" || sed -i '/<application/i \    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />' "$MANIFEST"
+            grep -q "android.permission.ACCESS_COARSE_LOCATION" "$MANIFEST" || sed -i '/<application/i \    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />' "$MANIFEST"
+            grep -q "android.permission.ACCESS_NETWORK_STATE" "$MANIFEST" || sed -i '/<application/i \    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />' "$MANIFEST"
+            grep -q "android.hardware.camera" "$MANIFEST" || sed -i '/<application/i \    <uses-feature android:name="android.hardware.camera" android:required="false" />' "$MANIFEST"
+            grep -q "android.hardware.location.gps" "$MANIFEST" || sed -i '/<application/i \    <uses-feature android:name="android.hardware.location.gps" android:required="false" />' "$MANIFEST"
           fi
 
       - name: Build Android APK with Gradle
@@ -99,5 +96,6 @@ jobs:
             Silakan unduh file `Presensi-SMANSA.apk` di bawah ini, lalu pasang di perangkat Android Anda.
           files: |
             release-apk/Presensi-SMANSA.apk
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
