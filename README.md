@@ -25,18 +25,14 @@ Aplikasi web presensi siswa dan manajemen kehadiran sekolah modern, responsif, d
 
 ---
 
-## 🔑 Akun Login Bawaan (Demo Data SMANSA LHOKSUKON)
+## 🔑 Akun Login Administrator
 
-| Role | Username / NISN | Password | Keterangan |
+| Role | Username | Password | Nama Lengkap / Jabatan |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `admin` | `admin123` / `12345` | Administrator |
-| **Guru (Wali Kelas)** | `guru1` | `guru123` / `12345` | Wali Kelas `X MIPA 1` |
-| **Guru (Wali Kelas)** | `guru2` | `guru123` / `12345` | Wali Kelas `XI IPS 1` |
-| **Siswa (Contoh 1)** | `1234567890` | `12345` | Ahmad Fauzi (`X MIPA 1`) |
-| **Siswa (Contoh 2)** | `1234567891` | `12345` | Cut Bella Salsabila (`X MIPA 1`) |
-| **Siswa (Contoh 3)** | `1234567893` | `12345` | Dinda Rahmawati (`XI IPS 1`) |
+| **Admin** | `admin` | `admin123` / `12345` | Administrator (Kepala TU) |
+| **Admin** | `mukhlis` | `admin123` / `12345` | MUHAMMAD MUKHLIS (Administrator) |
 
 ---
 
 ## 🌐 Tautan Live
-👉 **[https://yoseples.github.io/Absensi/](https://yoseples.github.io/Absensi/)**
+👉 **[https://yoseples.github.io/Presensi/](https://yoseples.github.io/Presensi/)**

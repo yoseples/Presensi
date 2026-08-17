@@ -1778,12 +1778,7 @@ function setupInitialData() {
 
     const initialUsers = [
       ['admin', 'admin123', 'admin', '', "'198001012005011001", 'Administrator', 'Kepala Tata Usaha', "'081234567800"],
-      ['mukhlis', 'admin123', 'admin', '', "'198904152026211006", 'MUHAMMAD MUKHLIS', 'Administrator', "'081234567808"],
-      ['guru1', 'guru123', 'guru', 'X MIPA 1', "'197503122002121002", 'Drs. Usman, M.Pd', 'Wali Kelas X MIPA 1', "'081234567801"],
-      ['guru2', 'guru123', 'guru', 'XI IPS 1', "'198207182008042003", 'Cut Rahmah, S.Pd', 'Wali Kelas XI IPS 1', "'081234567802"],
-      ['tendik1', 'tendik123', 'tendik', '', "'198505102010011005", 'Rahmat Hidayat, A.Md', 'Staf Perpustakaan', "'081234567805"],
-      ['tendik2', 'tendik123', 'tendik', '', "'199003152015022006", 'Siti Hajar, S.Kom', 'Staf IT & Data', "'081234567806"],
-      ['tendik3', 'tendik123', 'tendik', '', "'198811202012011007", 'Zulkifli', 'Petugas Keamanan', "'081234567807"]
+      ['mukhlis', 'admin123', 'admin', '', "'198904152026211006", 'MUHAMMAD MUKHLIS', 'Administrator', "'081234567808"]
     ];
 
     initialUsers.forEach(u => {
@@ -1797,8 +1792,6 @@ function setupInitialData() {
     if (!guruSheet) {
       guruSheet = ss.insertSheet('guru');
       guruSheet.appendRow(['NIP', 'Nama Lengkap & Gelar', 'Jabatan / Wali Kelas', 'No Handphone', 'Username', 'Password']);
-      guruSheet.appendRow(["'197503122002121002", 'Drs. Usman, M.Pd', 'Wali Kelas X MIPA 1', "'081234567801", 'guru1', 'guru123']);
-      guruSheet.appendRow(["'198207182008042003", 'Cut Rahmah, S.Pd', 'Wali Kelas XI IPS 1', "'081234567802", 'guru2', 'guru123']);
     }
 
     // 3. Sheet tendik (Tab khusus Tendik/Staf di Google Sheets)
@@ -1806,9 +1799,6 @@ function setupInitialData() {
     if (!tendikSheet) {
       tendikSheet = ss.insertSheet('tendik');
       tendikSheet.appendRow(['NIP / NIK', 'Nama Lengkap & Gelar', 'Jabatan / Bagian', 'No Handphone', 'Username', 'Password']);
-      tendikSheet.appendRow(["'198505102010011005", 'Rahmat Hidayat, A.Md', 'Staf Perpustakaan', "'081234567805", 'tendik1', 'tendik123']);
-      tendikSheet.appendRow(["'199003152015022006", 'Siti Hajar, S.Kom', 'Staf IT & Data', "'081234567806", 'tendik2', 'tendik123']);
-      tendikSheet.appendRow(["'198811202012011007", 'Zulkifli', 'Petugas Keamanan', "'081234567807", 'tendik3', 'tendik123']);
     }
 
     // 4. Sheet siswa
@@ -1816,8 +1806,6 @@ function setupInitialData() {
     if (!siswaSheet) {
       siswaSheet = ss.insertSheet('siswa');
       siswaSheet.appendRow(['Nama Lengkap', 'NISN', 'Jenis Kelamin', 'Tanggal Lahir', 'Agama', 'Nama Ayah', 'Nama Ibu', 'No Handphone', 'Kelas', 'Alamat']);
-      siswaSheet.appendRow(['Ahmad Fauzi', '1234567890', 'Laki-laki', '2008-04-12', 'Islam', 'Bambang', 'Siti Aminah', '081234567890', 'X MIPA 1', 'Jl. Medan - Banda Aceh, Lhoksukon']);
-      siswaSheet.appendRow(['Cut Bella Salsabila', '1234567891', 'Perempuan', '2008-08-21', 'Islam', 'Rahmat', 'Nurhaliza', '081234567891', 'X MIPA 1', 'Lhoksukon, Aceh Utara']);
     }
 
     // 5. Sheet absensi
@@ -1860,11 +1848,12 @@ function changePassword(token, username, oldPassword, newPassword) {
   return changeCredentials(token, username, username, oldPassword, newPassword);
 }
 
-function changeCredentials(token, oldUsername, newUsername, oldPassword, newPassword) {
+function changeCredentials(token, oldUsername, newUsername, oldPassword, newPassword, newNama) {
   try {
     const ss = getSpreadsheet();
     const cleanOld = String(oldUsername).trim().toLowerCase();
-    const cleanNew = String(newUsername).trim();
+    const cleanNew = String(newUsername || '').trim();
+    const cleanNama = String(newNama || '').trim();
     
     // 1. Update Sheet Users
     const usersSheet = ss.getSheetByName('users');
@@ -1876,6 +1865,7 @@ function changeCredentials(token, oldUsername, newUsername, oldPassword, newPass
         if (uName === cleanOld || uNip === cleanOld) {
           if (cleanNew) usersSheet.getRange(i + 1, 1).setValue("'" + cleanNew);
           if (newPassword) usersSheet.getRange(i + 1, 2).setValue("'" + newPassword);
+          if (cleanNama) usersSheet.getRange(i + 1, 6).setValue(cleanNama);
           break;
         }
       }
@@ -1889,6 +1879,7 @@ function changeCredentials(token, oldUsername, newUsername, oldPassword, newPass
         const gNip = String(data[i][0]).trim().toLowerCase();
         const gUser = String(data[i][4] || '').trim().toLowerCase();
         if (gNip === cleanOld || gUser === cleanOld) {
+          if (cleanNama) guruSheet.getRange(i + 1, 2).setValue(cleanNama);
           if (cleanNew) guruSheet.getRange(i + 1, 5).setValue("'" + cleanNew);
           if (newPassword) guruSheet.getRange(i + 1, 6).setValue("'" + newPassword);
           break;
@@ -1904,6 +1895,7 @@ function changeCredentials(token, oldUsername, newUsername, oldPassword, newPass
         const tNip = String(data[i][0]).trim().toLowerCase();
         const tUser = String(data[i][4] || '').trim().toLowerCase();
         if (tNip === cleanOld || tUser === cleanOld) {
+          if (cleanNama) tendikSheet.getRange(i + 1, 2).setValue(cleanNama);
           if (cleanNew) tendikSheet.getRange(i + 1, 5).setValue("'" + cleanNew);
           if (newPassword) tendikSheet.getRange(i + 1, 6).setValue("'" + newPassword);
           break;
@@ -1911,7 +1903,20 @@ function changeCredentials(token, oldUsername, newUsername, oldPassword, newPass
       }
     }
 
-    return { success: true, message: 'Username & Password berhasil diubah di Google Sheet!' };
+    // 4. Update Sheet Siswa
+    const siswaSheet = ss.getSheetByName('siswa');
+    if (siswaSheet) {
+      const data = siswaSheet.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        const sNisn = String(data[i][1]).replace(/^'/, '').trim().toLowerCase();
+        if (sNisn === cleanOld) {
+          if (cleanNama) siswaSheet.getRange(i + 1, 1).setValue(cleanNama);
+          break;
+        }
+      }
+    }
+
+    return { success: true, message: 'Nama Lengkap, Username & Password berhasil diperbarui di Google Sheet!' };
   } catch (e) {
     return { success: false, message: e.toString() };
   }

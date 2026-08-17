@@ -35,15 +35,10 @@ CREATE TABLE IF NOT EXISTS `users` (
   `updated_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Data awal users
+-- Data awal users (Administrator)
 INSERT INTO `users` (`username`, `password`, `role`, `kelas`, `nip`, `nama_lengkap`, `jabatan`, `no_handphone`) VALUES
 ('admin',   'admin123',   'admin',  NULL,         '198001012005011001', 'Administrator',            'Kepala Tata Usaha',      '081234567800'),
-('mukhlis', 'admin123',   'admin',  NULL,         '198904152026211006', 'MUHAMMAD MUKHLIS',         'Administrator',          '081234567808'),
-('guru1',   'guru123',    'guru',   'X MIPA 1',   '197503122002121002', 'Drs. Usman, M.Pd',        'Wali Kelas X MIPA 1',    '081234567801'),
-('guru2',   'guru123',    'guru',   'XI IPS 1',   '198207182008042003', 'Cut Rahmah, S.Pd',        'Wali Kelas XI IPS 1',    '081234567802'),
-('tendik1', 'tendik123',  'tendik', NULL,         '198505102010011005', 'Rahmat Hidayat, A.Md',    'Staf Perpustakaan',      '081234567805'),
-('tendik2', 'tendik123',  'tendik', NULL,         '199003152015022006', 'Siti Hajar, S.Kom',       'Staf IT & Data',         '081234567806'),
-('tendik3', 'tendik123',  'tendik', NULL,         '198811202012011007', 'Zulkifli',                'Petugas Keamanan',       '081234567807');
+('mukhlis', 'admin123',   'admin',  NULL,         '198904152026211006', 'MUHAMMAD MUKHLIS',         'Administrator',          '081234567808');
 
 -- ============================================================================
 -- 2. TABEL GURU
@@ -60,11 +55,6 @@ CREATE TABLE IF NOT EXISTS `guru` (
   `updated_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Data awal guru
-INSERT INTO `guru` (`nip`, `nama_lengkap`, `jabatan`, `no_handphone`, `username`, `password`) VALUES
-('197503122002121002', 'Drs. Usman, M.Pd',  'Wali Kelas X MIPA 1',  '081234567801', 'guru1', 'guru123'),
-('198207182008042003', 'Cut Rahmah, S.Pd',   'Wali Kelas XI IPS 1',  '081234567802', 'guru2', 'guru123');
-
 -- ============================================================================
 -- 3. TABEL TENDIK (Tenaga Kependidikan / Staf)
 -- ============================================================================
@@ -79,12 +69,6 @@ CREATE TABLE IF NOT EXISTS `tendik` (
   `created_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
   `updated_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Data awal tendik
-INSERT INTO `tendik` (`nip_nik`, `nama_lengkap`, `jabatan`, `no_handphone`, `username`, `password`) VALUES
-('198505102010011005', 'Rahmat Hidayat, A.Md', 'Staf Perpustakaan', '081234567805', 'tendik1', 'tendik123'),
-('199003152015022006', 'Siti Hajar, S.Kom',    'Staf IT & Data',    '081234567806', 'tendik2', 'tendik123'),
-('198811202012011007', 'Zulkifli',             'Petugas Keamanan',  '081234567807', 'tendik3', 'tendik123');
 
 -- ============================================================================
 -- 4. TABEL SISWA
@@ -104,11 +88,6 @@ CREATE TABLE IF NOT EXISTS `siswa` (
   `created_at`      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
   `updated_at`      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Data awal siswa
-INSERT INTO `siswa` (`nama_lengkap`, `nisn`, `jenis_kelamin`, `tanggal_lahir`, `agama`, `nama_ayah`, `nama_ibu`, `no_handphone`, `kelas`, `alamat`) VALUES
-('Ahmad Fauzi',           '1234567890', 'Laki-laki',  '2008-04-12', 'Islam', 'Bambang', 'Siti Aminah', '081234567890', 'X MIPA 1', 'Jl. Medan - Banda Aceh, Lhoksukon'),
-('Cut Bella Salsabila',   '1234567891', 'Perempuan',  '2008-08-21', 'Islam', 'Rahmat',  'Nurhaliza',   '081234567891', 'X MIPA 1', 'Lhoksukon, Aceh Utara');
 
 -- ============================================================================
 -- 5. TABEL ABSENSI (Rekap Presensi Harian)

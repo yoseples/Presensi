@@ -121,26 +121,23 @@
             <p class="text-sm text-slate-600 font-semibold mt-1">SMA Negeri 1 Lhoksukon</p>
         </div>
 
-        <!-- Info Badges / Instruction Pills (Sesuai Desain Gambar) -->
+        <!-- Info Badges / Instruction Pills -->
         <div class="mt-6 space-y-2 text-[11px] text-slate-600">
             <div class="flex items-center gap-2.5 bg-[#F0F4F9] px-3.5 py-2.5 rounded-xl border border-[#E2EAF4]">
                 <i class="far fa-user text-blue-600 text-xs w-4 text-center"></i>
-                <span>Username menggunakan <b>NISN</b></span>
+                <span>Masukkan <b>Username</b> atau <b>NISN</b> / <b>NIP</b></span>
             </div>
-            <div class="flex items-center justify-between bg-[#F0F4F9] px-3.5 py-2.5 rounded-xl border border-[#E2EAF4]">
-                <div class="flex items-center gap-2.5">
-                    <i class="fas fa-key text-blue-600 text-xs w-4 text-center"></i>
-                    <span>Password default: <span class="text-blue-600 font-bold">12345</span></span>
-                </div>
-                <button type="button" onclick="quickFillForm('1234567890', '12345')" class="text-[10px] text-blue-600 font-bold hover:underline">Isi Otomatis</button>
+            <div class="flex items-center gap-2.5 bg-[#F0F4F9] px-3.5 py-2.5 rounded-xl border border-[#E2EAF4]">
+                <i class="fas fa-key text-blue-600 text-xs w-4 text-center"></i>
+                <span>Masukkan <b>Password</b> akun Anda</span>
             </div>
             <div class="flex items-center gap-2.5 bg-[#F0F4F9] px-3.5 py-2.5 rounded-xl border border-[#E2EAF4]">
                 <i class="fas fa-map-marker-alt text-blue-600 text-xs w-4 text-center"></i>
-                <span>Izinkan akses lokasi di perangkat</span>
+                <span>Izinkan akses lokasi GPS di perangkat</span>
             </div>
             <div class="flex items-center gap-2.5 bg-[#F0F4F9] px-3.5 py-2.5 rounded-xl border border-[#E2EAF4]">
                 <i class="fas fa-camera text-blue-600 text-xs w-4 text-center"></i>
-                <span>Izinkan akses <b>kamera</b> untuk presensi</span>
+                <span>Izinkan akses <b>kamera</b> untuk presensi QR</span>
             </div>
         </div>
 
@@ -149,7 +146,7 @@
             <div>
                 <input type="text" id="loginUsername" required 
                        class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition shadow-sm" 
-                       placeholder="Username (NISN)">
+                       placeholder="Username / NISN / NIP">
             </div>
             
             <div class="relative">
@@ -174,18 +171,6 @@
             <div>
                 <p id="errorText" class="text-xs font-medium text-rose-700">Username atau password tidak sesuai.</p>
             </div>
-        </div>
-
-        <!-- Quick Demo Switcher -->
-        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-center gap-2 text-[11px] text-slate-400 flex-wrap">
-            <span>Demo:</span>
-            <button type="button" onclick="quickFillForm('admin', 'admin123')" class="text-indigo-600 font-semibold hover:underline">Admin</button>
-            <span>•</span>
-            <button type="button" onclick="quickFillForm('tendik1', 'tendik123')" class="text-amber-600 font-semibold hover:underline">Tendik</button>
-            <span>•</span>
-            <button type="button" onclick="quickFillForm('guru1', 'guru123')" class="text-purple-600 font-semibold hover:underline">Guru</button>
-            <span>•</span>
-            <button type="button" onclick="quickFillForm('1234567890', '12345')" class="text-emerald-600 font-semibold hover:underline">Siswa</button>
         </div>
 
         <!-- Footer Text (Sesuai Permintaan: SMANSA LHOKSUKON) -->
@@ -232,10 +217,6 @@
           <nav id="sidebarMenu" class="flex-1 overflow-y-auto overflow-x-hidden px-3 space-y-1.5 pb-4 scrollbar-hide text-sm"></nav>
           
           <div class="p-4 border-t border-slate-800 bg-black/20 space-y-1">
-              <button onclick="showSettingsModal()" class="flex items-center space-x-3 text-slate-400 hover:text-white hover:bg-white/5 w-full p-2.5 rounded-xl transition duration-200 group overflow-hidden whitespace-nowrap justify-start">
-                  <i class="fas fa-cog w-5 text-center shrink-0 group-hover:rotate-45 transition-transform text-sm"></i>
-                  <span class="sidebar-label font-medium transition-opacity duration-300 text-xs">Setelan Data</span>
-              </button>
               <button onclick="logout()" id="btnLogout" class="flex items-center space-x-3 text-red-400 hover:text-white hover:bg-red-500/20 w-full p-2.5 rounded-xl transition duration-200 group overflow-hidden whitespace-nowrap justify-start">
                   <i class="fas fa-sign-out-alt w-5 text-center shrink-0 group-hover:scale-110 transition-transform text-sm"></i>
                   <span class="sidebar-label font-medium transition-opacity duration-300 text-xs">Keluar Aplikasi</span>
@@ -1684,24 +1665,12 @@
     };
 
     const SEED_DATA = {
-      siswa: [
-        { nisn: '1234567890', nama: 'Ahmad Fauzi', kelas: 'X MIPA 1', jenisKelamin: 'Laki-laki', tanggalLahir: '2008-04-12', agama: 'Islam', namaAyah: 'Bambang', namaIbu: 'Siti Aminah', noHp: '081234567890', alamat: 'Jl. Medan - Banda Aceh, Lhoksukon, Aceh Utara' },
-        { nisn: '1234567891', nama: 'Cut Bella Salsabila', kelas: 'X MIPA 1', jenisKelamin: 'Perempuan', tanggalLahir: '2008-08-21', agama: 'Islam', namaAyah: 'Rahmat', namaIbu: 'Nurhaliza', noHp: '081234567891', alamat: 'Kec. Lhoksukon, Aceh Utara' },
-        { nisn: '1234567892', nama: 'Muhammad Pratama', kelas: 'X MIPA 2', jenisKelamin: 'Laki-laki', tanggalLahir: '2008-01-15', agama: 'Islam', namaAyah: 'Yusuf', namaIbu: 'Mariam', noHp: '081234567892', alamat: 'Gampong Meunasah Dayah, Lhoksukon' },
-        { nisn: '1234567893', nama: 'Dinda Rahmawati', kelas: 'XI IPS 1', jenisKelamin: 'Perempuan', tanggalLahir: '2007-11-03', agama: 'Islam', namaAyah: 'Hasan', namaIbu: 'Fatimah', noHp: '081234567893', alamat: 'Lhoksukon, Aceh Utara' },
-        { nisn: '1234567894', nama: 'Teuku Eko Prasetyo', kelas: 'XI IPS 1', jenisKelamin: 'Laki-laki', tanggalLahir: '2007-06-25', agama: 'Islam', namaAyah: 'Santoso', namaIbu: 'Dewi', noHp: '081234567894', alamat: 'Lhoksukon, Aceh Utara' }
-      ],
+      siswa: [],
       guru: [
         { username: 'admin', password: 'admin123', role: 'admin', nama: 'Administrator', nip: '198001012005011001', jabatan: 'Kepala Tata Usaha', kelas: '', noHp: '081234567800' },
-        { username: 'mukhlis', password: 'admin123', role: 'admin', nama: 'MUHAMMAD MUKHLIS', nip: '198904152026211006', jabatan: 'Administrator', kelas: '', noHp: '081234567808' },
-        { username: 'guru1', password: 'guru123', role: 'guru', nama: 'Drs. Usman, M.Pd', nip: '197503122002121002', jabatan: 'Wali Kelas X MIPA 1', kelas: 'X MIPA 1', noHp: '081234567801' },
-        { username: 'guru2', password: 'guru123', role: 'guru', nama: 'Cut Rahmah, S.Pd', nip: '198207182008042003', jabatan: 'Wali Kelas XI IPS 1', kelas: 'XI IPS 1', noHp: '081234567802' }
+        { username: 'mukhlis', password: 'admin123', role: 'admin', nama: 'MUHAMMAD MUKHLIS', nip: '198904152026211006', jabatan: 'Administrator', kelas: '', noHp: '081234567808' }
       ],
-      tendik: [
-        { username: 'tendik1', password: 'tendik123', role: 'tendik', nama: 'Rahmat Hidayat, A.Md', nip: '198505102010011005', jabatan: 'Staf Perpustakaan', noHp: '081234567805' },
-        { username: 'tendik2', password: 'tendik123', role: 'tendik', nama: 'Siti Hajar, S.Kom', nip: '199003152015022006', jabatan: 'Staf IT & Data', noHp: '081234567806' },
-        { username: 'tendik3', password: 'tendik123', role: 'tendik', nama: 'Zulkifli', nip: '198811202012011007', jabatan: 'Petugas Keamanan', noHp: '081234567807' }
-      ],
+      tendik: [],
       config: {
         jam_masuk_mulai: '06:30',
         jam_masuk_akhir: '07:15',
@@ -1715,9 +1684,7 @@
         { tanggal: '2026-08-17', keterangan: 'HUT Kemerdekaan RI' },
         { tanggal: '2026-12-25', keterangan: 'Hari Raya Natal' }
       ],
-      absensi: [
-        { tanggal: new Date().toISOString().split('T')[0], nisn: '1234567890', nama: 'Ahmad Fauzi', kelas: 'X MIPA 1', jamDatang: '06:55', jamPulang: '-', keterangan: 'Tepat Waktu', status: 'Hadir' }
-      ]
+      absensi: []
     };
 
     function initLocalStorage() {
@@ -2060,27 +2027,41 @@
         return BackendAPI.changeCredentials(token, username, username, oldPassword, newPassword);
       },
 
-      changeCredentials: async (token, oldUsername, newUsername, oldPassword, newPassword) => {
+      changeCredentials: async (token, oldUsername, newUsername, oldPassword, newPassword, newNama) => {
         const oldU = String(oldUsername || '').trim().toLowerCase();
         const newU = String(newUsername || '').trim();
+        const cleanNama = String(newNama || '').trim();
 
+        // 1. Guru & Admin
         const guruList = await getDB('guru');
         const guru = guruList.find(g => (g.username && g.username.toLowerCase() === oldU) || (g.nip && String(g.nip) === oldU));
         if (guru) {
-          guru.username = newU;
+          if (newU) guru.username = newU;
+          if (cleanNama) guru.nama = cleanNama;
           if (newPassword) guru.password = newPassword;
           await setDB('guru', guruList);
         }
 
+        // 2. Tendik
         const tendikList = await getDB('tendik');
         const tendik = tendikList.find(t => (t.username && t.username.toLowerCase() === oldU) || (t.nip && String(t.nip) === oldU));
         if (tendik) {
-          tendik.username = newU;
+          if (newU) tendik.username = newU;
+          if (cleanNama) tendik.nama = cleanNama;
           if (newPassword) tendik.password = newPassword;
           await setDB('tendik', tendikList);
         }
 
-        return { success: true, message: 'Username & Password berhasil diubah!' };
+        // 3. Siswa
+        const siswaList = await getDB('siswa');
+        const siswa = siswaList.find(s => (s.nisn && String(s.nisn).toLowerCase() === oldU) || (s.username && s.username.toLowerCase() === oldU));
+        if (siswa) {
+          if (newU) siswa.username = newU;
+          if (cleanNama) siswa.nama = cleanNama;
+          await setDB('siswa', siswaList);
+        }
+
+        return { success: true, message: 'Nama Lengkap, Username & Password berhasil diperbarui!' };
       },
 
       updateUserProfilePhoto: async (token, userId, fotoBase64) => {
@@ -6514,29 +6495,37 @@
                         </div>
                     </div>
 
-                    <!-- Tab 3: Ganti Password -->
+                    <!-- Tab 3: Ubah Profil & Keamanan -->
                     <div id="tab-security-content" class="hidden space-y-4 text-xs">
                         <form onsubmit="submitChangeCredentials(event)" class="space-y-3">
                             <div>
+                                <label class="block font-bold text-slate-700 mb-1">Nama Lengkap</label>
+                                <input type="text" id="userNewNama" required value="${nama}" placeholder="Masukkan nama lengkap baru" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <p class="text-[10px] text-slate-400 mt-1">Nama lengkap yang akan ditampilkan di dashboard, profil, dan kartu digital.</p>
+                            </div>
+                            <div>
                                 <label class="block font-bold text-slate-700 mb-1">Username Login Baru</label>
-                                <input type="text" id="userNewUsername" required value="${username}" placeholder="Masukkan username login baru" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-mono font-bold text-indigo-700">
-                                <p class="text-[10px] text-slate-400 mt-1">Anda dapat mengganti nama pengguna (username) untuk login ke aplikasi.</p>
+                                <input type="text" id="userNewUsername" required value="${username}" placeholder="Masukkan username login baru" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-mono font-bold text-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <p class="text-[10px] text-slate-400 mt-1">Nama pengguna (username) untuk masuk/login ke aplikasi.</p>
+                            </div>
+                            <div class="pt-2 border-t border-slate-100">
+                                <p class="text-[11px] font-bold text-slate-600 mb-2"><i class="fas fa-lock text-indigo-500 mr-1"></i> Ganti Password (Opsional)</p>
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Password Saat Ini</label>
-                                <input type="password" id="userOldPassword" required placeholder="Masukkan password saat ini" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                                <input type="password" id="userOldPassword" placeholder="Masukkan password saat ini jika ingin mengubah password" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Password Baru</label>
-                                <input type="password" id="userNewPassword" required minlength="4" placeholder="Masukkan password baru" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                                <input type="password" id="userNewPassword" minlength="4" placeholder="Kosongkan jika tidak ingin ganti password" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
                             </div>
                             <div>
                                 <label class="block font-bold text-slate-700 mb-1">Konfirmasi Password Baru</label>
-                                <input type="password" id="userConfirmPassword" required minlength="4" placeholder="Ulangi password baru" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                                <input type="password" id="userConfirmPassword" minlength="4" placeholder="Ulangi password baru jika ganti password" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
                             </div>
                             <div class="pt-2">
                                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition flex items-center justify-center gap-2 shadow-md">
-                                    <i class="fas fa-shield-alt"></i> Simpan Username & Password
+                                    <i class="fas fa-save"></i> Simpan Perubahan Profil & Akun
                                 </button>
                             </div>
                         </form>
@@ -6596,18 +6585,29 @@
 
     function submitChangeCredentials(event) {
         if (event) event.preventDefault();
+        const newNama = document.getElementById('userNewNama') ? document.getElementById('userNewNama').value.trim() : '';
         const newUsername = document.getElementById('userNewUsername').value.trim();
         const oldPass = document.getElementById('userOldPassword').value.trim();
         const newPass = document.getElementById('userNewPassword').value.trim();
         const confirmPass = document.getElementById('userConfirmPassword').value.trim();
+
+        if (!newNama) {
+            showAlert('error', 'Nama lengkap tidak boleh kosong!');
+            return;
+        }
 
         if (!newUsername) {
             showAlert('error', 'Username baru tidak boleh kosong!');
             return;
         }
 
-        if (newPass !== confirmPass) {
+        if (newPass && newPass !== confirmPass) {
             showAlert('error', 'Konfirmasi password baru tidak cocok!');
+            return;
+        }
+
+        if (newPass && !oldPass) {
+            showAlert('error', 'Harap masukkan password saat ini untuk verifikasi penggantian password!');
             return;
         }
 
@@ -6619,8 +6619,9 @@
                 hideLoading();
                 if (res.success) {
                     currentUser.username = newUsername;
+                    currentUser.nama = newNama;
                     localStorage.setItem('absensiAppSession', JSON.stringify(currentUser));
-                    showAlert('success', res.message || 'Username & Password berhasil diubah!');
+                    showAlert('success', res.message || 'Profil & Akun berhasil diperbarui!');
                     closeModal();
                     setTimeout(() => location.reload(), 800);
                 } else {
@@ -6631,7 +6632,7 @@
                 hideLoading();
                 showAlert('error', 'Error ganti akun: ' + err);
             })
-            .changeCredentials(currentUser.token, oldUsername, newUsername, oldPass, newPass);
+            .changeCredentials(currentUser.token, oldUsername, newUsername, oldPass, newPass, newNama);
     }
 
     // ============================================================================
