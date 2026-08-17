@@ -3419,7 +3419,6 @@
         }
         else if (currentUser.role === 'siswa') {
             menuHTML += createItem('Dashboard', 'fa-home', 'loadSiswaDashboard()', true);
-            menuHTML += createItem('Scan Absensi', 'fa-qrcode', 'loadScanAbsensi()');
             menuHTML += createItem('Kartu Saya', 'fa-id-card', 'loadQRCodeSiswa()');
             menuHTML += createItem('Profil & Akun', 'fa-user-cog', 'showUserProfileAndSecurityModal()');
             loadSiswaDashboard();
@@ -5932,6 +5931,10 @@
     }
 
     function loadScanAbsensi() {
+        if (currentUser && currentUser.role === 'siswa') {
+            showAlert('warning', 'Fitur scanner hanya dapat digunakan oleh Guru, Tendik, atau Administrator.');
+            return;
+        }
         isScanning = false;
         setActiveMenu('Scan Absensi');
         showView('view-scanner');
