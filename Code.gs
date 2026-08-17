@@ -796,11 +796,14 @@ function calculateDistanceInMeters(lat1, lon1, lat2, lon2) {
   return Math.round(R * c);
 }
 
-function scanAbsensi(nisn, scannerRole, scannerKelas, userLat, userLng) {
+function scanAbsensi(nisn, scannerRole, scannerKelas, userLat, userLng, scannerUserId) {
   try {
     const ss = getSpreadsheet();
     const today = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
     const nowTime = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'HH:mm');
+    const isSelfPresensi = (userLat !== undefined && userLat !== null && userLng !== undefined && userLng !== null);
+    const cleanScannerRole = String(scannerRole || '').toLowerCase();
+    const cleanScannerId = String(scannerUserId || '').trim().toLowerCase();
     
     const configResult = getAppConfig();
     const config = configResult.success ? configResult.data : {
@@ -884,8 +887,18 @@ function scanAbsensi(nisn, scannerRole, scannerKelas, userLat, userLng) {
     }
 
     if (employeeObj) {
+      // Aturan 1: Tidak bisa scan barcode diri sendiri via scanner kamera
+      if (!isSelfPresensi && cleanScannerId && (cleanScannerId === employeeObj.id.toLowerCase() || cleanScannerId === employeeObj.nama.toLowerCase())) {
+        return { success: false, message: 'Presensi DITOLAK: Anda tidak dapat memindai barcode diri sendiri. Silakan gunakan tombol "Presensi Mandiri" (GPS).' };
+      }
+
+      // Aturan 2: Guru dan Tendik hanya bisa absen mandiri atau di-scan oleh Admin
+      if (!isSelfPresensi && cleanScannerRole !== 'admin') {
+        return { success: false, message: 'Presensi Guru dan Tendik hanya dapat dilakukan melalui Presensi Mandiri (GPS) atau dipindai oleh Administrator.' };
+      }
+
       // Validasi GPS Radius Wajib untuk Guru & Tendik
-      if (userLat !== undefined && userLat !== null && userLng !== undefined && userLng !== null) {
+      if (isSelfPresensi) {
         const targetLat = parseFloat(config.lokasi_lat || '5.048744');
         const targetLng = parseFloat(config.lokasi_lng || '97.288285');
         const maxRadius = parseFloat(config.radius_meter || '500');
@@ -980,6 +993,11 @@ function scanAbsensi(nisn, scannerRole, scannerKelas, userLat, userLng) {
     
     if (!siswa) {
       return { success: false, message: 'ID / NISN "' + scannedId + '" tidak terdaftar di database Siswa, Guru, maupun Tendik.' };
+    }
+
+    // Aturan 1: Siswa tidak bisa scan barcode diri sendiri
+    if (!isSelfPresensi && cleanScannerId && (cleanScannerId === siswa.nisn.toLowerCase() || cleanScannerId === siswa.nama.toLowerCase())) {
+      return { success: false, message: 'Presensi DITOLAK: Siswa tidak dapat memindai barcode sendiri. Presensi siswa dicatat oleh Guru/Admin melalui scanner kelas.' };
     }
 
     if (scannerRole === 'guru') {

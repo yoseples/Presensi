@@ -2237,12 +2237,15 @@
         };
       },
 
-      scanAbsensi: async (rawNisn, role, roleKelas, userLat, userLng) => {
+      scanAbsensi: async (rawNisn, role, roleKelas, userLat, userLng, scannerUserId) => {
         const nisn = String(rawNisn).trim();
         const today = getTodayString();
         const nowTime = getNowTimeString();
         const config = await getDB('config');
         let absensiList = await getDB('absensi');
+        const isSelfPresensi = (userLat !== undefined && userLat !== null && userLng !== undefined && userLng !== null);
+        const cleanScannerRole = String(role || '').toLowerCase();
+        const cleanScannerId = String(scannerUserId || '').trim().toLowerCase();
 
         // Helper hitung jarak meter GPS
         const getDistance = (lat1, lon1, lat2, lon2) => {
@@ -2259,7 +2262,21 @@
         const guruList = await getDB('guru');
         const guru = guruList.find(g => String(g.nip || '').trim() === nisn || g.username.toLowerCase() === nisn.toLowerCase());
         if (guru) {
-          if (userLat !== undefined && userLat !== null && userLng !== undefined && userLng !== null) {
+          const targetId = guru.nip || guru.username;
+          const targetU = (guru.username || '').toLowerCase();
+          const targetNip = String(guru.nip || '').toLowerCase();
+
+          // Aturan 1: Tidak bisa scan barcode diri sendiri via scanner kamera
+          if (!isSelfPresensi && cleanScannerId && (cleanScannerId === targetU || cleanScannerId === targetNip || cleanScannerId === targetId.toLowerCase())) {
+            return { success: false, message: 'Presensi DITOLAK: Anda tidak dapat memindai barcode diri sendiri. Silakan gunakan tombol "Presensi Mandiri" (GPS).' };
+          }
+
+          // Aturan 2: Guru hanya bisa absen mandiri atau di-scan oleh Admin
+          if (!isSelfPresensi && cleanScannerRole !== 'admin') {
+            return { success: false, message: 'Presensi Guru hanya dapat dilakukan melalui Presensi Mandiri (GPS) atau dipindai oleh Administrator.' };
+          }
+
+          if (isSelfPresensi) {
             const targetLat = parseFloat(config.lokasi_lat || '5.048744');
             const targetLng = parseFloat(config.lokasi_lng || '97.288285');
             const maxRadius = parseFloat(config.radius_meter || '500');
@@ -2268,7 +2285,6 @@
               return { success: false, message: `Presensi DITOLAK. Anda berada di luar radius sekolah (${dist} meter dari lokasi sekolah, batas maksimal ${maxRadius} meter).` };
             }
           }
-          const targetId = guru.nip || guru.username;
           const existingIdx = absensiList.findIndex(a => a.tanggal === today && (String(a.nisn) === targetId || (a.username && a.username.toLowerCase() === guru.username.toLowerCase())));
           if (existingIdx !== -1) {
             const rec = absensiList[existingIdx];
@@ -2323,7 +2339,21 @@
         const tendikList = await getDB('tendik');
         const tendik = tendikList.find(t => String(t.nip || '').trim() === nisn || t.username.toLowerCase() === nisn.toLowerCase());
         if (tendik) {
-          if (userLat !== undefined && userLat !== null && userLng !== undefined && userLng !== null) {
+          const targetId = tendik.nip || tendik.username;
+          const targetU = (tendik.username || '').toLowerCase();
+          const targetNip = String(tendik.nip || '').toLowerCase();
+
+          // Aturan 1: Tidak bisa scan barcode diri sendiri via scanner kamera
+          if (!isSelfPresensi && cleanScannerId && (cleanScannerId === targetU || cleanScannerId === targetNip || cleanScannerId === targetId.toLowerCase())) {
+            return { success: false, message: 'Presensi DITOLAK: Anda tidak dapat memindai barcode diri sendiri. Silakan gunakan tombol "Presensi Mandiri" (GPS).' };
+          }
+
+          // Aturan 2: Tendik hanya bisa absen mandiri atau di-scan oleh Admin
+          if (!isSelfPresensi && cleanScannerRole !== 'admin') {
+            return { success: false, message: 'Presensi Staf Tendik hanya dapat dilakukan melalui Presensi Mandiri (GPS) atau dipindai oleh Administrator.' };
+          }
+
+          if (isSelfPresensi) {
             const targetLat = parseFloat(config.lokasi_lat || '5.048744');
             const targetLng = parseFloat(config.lokasi_lng || '97.288285');
             const maxRadius = parseFloat(config.radius_meter || '500');
@@ -2332,7 +2362,6 @@
               return { success: false, message: `Presensi DITOLAK. Anda berada di luar radius sekolah (${dist} meter dari lokasi sekolah, batas maksimal ${maxRadius} meter).` };
             }
           }
-          const targetId = tendik.nip || tendik.username;
           const existingIdx = absensiList.findIndex(a => a.tanggal === today && (String(a.nisn) === targetId || (a.username && a.username.toLowerCase() === tendik.username.toLowerCase())));
           if (existingIdx !== -1) {
             const rec = absensiList[existingIdx];
@@ -2388,6 +2417,13 @@
         const siswa = siswaList.find(s => String(s.nisn) === nisn);
         if (!siswa) {
           return { success: false, message: 'QR Code / ID "' + nisn + '" tidak terdaftar di database Siswa, Guru, atau Tendik!' };
+        }
+
+        const targetNisn = String(siswa.nisn || '').replace(/'/g, '').trim().toLowerCase();
+
+        // Aturan 1: Siswa tidak bisa scan barcode diri sendiri
+        if (!isSelfPresensi && cleanScannerId && (cleanScannerId === targetNisn || cleanScannerId === (siswa.username || '').toLowerCase())) {
+          return { success: false, message: 'Presensi DITOLAK: Siswa tidak dapat memindai barcode sendiri. Presensi siswa dicatat oleh Guru/Admin melalui scanner kelas.' };
         }
 
         if (role === 'guru' && roleKelas && siswa.kelas !== roleKelas) {
@@ -5369,6 +5405,30 @@
 
     function onScanSuccess(decodedText) {
         if (!decodedText || decodedText.trim() === "" || isScanning) return;
+
+        const cleanScanned = decodedText.trim().toLowerCase();
+        const myId = currentUser ? (currentUser.nip || currentUser.nisn || currentUser.username || '').toLowerCase() : '';
+        const myUsername = currentUser ? (currentUser.username || '').toLowerCase() : '';
+        const myNip = currentUser ? String(currentUser.nip || '').toLowerCase() : '';
+        const myNisn = currentUser ? String(currentUser.nisn || '').toLowerCase() : '';
+
+        // 1. Validasi: Tidak bisa scan barcode diri sendiri
+        if (cleanScanned === myId || cleanScanned === myUsername || (myNip && cleanScanned === myNip) || (myNisn && cleanScanned === myNisn)) {
+            playScanSound(false);
+            const resultDiv = document.getElementById('scanResult');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `
+                <div class="bg-amber-50 text-amber-800 p-4 rounded-2xl border border-amber-200 shadow-sm flex items-center space-x-3 text-left animate-fade-in">
+                    <div class="bg-amber-100 p-2.5 rounded-full text-amber-600 shrink-0"><i class="fas fa-exclamation-triangle text-lg"></i></div>
+                    <div>
+                        <h4 class="font-bold text-sm">Presensi Ditolak</h4>
+                        <p class="text-xs opacity-90 mt-0.5">Anda tidak dapat memindai barcode akun Anda sendiri melalui scanner. Khusus Guru/Tendik silakan gunakan tombol <b>Presensi Mandiri</b> (GPS).</p>
+                    </div>
+                </div>`;
+            setTimeout(() => { isScanning = false; }, 3500);
+            return;
+        }
+
         isScanning = true;
         
         const resultDiv = document.getElementById('scanResult');
@@ -5380,6 +5440,7 @@
 
         const myRole = currentUser ? currentUser.role : '';
         const myKelas = currentUser ? currentUser.kelas : '';
+        const scannerId = currentUser ? (currentUser.nip || currentUser.nisn || currentUser.username || '') : '';
 
         google.script.run.withSuccessHandler(result => {
             if (result.success) {
@@ -5412,7 +5473,7 @@
                 playScanSound(false);
                 resultDiv.innerHTML = `
                     <div class="bg-red-50 text-red-700 p-4 rounded-2xl border border-red-100 shadow-sm flex items-center space-x-3 text-left">
-                        <div class="bg-red-100 p-2.5 rounded-full text-red-600"><i class="fas fa-times text-lg"></i></div>
+                        <div class="bg-red-100 p-2.5 rounded-full text-red-600 shrink-0"><i class="fas fa-times text-lg"></i></div>
                         <div>
                             <h4 class="font-bold text-sm">Gagal Absensi</h4>
                             <p class="text-xs opacity-90">${result.message}</p>
@@ -5420,7 +5481,7 @@
                     </div>`;
                 setTimeout(() => { isScanning = false; }, 3500);
             }
-        }).scanAbsensi(decodedText, myRole, myKelas);
+        }).scanAbsensi(decodedText, myRole, myKelas, null, null, scannerId);
     }
 
     function stopAndBack(redirect = true) {
