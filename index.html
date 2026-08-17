@@ -5213,144 +5213,104 @@
             elBack.classList.remove('hidden');
             if (btnFront) btnFront.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
             if (btnBack) btnBack.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-md transition';
+
+            if (window.activeCardQRText && window.activeCardQRContainerId) {
+                generateCardQR(window.activeCardQRContainerId, window.activeCardQRText, window.activeCardQRColor || "#0F243A");
+            }
         }
     }
 
-    function generateQRCodeDataURL(text, colorDark = "#000000") {
-        return new Promise((resolve) => {
-            try {
-                if (!text) return resolve('');
-                const tempDiv = document.createElement('div');
-                tempDiv.style.position = 'fixed';
-                tempDiv.style.left = '-9999px';
-                tempDiv.style.top = '-9999px';
-                tempDiv.style.width = '240px';
-                tempDiv.style.height = '240px';
-                tempDiv.style.background = '#ffffff';
-                tempDiv.style.display = 'block';
-                tempDiv.style.visibility = 'visible';
-                document.body.appendChild(tempDiv);
+    function generateCardQR(containerId, text, colorDark = "#0F243A") {
+        window.activeCardQRContainerId = containerId;
+        window.activeCardQRText = text;
+        window.activeCardQRColor = colorDark;
 
-                new QRCode(tempDiv, {
-                    text: String(text),
-                    width: 220,
-                    height: 220,
-                    colorDark: colorDark,
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
+        const box = document.getElementById(containerId);
+        if (!box || !text) return;
+        box.innerHTML = "";
 
-                setTimeout(() => {
-                    let dataUrl = '';
-                    const canvas = tempDiv.querySelector('canvas');
-                    const img = tempDiv.querySelector('img');
-                    if (canvas) {
-                        try {
-                            dataUrl = canvas.toDataURL('image/png');
-                        } catch(e) {}
-                    }
-                    if (!dataUrl && img && img.src) {
-                        dataUrl = img.src;
-                    }
-                    try { document.body.removeChild(tempDiv); } catch(e) {}
-                    resolve(dataUrl);
-                }, 120);
-            } catch(e) {
-                console.error("QR DataURL Gen Error:", e);
-                resolve('');
-            }
-        });
-    }
-
-    async function renderCardQRCode(targetContainerId, qrText, colorDark = "#0F243A") {
-        const box = document.getElementById(targetContainerId);
-        if (!box) return;
-        box.innerHTML = '<div style="width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; color: #94a3b8;"><i class="fas fa-circle-notch fa-spin text-2xl"></i></div>';
-
-        const dataUrl = await generateQRCodeDataURL(qrText, colorDark);
-        if (dataUrl) {
-            box.innerHTML = `<img src="${dataUrl}" alt="QR Barcode" data-barcode="true" style="width: 200px; height: 200px; object-fit: contain; display: block; margin: 0 auto; image-rendering: pixelated; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.05));" />`;
-        } else {
-            box.innerHTML = "";
+        try {
             new QRCode(box, {
-                text: String(qrText),
+                text: String(text),
                 width: 200,
                 height: 200,
                 colorDark: colorDark,
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
+
+            // Ensure elements inside box are explicitly visible
+            setTimeout(() => {
+                const cv = box.querySelector('canvas');
+                const img = box.querySelector('img');
+                if (cv) {
+                    cv.style.display = 'block';
+                    cv.style.margin = '0 auto';
+                    cv.style.width = '200px';
+                    cv.style.height = '200px';
+                }
+                if (img) {
+                    img.style.display = 'block';
+                    img.style.margin = '0 auto';
+                    img.style.width = '200px';
+                    img.style.height = '200px';
+                }
+            }, 50);
+        } catch(e) {
+            console.error("generateCardQR error:", e);
         }
     }
 
     async function exportElementToCanvas(el) {
         if (!el) return null;
 
-        // Simpan style asli sebelum clone/unhide
-        const origDisplay = el.style.display;
-        const origPosition = el.style.position;
-        const origLeft = el.style.left;
-        const origTop = el.style.top;
-        const origVisibility = el.style.visibility;
-        const origZIndex = el.style.zIndex;
-        const origTransform = el.style.transform;
-        const wasHiddenClass = el.classList.contains('hidden');
-
-        // Pastikan elemen aktif dan ter-render di layout browser saat html2canvas membaca DOM
-        if (wasHiddenClass || origDisplay === 'none') {
+        // 1. Simpan status tampilan awal
+        const wasHidden = el.classList.contains('hidden');
+        if (wasHidden) {
             el.classList.remove('hidden');
-            el.style.display = 'flex';
-            el.style.position = 'fixed';
-            el.style.left = '-9999px';
-            el.style.top = '0px';
-            el.style.visibility = 'visible';
-            el.style.zIndex = '-9999';
-            el.style.transform = 'none';
         }
 
-        // Pastikan semua canvas QR di dalam elemen sudah berbentuk dataURL gambar siap cetak
-        const innerCanvases = el.querySelectorAll('canvas');
-        innerCanvases.forEach(cv => {
-            try {
-                const parent = cv.parentElement;
-                if (parent && !parent.querySelector('img[data-barcode="true"]')) {
-                    const imgData = cv.toDataURL('image/png');
-                    const imgEl = document.createElement('img');
-                    imgEl.src = imgData;
-                    imgEl.setAttribute('data-barcode', 'true');
-                    imgEl.style.width = '200px';
-                    imgEl.style.height = '200px';
-                    imgEl.style.display = 'block';
-                    imgEl.style.margin = '0 auto';
-                    parent.appendChild(imgEl);
-                    cv.style.display = 'none';
-                }
-            } catch(e) {}
-        });
+        // 2. Pastikan QR code ter-render ulang saat elemen terbuka
+        const qrContainer = el.querySelector('[id$="Qrcode"]');
+        if (qrContainer && window.activeCardQRText) {
+            generateCardQR(qrContainer.id, window.activeCardQRText, window.activeCardQRColor || "#0F243A");
+        }
 
-        // Beri waktu 200ms agar browser selesai me-render gambar & layout
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // 3. Pastikan canvas atau img QR code berstatus block dan ter-draw
+        if (qrContainer) {
+            const cv = qrContainer.querySelector('canvas');
+            const img = qrContainer.querySelector('img');
+            if (cv) {
+                cv.style.display = 'block';
+                cv.style.margin = '0 auto';
+                cv.style.width = '200px';
+                cv.style.height = '200px';
+            }
+            if (img) {
+                img.style.display = 'block';
+                img.style.margin = '0 auto';
+                img.style.width = '200px';
+                img.style.height = '200px';
+            }
+        }
+
+        // 4. Beri jeda 250ms agar DOM selesai me-render canvas secara sempurna
+        await new Promise(resolve => setTimeout(resolve, 250));
 
         try {
             const canvas = await html2canvas(el, {
                 scale: 3,
                 useCORS: true,
                 allowTaint: true,
-                backgroundColor: '#ffffff',
+                backgroundColor: '#f0f6fb',
                 logging: false,
                 imageTimeout: 8000
             });
             return canvas;
         } finally {
-            // Kembalikan status style elemen ke semula
-            if (wasHiddenClass) el.classList.add('hidden');
-            el.style.display = origDisplay;
-            el.style.position = origPosition;
-            el.style.left = origLeft;
-            el.style.top = origTop;
-            el.style.visibility = origVisibility;
-            el.style.zIndex = origZIndex;
-            el.style.transform = origTransform;
+            if (wasHidden) {
+                el.classList.add('hidden');
+            }
         }
     }
 
@@ -5602,7 +5562,7 @@
             </div>`;
 
         if (nisnSiswa) {
-            renderCardQRCode("cardSiswaQrcode", String(nisnSiswa), "#0F243A");
+            generateCardQR("cardSiswaQrcode", String(nisnSiswa), "#0F243A");
         }
     }
 
@@ -5785,7 +5745,7 @@
             </div>`;
 
         if (qrContent) {
-            renderCardQRCode("cardGuruQrcode", String(qrContent), "#3B0764");
+            generateCardQR("cardGuruQrcode", String(qrContent), "#3B0764");
         }
     }
 
@@ -5968,7 +5928,7 @@
             </div>`;
 
         if (qrContent) {
-            renderCardQRCode("cardTendikQrcode", String(qrContent), "#78350F");
+            generateCardQR("cardTendikQrcode", String(qrContent), "#78350F");
         }
     }
 
