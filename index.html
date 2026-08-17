@@ -5231,35 +5231,37 @@
         if (!box || !text) return;
         box.innerHTML = "";
 
-        const size = 200;
+        const size = 400; // Resolusi tinggi 400x400px (Sangat tajam saat diexport 300 DPI ke JPEG)
 
-        // 1. Prioritas Utama: qrcode-generator (Pure Vector SVG - 100% Synchronous & Anti-Blank)
+        // 1. Prioritas Utama: qrcode-generator Canvas -> Synchronous Base64 PNG (100% kompatibel html2canvas & print)
         if (typeof qrcode === 'function') {
             try {
                 const qr = qrcode(0, 'H');
                 qr.addData(String(text));
                 qr.make();
                 const count = qr.getModuleCount();
-                
-                // Buat SVG murni beresolusi tajam
-                let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="display:block;margin:0 auto;width:${size}px;height:${size}px;background:#ffffff;border-radius:12px;">`;
-                svg += `<rect width="${size}" height="${size}" fill="#ffffff"/>`;
+
+                const cv = document.createElement('canvas');
+                cv.width = size;
+                cv.height = size;
+                const ctx = cv.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, size, size);
+                ctx.fillStyle = colorDark;
+                const cellSize = size / count;
                 for (let r = 0; r < count; r++) {
                     for (let c = 0; c < count; c++) {
                         if (qr.isDark(r, c)) {
-                            const x = (c * (size / count)).toFixed(2);
-                            const y = (r * (size / count)).toFixed(2);
-                            const w = ((size / count) + 0.35).toFixed(2);
-                            const h = ((size / count) + 0.35).toFixed(2);
-                            svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${colorDark}"/>`;
+                            ctx.fillRect(Math.round(c * cellSize), Math.round(r * cellSize), Math.ceil(cellSize), Math.ceil(cellSize));
                         }
                     }
                 }
-                svg += `</svg>`;
-                box.innerHTML = svg;
+
+                const dataUrl = cv.toDataURL('image/png');
+                box.innerHTML = `<img src="${dataUrl}" alt="QR Barcode" data-barcode="true" style="width: 200px; height: 200px; object-fit: contain; display: block; margin: 0 auto; image-rendering: pixelated;" />`;
                 return;
             } catch(e) {
-                console.warn("qrcode-generator error, using fallback:", e);
+                console.warn("qrcode-generator canvas error:", e);
             }
         }
 
@@ -5267,27 +5269,21 @@
         try {
             new QRCode(box, {
                 text: String(text),
-                width: size,
-                height: size,
+                width: 200,
+                height: 200,
                 colorDark: colorDark,
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
-
-            const cv = box.querySelector('canvas');
-            const img = box.querySelector('img');
-            if (cv) {
-                cv.style.display = 'block';
-                cv.style.margin = '0 auto';
-                cv.style.width = '200px';
-                cv.style.height = '200px';
-            }
-            if (img) {
-                img.style.display = 'block';
-                img.style.margin = '0 auto';
-                img.style.width = '200px';
-                img.style.height = '200px';
-            }
+            setTimeout(() => {
+                const c = box.querySelector('canvas');
+                if (c) {
+                    try {
+                        const dUrl = c.toDataURL('image/png');
+                        box.innerHTML = `<img src="${dUrl}" alt="QR Barcode" data-barcode="true" style="width: 200px; height: 200px; object-fit: contain; display: block; margin: 0 auto;" />`;
+                    } catch(err) {}
+                }
+            }, 80);
         } catch(e) {
             console.error("generateCardQR error:", e);
         }
