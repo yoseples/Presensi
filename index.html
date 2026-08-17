@@ -636,10 +636,10 @@
                               </div>
                           </div>
                           <div class="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl text-xs text-indigo-900 flex items-center gap-3">
-                              <i class="fas fa-info-circle text-indigo-600 text-lg"></i>
+                              <i class="fas fa-map-marker-alt text-indigo-600 text-lg"></i>
                               <div>
-                                  <p class="font-bold">Informasi Presensi Guru:</p>
-                                  <p class="text-[11px] text-indigo-700">Gunakan tombol Presensi Mandiri di atas untuk mencatat kehadiran Anda atau scan kartu QR NIP ke scanner.</p>
+                                  <p class="font-bold">Informasi Presensi Guru (Anti-Fraud GPS):</p>
+                                  <p class="text-[11px] text-indigo-700">Presensi mandiri guru <b>wajib mengaktifkan GPS lokasi</b> dan berada dalam radius area sekolah SMA Negeri 1 Lhoksukon.</p>
                               </div>
                           </div>
                       </div>
@@ -935,10 +935,10 @@
                               </div>
                           </div>
                           <div class="mt-4 p-4 bg-amber-50 border border-amber-100 rounded-2xl text-xs text-amber-800 flex items-center gap-3">
-                              <i class="fas fa-info-circle text-amber-600 text-lg"></i>
+                              <i class="fas fa-map-marker-alt text-amber-600 text-lg"></i>
                               <div>
-                                  <p class="font-bold">Info Presensi Staf:</p>
-                                  <p class="text-[11px] text-amber-700">Anda dapat menyorotkan Kartu QR Code NIP Anda ke kamera scanner di pos presensi atau menekan tombol Presensi Mandiri di atas.</p>
+                                  <p class="font-bold">Info Presensi Staf (Anti-Fraud GPS):</p>
+                                  <p class="text-[11px] text-amber-700">Presensi mandiri staf tendik <b>wajib mengaktifkan GPS lokasi</b> dan berada dalam radius area sekolah SMA Negeri 1 Lhoksukon.</p>
                               </div>
                           </div>
                       </div>
@@ -1706,7 +1706,10 @@
         jam_masuk_mulai: '06:30',
         jam_masuk_akhir: '07:15',
         jam_pulang_mulai: '15:00',
-        jam_pulang_akhir: '17:00'
+        jam_pulang_akhir: '17:00',
+        lokasi_lat: '5.048744',
+        lokasi_lng: '97.288285',
+        radius_meter: '500'
       },
       libur: [
         { tanggal: '2026-08-17', keterangan: 'HUT Kemerdekaan RI' },
@@ -2212,17 +2215,37 @@
         };
       },
 
-      scanAbsensi: async (rawNisn, role, roleKelas) => {
+      scanAbsensi: async (rawNisn, role, roleKelas, userLat, userLng) => {
         const nisn = String(rawNisn).trim();
         const today = getTodayString();
         const nowTime = getNowTimeString();
         const config = await getDB('config');
         let absensiList = await getDB('absensi');
 
+        // Helper hitung jarak meter GPS
+        const getDistance = (lat1, lon1, lat2, lon2) => {
+          const R = 6371000;
+          const dLat = (lat2 - lat1) * Math.PI / 180;
+          const dLon = (lon2 - lon1) * Math.PI / 180;
+          const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+        };
+
         // 1. CEK ABSENSI GURU (jika QR / ID cocok dengan NIP / Username Guru)
         const guruList = await getDB('guru');
         const guru = guruList.find(g => String(g.nip || '').trim() === nisn || g.username.toLowerCase() === nisn.toLowerCase());
         if (guru) {
+          if (userLat !== undefined && userLat !== null && userLng !== undefined && userLng !== null) {
+            const targetLat = parseFloat(config.lokasi_lat || '5.048744');
+            const targetLng = parseFloat(config.lokasi_lng || '97.288285');
+            const maxRadius = parseFloat(config.radius_meter || '500');
+            const dist = getDistance(parseFloat(userLat), parseFloat(userLng), targetLat, targetLng);
+            if (dist > maxRadius) {
+              return { success: false, message: `Presensi DITOLAK. Anda berada di luar radius sekolah (${dist} meter dari lokasi sekolah, batas maksimal ${maxRadius} meter).` };
+            }
+          }
           const targetId = guru.nip || guru.username;
           const existingIdx = absensiList.findIndex(a => a.tanggal === today && (String(a.nisn) === targetId || (a.username && a.username.toLowerCase() === guru.username.toLowerCase())));
           if (existingIdx !== -1) {
@@ -2278,6 +2301,15 @@
         const tendikList = await getDB('tendik');
         const tendik = tendikList.find(t => String(t.nip || '').trim() === nisn || t.username.toLowerCase() === nisn.toLowerCase());
         if (tendik) {
+          if (userLat !== undefined && userLat !== null && userLng !== undefined && userLng !== null) {
+            const targetLat = parseFloat(config.lokasi_lat || '5.048744');
+            const targetLng = parseFloat(config.lokasi_lng || '97.288285');
+            const maxRadius = parseFloat(config.radius_meter || '500');
+            const dist = getDistance(parseFloat(userLat), parseFloat(userLng), targetLat, targetLng);
+            if (dist > maxRadius) {
+              return { success: false, message: `Presensi DITOLAK. Anda berada di luar radius sekolah (${dist} meter dari lokasi sekolah, batas maksimal ${maxRadius} meter).` };
+            }
+          }
           const targetId = tendik.nip || tendik.username;
           const existingIdx = absensiList.findIndex(a => a.tanggal === today && (String(a.nisn) === targetId || (a.username && a.username.toLowerCase() === tendik.username.toLowerCase())));
           if (existingIdx !== -1) {
@@ -3283,26 +3315,58 @@
         }).getMonitoringRealtime(myClass);
     }
 
-    function doSelfPresensiGuru() {
+    function getCurrentGPSPosition() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                return reject(new Error('Perangkat Anda tidak mendukung fitur GPS/Geolocation.'));
+            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    resolve({
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                        accuracy: pos.coords.accuracy
+                    });
+                },
+                (err) => {
+                    let msg = 'Gagal mengakses GPS: ';
+                    if (err.code === 1) msg = 'Akses lokasi ditolak. Harap izinkan akses GPS lokasi pada browser Anda.';
+                    else if (err.code === 2) msg = 'Sinyal GPS tidak tersedia atau perangkat tidak terhubung lokasi.';
+                    else if (err.code === 3) msg = 'Waktu permintaan GPS habis. Pastikan GPS aktif dan coba lagi.';
+                    else msg += err.message;
+                    reject(new Error(msg));
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        });
+    }
+
+    async function doSelfPresensiGuru() {
         if (!currentUser) return;
         const targetId = currentUser.nip || currentUser.username;
 
         showLoading();
-        google.script.run
-            .withSuccessHandler(res => {
-                hideLoading();
-                if (res.success) {
-                    showAlert('success', res.message);
-                    loadGuruDashboard();
-                } else {
-                    showAlert('error', res.message);
-                }
-            })
-            .withFailureHandler(err => {
-                hideLoading();
-                showAlert('error', 'Gagal presensi: ' + err);
-            })
-            .scanAbsensi(targetId, currentUser.role, currentUser.kelas);
+        try {
+            const gps = await getCurrentGPSPosition();
+            google.script.run
+                .withSuccessHandler(res => {
+                    hideLoading();
+                    if (res.success) {
+                        showAlert('success', res.message);
+                        loadGuruDashboard();
+                    } else {
+                        showAlert('error', res.message);
+                    }
+                })
+                .withFailureHandler(err => {
+                    hideLoading();
+                    showAlert('error', 'Gagal presensi: ' + err);
+                })
+                .scanAbsensi(targetId, currentUser.role, currentUser.kelas, gps.lat, gps.lng);
+        } catch (gpsError) {
+            hideLoading();
+            showAlert('error', gpsError.message || 'Wajib menyalakan dan mengizinkan GPS untuk melakukan presensi.');
+        }
     }
 
     function renderGuruChart(hadir, sakit, izin, alpa, belumAbsen) {
@@ -6110,26 +6174,32 @@
         }
     }
 
-    function doSelfPresensiTendik() {
+    async function doSelfPresensiTendik() {
         if (!currentUser) return;
         const targetId = currentUser.nip || currentUser.username;
 
         showLoading();
-        google.script.run
-            .withSuccessHandler(res => {
-                hideLoading();
-                if (res.success) {
-                    showAlert('success', res.message);
-                    loadTendikDashboard();
-                } else {
-                    showAlert('error', res.message);
-                }
-            })
-            .withFailureHandler(err => {
-                hideLoading();
-                showAlert('error', 'Gagal presensi: ' + err);
-            })
-            .scanAbsensi(targetId, currentUser.role, currentUser.kelas);
+        try {
+            const gps = await getCurrentGPSPosition();
+            google.script.run
+                .withSuccessHandler(res => {
+                    hideLoading();
+                    if (res.success) {
+                        showAlert('success', res.message);
+                        loadTendikDashboard();
+                    } else {
+                        showAlert('error', res.message);
+                    }
+                })
+                .withFailureHandler(err => {
+                    hideLoading();
+                    showAlert('error', 'Gagal presensi: ' + err);
+                })
+                .scanAbsensi(targetId, currentUser.role, currentUser.kelas, gps.lat, gps.lng);
+        } catch (gpsError) {
+            hideLoading();
+            showAlert('error', gpsError.message || 'Wajib menyalakan dan mengizinkan GPS untuk melakukan presensi.');
+        }
     }
 
     function handleProfilePhotoUpload(event) {

@@ -785,7 +785,18 @@ function deleteTendik(token, username) {
 // 5. PROCESS PRESENSI & SCANNER QR CODE (SISWA, GURU & TENDIK)
 // ============================================================================
 
-function scanAbsensi(nisn, scannerRole, scannerKelas) {
+function calculateDistanceInMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // Radius Bumi dalam meter
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
+}
+
+function scanAbsensi(nisn, scannerRole, scannerKelas, userLat, userLng) {
   try {
     const ss = getSpreadsheet();
     const today = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
@@ -795,7 +806,10 @@ function scanAbsensi(nisn, scannerRole, scannerKelas) {
     const config = configResult.success ? configResult.data : {
       jam_masuk_akhir: '07:15',
       jam_pulang_mulai: '15:00',
-      jam_pulang_akhir: '17:00'
+      jam_pulang_akhir: '17:00',
+      lokasi_lat: '5.048744',
+      lokasi_lng: '97.288285',
+      radius_meter: '500'
     };
 
     // Cek Hari Libur
@@ -870,6 +884,21 @@ function scanAbsensi(nisn, scannerRole, scannerKelas) {
     }
 
     if (employeeObj) {
+      // Validasi GPS Radius Wajib untuk Guru & Tendik
+      if (userLat !== undefined && userLat !== null && userLng !== undefined && userLng !== null) {
+        const targetLat = parseFloat(config.lokasi_lat || '5.048744');
+        const targetLng = parseFloat(config.lokasi_lng || '97.288285');
+        const maxRadius = parseFloat(config.radius_meter || '500');
+        const dist = calculateDistanceInMeters(parseFloat(userLat), parseFloat(userLng), targetLat, targetLng);
+
+        if (dist > maxRadius) {
+          return {
+            success: false,
+            message: `Presensi DITOLAK. Anda berada di luar radius sekolah (${dist} meter dari lokasi sekolah, batas maksimal ${maxRadius} meter).`
+          };
+        }
+      }
+
       const absensiData = absensiSheet.getDataRange().getValues();
       for (let i = 1; i < absensiData.length; i++) {
         if (!absensiData[i][0]) continue;
@@ -1449,7 +1478,10 @@ function getAppConfig() {
       jam_masuk_mulai: '06:30',
       jam_masuk_akhir: '07:15',
       jam_pulang_mulai: '15:00',
-      jam_pulang_akhir: '17:00'
+      jam_pulang_akhir: '17:00',
+      lokasi_lat: '5.048744',
+      lokasi_lng: '97.288285',
+      radius_meter: '500'
     };
     
     if (sheet) {
@@ -1483,6 +1515,9 @@ function saveAppConfig(newConfig) {
       sheet.appendRow(['jam_masuk_akhir', '07:15', 'Jam Masuk Akhir (Terlambat)']);
       sheet.appendRow(['jam_pulang_mulai', '15:00', 'Jam Pulang Mulai']);
       sheet.appendRow(['jam_pulang_akhir', '17:00', 'Jam Pulang Akhir']);
+      sheet.appendRow(['lokasi_lat', '5.048744', 'Latitude Sekolah']);
+      sheet.appendRow(['lokasi_lng', '97.288285', 'Longitude Sekolah']);
+      sheet.appendRow(['radius_meter', '500', 'Radius Maksimal GPS (Meter)']);
     }
     
     const data = sheet.getDataRange().getValues();
@@ -1500,8 +1535,11 @@ function saveAppConfig(newConfig) {
     if (newConfig.jam_masuk_akhir) updateRow('jam_masuk_akhir', newConfig.jam_masuk_akhir);
     if (newConfig.jam_pulang_mulai) updateRow('jam_pulang_mulai', newConfig.jam_pulang_mulai);
     if (newConfig.jam_pulang_akhir) updateRow('jam_pulang_akhir', newConfig.jam_pulang_akhir);
+    if (newConfig.lokasi_lat) updateRow('lokasi_lat', newConfig.lokasi_lat);
+    if (newConfig.lokasi_lng) updateRow('lokasi_lng', newConfig.lokasi_lng);
+    if (newConfig.radius_meter) updateRow('radius_meter', newConfig.radius_meter);
 
-    return { success: true, message: 'Konfigurasi waktu berhasil disimpan' };
+    return { success: true, message: 'Konfigurasi waktu & GPS berhasil disimpan' };
   } catch (e) {
     return { success: false, message: e.toString() };
   }
@@ -1807,6 +1845,9 @@ function setupInitialData() {
       configSheet.appendRow(['jam_masuk_akhir', '07:15', 'Batas waktu terlambat']);
       configSheet.appendRow(['jam_pulang_mulai', '15:00', 'Waktu absen pulang dibuka']);
       configSheet.appendRow(['jam_pulang_akhir', '17:00', 'Batas akhir absen pulang']);
+      configSheet.appendRow(['lokasi_lat', '5.048744', 'Latitude Titik Pusat Sekolah']);
+      configSheet.appendRow(['lokasi_lng', '97.288285', 'Longitude Titik Pusat Sekolah']);
+      configSheet.appendRow(['radius_meter', '500', 'Radius Maksimal GPS (Meter)']);
     }
 
     return { success: true, message: 'Setup database SMANSA Lhoksukon (Siswa, Guru, Tendik, Users) berhasil!' };
