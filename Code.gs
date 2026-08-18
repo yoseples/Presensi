@@ -1158,7 +1158,7 @@ function getAbsensiToday(nisn) {
     if (!sheet) return { success: true, data: null, isLibur: isLibur, keteranganLibur: keteranganLibur };
 
     const data = sheet.getDataRange().getValues();
-    const searchNisn = String(nisn).trim();
+    const searchNisn = String(nisn || '').trim().toLowerCase();
     let absensiData = null;
     
     for (let i = 1; i < data.length; i++) {
@@ -1166,12 +1166,14 @@ function getAbsensiToday(nisn) {
       if (!rowDateCell) continue;
       
       const rowDateStr = Utilities.formatDate(new Date(rowDateCell), 'Asia/Jakarta', 'yyyy-MM-dd');
-      const rowNisn = String(data[i][1]).trim();
+      const rowNisn = String(data[i][1]).trim().toLowerCase();
 
-      if (rowDateStr === todayStr && rowNisn === searchNisn) {
+      if (rowDateStr === todayStr && (rowNisn === searchNisn || rowNisn === ("'" + searchNisn))) {
         let jamDatang = data[i][4];
         if (jamDatang instanceof Date) {
           jamDatang = Utilities.formatDate(jamDatang, 'Asia/Jakarta', 'HH:mm:ss');
+        } else if (!jamDatang) {
+          jamDatang = "-";
         }
         
         let jamPulang = data[i][5];
@@ -1301,7 +1303,7 @@ function updateAbsensiStatus(token, nisn, nama, kelas, newStatus) {
 
     const todayStr = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
     const data = absensiSheet.getDataRange().getValues();
-    const searchNisn = String(nisn).trim();
+    const searchNisn = String(nisn).trim().toLowerCase();
     
     let found = false;
     let rowIndex = -1;
@@ -1309,13 +1311,20 @@ function updateAbsensiStatus(token, nisn, nama, kelas, newStatus) {
     for (let i = 1; i < data.length; i++) {
       if (!data[i][0]) continue;
       let tgl = Utilities.formatDate(new Date(data[i][0]), 'Asia/Jakarta', 'yyyy-MM-dd');
-      let rowNisn = String(data[i][1]).trim();
+      let rowNisn = String(data[i][1]).trim().toLowerCase();
       
-      if (tgl === todayStr && rowNisn === searchNisn) {
+      if (tgl === todayStr && (rowNisn === searchNisn || rowNisn === ("'" + searchNisn))) {
         found = true;
         rowIndex = i + 1;
         break;
       }
+    }
+
+    if (newStatus === 'Belum Absen') {
+      if (found) {
+        absensiSheet.deleteRow(rowIndex);
+      }
+      return { success: true, message: 'Status diubah menjadi Belum Absen' };
     }
 
     if (found) {
@@ -1328,9 +1337,9 @@ function updateAbsensiStatus(token, nisn, nama, kelas, newStatus) {
       
       absensiSheet.appendRow([
         new Date(), 
-        "'" + searchNisn, 
+        "'" + nisn, 
         nama, 
-        kelas, 
+        kelas || '-', 
         jamDatang, 
         '-',   
         '-',  
@@ -1338,9 +1347,87 @@ function updateAbsensiStatus(token, nisn, nama, kelas, newStatus) {
       ]);
     }
 
-    return { success: true, message: 'Status berhasil diubah' };
+    return { success: true, message: 'Status berhasil diubah jadi ' + newStatus };
   } catch (error) {
     return { success: false, message: "Gagal: " + error.message };
+  }
+}
+
+function submitIzinSakitMandiri(token, status, alasan, userInfo) {
+  try {
+    const ss = getSpreadsheet();
+    let absensiSheet = ss.getSheetByName('absensi');
+    if (!absensiSheet) {
+      absensiSheet = ss.insertSheet('absensi');
+      absensiSheet.appendRow(['Tanggal', 'NISN', 'Nama', 'Kelas', 'Jam Datang', 'Jam Pulang', 'Keterangan Waktu', 'Status']);
+    }
+
+    let searchId = '';
+    let nama = '';
+    let kelasOrJabatan = '-';
+
+    if (userInfo && userInfo.id) {
+      searchId = String(userInfo.id).trim();
+      nama = userInfo.nama || searchId;
+      kelasOrJabatan = userInfo.kelas || userInfo.jabatan || '-';
+    } else {
+      // Lookup from sessions
+      const sessionSheet = ss.getSheetByName('sessions');
+      if (sessionSheet) {
+        const sData = sessionSheet.getDataRange().getValues();
+        for (let i = 1; i < sData.length; i++) {
+          if (sData[i][0] === token) {
+            searchId = String(sData[i][1]).trim();
+            break;
+          }
+        }
+      }
+    }
+
+    if (!searchId) {
+      throw new Error('Identitas pengguna tidak ditemukan.');
+    }
+
+    const todayStr = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
+    const data = absensiSheet.getDataRange().getValues();
+    const cleanSearch = searchId.toLowerCase();
+    
+    let found = false;
+    let rowIndex = -1;
+
+    for (let i = 1; i < data.length; i++) {
+      if (!data[i][0]) continue;
+      let tgl = Utilities.formatDate(new Date(data[i][0]), 'Asia/Jakarta', 'yyyy-MM-dd');
+      let rowNisn = String(data[i][1]).trim().toLowerCase();
+      
+      if (tgl === todayStr && (rowNisn === cleanSearch || rowNisn === ("'" + cleanSearch))) {
+        found = true;
+        rowIndex = i + 1;
+        break;
+      }
+    }
+
+    const ketText = alasan ? (status + ': ' + alasan) : status;
+
+    if (found) {
+      absensiSheet.getRange(rowIndex, 7).setValue(ketText);
+      absensiSheet.getRange(rowIndex, 8).setValue(status);
+    } else {
+      absensiSheet.appendRow([
+        new Date(),
+        "'" + searchId,
+        nama || searchId,
+        kelasOrJabatan,
+        '-',
+        '-',
+        ketText,
+        status
+      ]);
+    }
+
+    return { success: true, message: 'Pengajuan ' + status + ' berhasil dicatat.' };
+  } catch (error) {
+    return { success: false, message: 'Gagal: ' + error.message };
   }
 }
 

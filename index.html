@@ -595,6 +595,107 @@
                   </div>
 
                   <!-- ======================================================== -->
+                  <!-- 2.5 MONITORING PRESENSI REALTIME DI DASHBOARD ADMIN -->
+                  <!-- ======================================================== -->
+                  <div class="mt-8 bg-white rounded-3xl p-5 md:p-7 border border-slate-200/80 shadow-sm">
+                      <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-5 border-b border-slate-100">
+                          <div>
+                              <div class="flex items-center gap-2.5">
+                                  <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg font-bold shadow-xs">
+                                      <i class="fas fa-clipboard-check"></i>
+                                  </div>
+                                  <div>
+                                      <h3 class="text-base md:text-lg font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                                          <span>Monitoring Presensi Realtime</span>
+                                          <span id="admMonActiveCount" class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">0 Data</span>
+                                      </h3>
+                                      <p class="text-xs text-slate-500 mt-0.5">Pantau dan kelola kehadiran Siswa, Guru, dan Tendik hari ini secara langsung.</p>
+                                  </div>
+                              </div>
+                          </div>
+                          
+                          <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                              <button onclick="exportAdminDashboardMonitoringExcel()" id="btnAdmMonExport" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-sm transition transform active:scale-95 flex items-center gap-2">
+                                  <i class="fas fa-file-excel"></i> <span>Export Excel</span>
+                              </button>
+                              <button onclick="refreshAdminDashboardMonitoring()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 active:scale-95" title="Perbarui Data Presensi">
+                                  <i class="fas fa-sync-alt"></i> <span>Refresh</span>
+                              </button>
+                          </div>
+                      </div>
+
+                      <!-- Filter Controls (Category Tabs, Status Select, Search) -->
+                      <div class="flex flex-col md:flex-row gap-3 items-center justify-between my-5">
+                          <!-- Category Tabs -->
+                          <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+                              <button type="button" onclick="setAdmMonCategory('all')" id="btnAdmMonCat_all" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-sm">
+                                  <i class="fas fa-users text-[10px]"></i> Semua
+                              </button>
+                              <button type="button" onclick="setAdmMonCategory('Siswa')" id="btnAdmMonCat_Siswa" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200">
+                                  <i class="fas fa-user-graduate text-[10px]"></i> Siswa
+                              </button>
+                              <button type="button" onclick="setAdmMonCategory('Guru')" id="btnAdmMonCat_Guru" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200">
+                                  <i class="fas fa-chalkboard-teacher text-[10px]"></i> Guru
+                              </button>
+                              <button type="button" onclick="setAdmMonCategory('Tendik')" id="btnAdmMonCat_Tendik" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200">
+                                  <i class="fas fa-user-tie text-[10px]"></i> Tendik
+                              </button>
+                          </div>
+
+                          <!-- Search & Status Filters -->
+                          <div class="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+                              <select id="admMonStatusFilter" onchange="filterAdminDashboardMonitoring()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-xl focus:ring-2 focus:ring-indigo-500 font-bold p-2.5 w-full sm:w-auto">
+                                  <option value="">Semua Status</option>
+                                  <option value="Hadir">Hadir</option>
+                                  <option value="Izin">Izin</option>
+                                  <option value="Sakit">Sakit</option>
+                                  <option value="Alpa">Alpa</option>
+                                  <option value="Belum Absen">Belum Absen</option>
+                              </select>
+
+                              <div class="relative w-full sm:w-64">
+                                  <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                  <input type="text" id="admMonSearchInput" oninput="filterAdminDashboardMonitoring()" placeholder="Cari nama, NISN/NIP, kelas..." class="w-full pl-9 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+                              </div>
+                          </div>
+                      </div>
+
+                      <!-- Table -->
+                      <div class="overflow-x-auto rounded-2xl border border-slate-100">
+                          <table class="w-full text-left text-xs text-slate-600">
+                              <thead class="bg-slate-50 text-[11px] font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200/80">
+                                  <tr>
+                                      <th class="py-3 px-4 w-12 text-center">No</th>
+                                      <th class="py-3 px-4">Nama & Identitas</th>
+                                      <th class="py-3 px-4 text-center">Kategori & Kelas / Jabatan</th>
+                                      <th class="py-3 px-4 text-center">Jam Datang</th>
+                                      <th class="py-3 px-4 text-center">Jam Pulang</th>
+                                      <th class="py-3 px-4 text-center">Keterangan</th>
+                                      <th class="py-3 px-4 text-center w-36">Status Kehadiran</th>
+                                  </tr>
+                              </thead>
+                              <tbody id="tbody-adm-monitoring" class="divide-y divide-slate-100 bg-white">
+                                  <tr>
+                                      <td colspan="7" class="py-8 text-center text-slate-400">
+                                          <i class="fas fa-circle-notch fa-spin mr-2"></i> Memuat data monitoring presensi...
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+
+                      <!-- Pagination & Info Footer -->
+                      <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-500">
+                          <span id="admMonPageInfo">Menampilkan 0 data</span>
+                          <div class="flex items-center gap-1">
+                              <button onclick="changeAdmMonPage(-1)" id="btnAdmMonPrev" class="px-3 py-1.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition">Prev</button>
+                              <span id="admMonPageNumber" class="px-3 py-1 text-xs font-extrabold text-indigo-600">1</span>
+                              <button onclick="changeAdmMonPage(1)" id="btnAdmMonNext" class="px-3 py-1.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed font-bold transition">Next</button>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- ======================================================== -->
                   <!-- 3. RIWAYAT & PERANGKAT LOGIN PENGGUNA (DEVICE TRACKER) -->
                   <!-- ======================================================== -->
                   <div class="mt-8 bg-white rounded-3xl p-5 md:p-7 border border-slate-200/80 shadow-sm">
@@ -747,9 +848,12 @@
                                   <p><span class="opacity-75">No. HP:</span> <strong id="guruProfileNoHp" class="text-white">...</strong></p>
                               </div>
                           </div>
-                          <div class="pt-4 border-t border-white/20 flex gap-2">
-                              <button onclick="doSelfPresensiGuru()" class="flex-1 bg-white text-purple-900 hover:bg-purple-50 font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md">
+                          <div class="pt-4 border-t border-white/20 flex flex-wrap gap-2">
+                              <button onclick="doSelfPresensiGuru()" class="flex-1 min-w-[120px] bg-white text-purple-900 hover:bg-purple-50 font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md">
                                   <i class="fas fa-fingerprint text-base text-purple-700"></i> Presensi Mandiri
+                              </button>
+                              <button onclick="showModalPengajuanIzinSakit('guru')" class="bg-purple-800/80 hover:bg-purple-800 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md border border-purple-300/30" title="Ajukan Izin atau Sakit">
+                                  <i class="fas fa-file-medical text-sm"></i> Ajukan Izin / Sakit
                               </button>
                               <button onclick="loadQRCodeGuru()" class="bg-white/20 hover:bg-white/30 text-white font-bold p-2.5 rounded-xl text-xs transition" title="Kartu Identitas Guru">
                                   <i class="fas fa-id-card text-base"></i>
@@ -763,9 +867,14 @@
                       <!-- Widget Status Absensi Guru Hari Ini -->
                       <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
                           <div>
-                              <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                  <i class="fas fa-clock text-indigo-600"></i> Status Presensi Guru Hari Ini
-                              </h4>
+                              <div class="flex justify-between items-center mb-4">
+                                  <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                      <i class="fas fa-clock text-indigo-600"></i> Status Presensi Guru Hari Ini
+                                  </h4>
+                                  <div id="guruStatusBadgeContainer">
+                                      <span id="guruStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">Belum Absen</span>
+                                  </div>
+                              </div>
                               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                                   <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                       <p class="text-slate-400 font-medium mb-1">Absen Masuk (Datang)</p>
@@ -775,6 +884,10 @@
                                       <p class="text-slate-400 font-medium mb-1">Absen Pulang</p>
                                       <h4 id="guruJamPulang" class="text-lg font-bold text-slate-800">-</h4>
                                   </div>
+                              </div>
+                              <div id="guruStatusKetContainer" class="hidden mt-3 p-3 bg-amber-50 rounded-xl border border-amber-100 text-xs text-amber-800 font-medium flex items-center gap-2">
+                                  <i class="fas fa-info-circle text-amber-600"></i>
+                                  <span id="guruStatusKetText">-</span>
                               </div>
                           </div>
                           <div class="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl text-xs text-indigo-900 flex items-center gap-3">
@@ -1006,6 +1119,18 @@
                             </div>
                         </button>
 
+                        <button onclick="showModalPengajuanIzinSakit('siswa')" class="w-full group relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 p-1 shadow-md shadow-indigo-500/20 transition-all active:scale-[0.98]">
+                            <div class="relative bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[0.9rem] px-5 py-3.5 flex items-center justify-between transition-all group-hover:brightness-110">
+                                <div class="text-left">
+                                    <h3 class="text-white font-bold text-sm">Ajukan Izin / Sakit</h3>
+                                    <p class="text-blue-100 text-[10px]">Kirim keterangan izin atau surat sakit</p>
+                                </div>
+                                <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white text-lg">
+                                    <i class="fas fa-file-medical"></i>
+                                </div>
+                            </div>
+                        </button>
+
                     </div> 
                 </div> 
               </div>
@@ -1047,6 +1172,9 @@
                               <button onclick="doSelfPresensiTendik()" class="flex-1 min-w-[120px] bg-white text-amber-800 hover:bg-amber-50 font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md">
                                   <i class="fas fa-fingerprint text-base"></i> Presensi Mandiri
                               </button>
+                              <button onclick="showModalPengajuanIzinSakit('tendik')" class="bg-amber-900/80 hover:bg-amber-900 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md border border-amber-300/30" title="Ajukan Izin atau Sakit">
+                                  <i class="fas fa-file-medical text-sm"></i> Ajukan Izin / Sakit
+                              </button>
                               <button onclick="loadScanAbsensi()" class="flex-1 min-w-[120px] bg-amber-900/60 hover:bg-amber-900/80 text-white font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md border border-white/20">
                                   <i class="fas fa-camera text-base"></i> Buka Scanner
                               </button>
@@ -1062,9 +1190,14 @@
                       <!-- Widget Status Absensi Hari Ini -->
                       <div class="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
                           <div>
-                              <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                  <i class="fas fa-clock text-amber-500"></i> Status Kehadiran Hari Ini
-                              </h4>
+                              <div class="flex justify-between items-center mb-4">
+                                  <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                                      <i class="fas fa-clock text-amber-500"></i> Status Kehadiran Hari Ini
+                                  </h4>
+                                  <div id="tendikStatusBadgeContainer">
+                                      <span id="tendikStatusBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">Belum Absen</span>
+                                  </div>
+                              </div>
                               <div id="tendikStatusPresensiWidget" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                                   <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                       <p class="text-slate-400 font-medium mb-1">Absen Masuk (Datang)</p>
@@ -1074,6 +1207,10 @@
                                       <p class="text-slate-400 font-medium mb-1">Absen Pulang</p>
                                       <h4 id="tendikJamPulang" class="text-lg font-bold text-slate-800">-</h4>
                                   </div>
+                              </div>
+                              <div id="tendikStatusKetContainer" class="hidden mt-3 p-3 bg-amber-50 rounded-xl border border-amber-100 text-xs text-amber-800 font-medium flex items-center gap-2">
+                                  <i class="fas fa-info-circle text-amber-600"></i>
+                                  <span id="tendikStatusKetText">-</span>
                               </div>
                           </div>
                           <div class="mt-4 p-4 bg-amber-50 border border-amber-100 rounded-2xl text-xs text-amber-800 flex items-center gap-3">
@@ -2713,24 +2850,71 @@
       updateAbsensiStatus: async (token, nisn, nama, kelas, status) => {
         const today = getTodayString();
         let absensiList = await getDB('absensi');
-        const idx = absensiList.findIndex(a => a.tanggal === today && String(a.nisn) === String(nisn));
+        const sNisn = String(nisn || '').trim().toLowerCase();
+        const idx = absensiList.findIndex(a => a.tanggal === today && (
+          String(a.nisn || '').trim().toLowerCase() === sNisn ||
+          (a.username && String(a.username).trim().toLowerCase() === sNisn)
+        ));
 
-        if (idx !== -1) {
+        if (status === 'Belum Absen') {
+          if (idx !== -1) {
+            absensiList.splice(idx, 1);
+          }
+        } else if (idx !== -1) {
           absensiList[idx].status = status;
+          if (status === 'Hadir' && (!absensiList[idx].jamDatang || absensiList[idx].jamDatang === '-')) {
+            absensiList[idx].jamDatang = getNowTimeString();
+          }
         } else {
           absensiList.push({
             tanggal: today,
             nisn: String(nisn),
-            nama: nama,
-            kelas: kelas,
-            jamDatang: '-',
+            nama: nama || String(nisn),
+            kelas: kelas || '-',
+            jamDatang: status === 'Hadir' ? getNowTimeString() : '-',
             jamPulang: '-',
             keterangan: '-',
             status: status
           });
         }
         await setDB('absensi', absensiList);
-        return { success: true, message: 'Status absensi berhasil diperbarui' };
+        return { success: true, message: 'Status absensi berhasil diperbarui jadi ' + status };
+      },
+
+      submitIzinSakitMandiri: async (token, status, alasan, userInfo) => {
+        const today = getTodayString();
+        let absensiList = await getDB('absensi');
+        let searchId = userInfo && userInfo.id ? String(userInfo.id).trim().toLowerCase() : '';
+        let nama = userInfo && userInfo.nama ? userInfo.nama : searchId;
+        let kelasOrJabatan = userInfo && (userInfo.kelas || userInfo.jabatan) ? (userInfo.kelas || userInfo.jabatan) : '-';
+        let tipeUser = userInfo && userInfo.role === 'guru' ? 'Guru' : (userInfo && userInfo.role === 'tendik' ? 'Tendik' : 'Siswa');
+
+        const idx = absensiList.findIndex(a => a.tanggal === today && (
+          String(a.nisn || '').trim().toLowerCase() === searchId ||
+          (a.username && String(a.username).trim().toLowerCase() === searchId)
+        ));
+
+        const ketText = alasan ? (status + ': ' + alasan) : status;
+
+        if (idx !== -1) {
+          absensiList[idx].status = status;
+          absensiList[idx].keterangan = ketText;
+        } else {
+          absensiList.push({
+            tanggal: today,
+            nisn: userInfo ? (userInfo.id || userInfo.username) : searchId,
+            username: userInfo ? userInfo.username : '',
+            nama: nama,
+            kelas: kelasOrJabatan,
+            tipeUser: tipeUser,
+            jamDatang: '-',
+            jamPulang: '-',
+            keterangan: ketText,
+            status: status
+          });
+        }
+        await setDB('absensi', absensiList);
+        return { success: true, message: `Pengajuan ${status} berhasil disimpan.` };
       },
 
       getAbsensiList: async (filters) => {
@@ -3660,6 +3844,7 @@
                 animateValue("admStatAlpa", 0, alpa, 600);
 
                 renderAdminChart(hadir, sakit, izin, alpa, belum);
+                buildAdminDashboardMonitoringData();
             }
         }).getMonitoringRealtime();
 
@@ -3679,57 +3864,449 @@
                     const absToday = (absRes && absRes.success) ? (absRes.data || []) : [];
                     window.cachedAbsensiTodayAll = absToday;
 
-                    // Hitung statistik Guru
-                    const totalGuru = guruList.length;
-                    let hadirGuru = 0;
-                    let izinSakitGuru = 0;
-
-                    guruList.forEach(g => {
-                        const gNip = String(g.nip || '').trim().toLowerCase();
-                        const gUser = String(g.username || '').trim().toLowerCase();
-                        const rec = absToday.find(a => 
-                            (a.username && a.username.toLowerCase() === gUser) ||
-                            (String(a.nisn).trim().toLowerCase() === gNip) ||
-                            (String(a.nisn).trim().toLowerCase() === gUser)
-                        );
-                        if (rec) {
-                            if (rec.status === 'Hadir') hadirGuru++;
-                            else if (rec.status === 'Izin' || rec.status === 'Sakit') izinSakitGuru++;
-                        }
-                    });
-
-                    // Hitung statistik Tendik
-                    const totalTendik = tendikList.length;
-                    let hadirTendik = 0;
-                    let izinSakitTendik = 0;
-
-                    tendikList.forEach(t => {
-                        const tNip = String(t.nip || '').trim().toLowerCase();
-                        const tUser = String(t.username || '').trim().toLowerCase();
-                        const rec = absToday.find(a => 
-                            (a.username && a.username.toLowerCase() === tUser) ||
-                            (String(a.nisn).trim().toLowerCase() === tNip) ||
-                            (String(a.nisn).trim().toLowerCase() === tUser)
-                        );
-                        if (rec) {
-                            if (rec.status === 'Hadir') hadirTendik++;
-                            else if (rec.status === 'Izin' || rec.status === 'Sakit') izinSakitTendik++;
-                        }
-                    });
-
-                    animateValue("admStatGuruTotal", 0, totalGuru, 600);
-                    animateValue("admStatGuruHadir", 0, hadirGuru, 600);
-                    animateValue("admStatGuruIzinSakit", 0, izinSakitGuru, 600);
-
-                    animateValue("admStatTendikTotal", 0, totalTendik, 600);
-                    animateValue("admStatTendikHadir", 0, hadirTendik, 600);
-                    animateValue("admStatTendikIzinSakit", 0, izinSakitTendik, 600);
+                    updateAdminStaffCards();
+                    buildAdminDashboardMonitoringData();
                 }).getAbsensiList({ tanggalMulai: today, tanggalAkhir: today });
             }).getTendikList(token);
         }).getGuruList(token);
 
         // 3. Load Riwayat & Sesi Login Pengguna
         loadAdminLoginLogs();
+    }
+
+    function updateAdminStaffCards() {
+        const guruList = window.cachedGuruList || [];
+        const tendikList = window.cachedTendikList || [];
+        const absToday = window.cachedAbsensiTodayAll || [];
+
+        // Hitung statistik Guru
+        const totalGuru = guruList.length;
+        let hadirGuru = 0;
+        let izinSakitGuru = 0;
+
+        guruList.forEach(g => {
+            const gNip = String(g.nip || '').trim().toLowerCase();
+            const gUser = String(g.username || '').trim().toLowerCase();
+            const rec = absToday.find(a => 
+                (a.username && a.username.toLowerCase() === gUser) ||
+                (String(a.nisn).trim().toLowerCase() === gNip) ||
+                (String(a.nisn).trim().toLowerCase() === gUser)
+            );
+            if (rec) {
+                if (rec.status === 'Hadir') hadirGuru++;
+                else if (rec.status === 'Izin' || rec.status === 'Sakit') izinSakitGuru++;
+            }
+        });
+
+        // Hitung statistik Tendik
+        const totalTendik = tendikList.length;
+        let hadirTendik = 0;
+        let izinSakitTendik = 0;
+
+        tendikList.forEach(t => {
+            const tNip = String(t.nip || '').trim().toLowerCase();
+            const tUser = String(t.username || '').trim().toLowerCase();
+            const rec = absToday.find(a => 
+                (a.username && a.username.toLowerCase() === tUser) ||
+                (String(a.nisn).trim().toLowerCase() === tNip) ||
+                (String(a.nisn).trim().toLowerCase() === tUser)
+            );
+            if (rec) {
+                if (rec.status === 'Hadir') hadirTendik++;
+                else if (rec.status === 'Izin' || rec.status === 'Sakit') izinSakitTendik++;
+            }
+        });
+
+        animateValue("admStatGuruTotal", 0, totalGuru, 400);
+        animateValue("admStatGuruHadir", 0, hadirGuru, 400);
+        animateValue("admStatGuruIzinSakit", 0, izinSakitGuru, 400);
+
+        animateValue("admStatTendikTotal", 0, totalTendik, 400);
+        animateValue("admStatTendikHadir", 0, hadirTendik, 400);
+        animateValue("admStatTendikIzinSakit", 0, izinSakitTendik, 400);
+    }
+
+    // ========================================================
+    // LOGIKA MONITORING ABSENSI DI DASHBOARD ADMIN
+    // ========================================================
+    let admMonState = {
+        category: 'all',
+        status: '',
+        search: '',
+        page: 1,
+        limit: 15,
+        allData: [],
+        filteredData: []
+    };
+
+    function buildAdminDashboardMonitoringData() {
+        const siswaList = window.cachedAttendanceMonitoringData || [];
+        const guruList = window.cachedGuruList || [];
+        const tendikList = window.cachedTendikList || [];
+        const absToday = window.cachedAbsensiTodayAll || [];
+
+        let combined = [];
+
+        // 1. Siswa
+        siswaList.forEach(s => {
+            combined.push({
+                id: s.nisn,
+                nisn: s.nisn,
+                username: s.nisn,
+                nama: s.nama,
+                tipe: 'Siswa',
+                role: 'siswa',
+                kelas: s.kelas || '-',
+                foto: s.foto || '',
+                jamDatang: s.jamDatang || '-',
+                jamPulang: s.jamPulang || '-',
+                keterangan: s.keterangan || '-',
+                status: s.status || 'Belum Absen'
+            });
+        });
+
+        // 2. Guru
+        guruList.forEach(g => {
+            const gNip = String(g.nip || '').trim().toLowerCase();
+            const gUser = String(g.username || '').trim().toLowerCase();
+            const rec = absToday.find(a => 
+                (a.username && a.username.toLowerCase() === gUser) ||
+                (String(a.nisn).trim().toLowerCase() === gNip) ||
+                (String(a.nisn).trim().toLowerCase() === gUser)
+            );
+            combined.push({
+                id: g.nip && g.nip !== '-' ? g.nip : g.username,
+                nisn: g.nip || '-',
+                username: g.username,
+                nama: g.nama || g.username,
+                tipe: 'Guru',
+                role: 'guru',
+                kelas: g.jabatan || (g.kelas ? 'Wali Kelas ' + g.kelas : 'Guru SMANSA'),
+                foto: g.foto || '',
+                jamDatang: rec ? (rec.jamDatang || '-') : '-',
+                jamPulang: rec ? (rec.jamPulang || '-') : '-',
+                keterangan: rec ? (rec.keterangan || '-') : '-',
+                status: rec ? (rec.status || 'Hadir') : 'Belum Absen'
+            });
+        });
+
+        // 3. Tendik
+        tendikList.forEach(t => {
+            const tNip = String(t.nip || '').trim().toLowerCase();
+            const tUser = String(t.username || '').trim().toLowerCase();
+            const rec = absToday.find(a => 
+                (a.username && a.username.toLowerCase() === tUser) ||
+                (String(a.nisn).trim().toLowerCase() === tNip) ||
+                (String(a.nisn).trim().toLowerCase() === tUser)
+            );
+            combined.push({
+                id: t.nip && t.nip !== '-' ? t.nip : t.username,
+                nisn: t.nip || '-',
+                username: t.username,
+                nama: t.nama || t.username,
+                tipe: 'Tendik',
+                role: 'tendik',
+                kelas: t.jabatan || 'Staf Kependidikan',
+                foto: t.foto || '',
+                jamDatang: rec ? (rec.jamDatang || '-') : '-',
+                jamPulang: rec ? (rec.jamPulang || '-') : '-',
+                keterangan: rec ? (rec.keterangan || '-') : '-',
+                status: rec ? (rec.status || 'Hadir') : 'Belum Absen'
+            });
+        });
+
+        admMonState.allData = combined;
+        filterAdminDashboardMonitoring();
+    }
+
+    function setAdmMonCategory(cat) {
+        admMonState.category = cat;
+        admMonState.page = 1;
+
+        ['all', 'Siswa', 'Guru', 'Tendik'].forEach(c => {
+            const btn = document.getElementById('btnAdmMonCat_' + c);
+            if (btn) {
+                if (c === cat) {
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-indigo-600 text-white shadow-sm';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200';
+                }
+            }
+        });
+
+        filterAdminDashboardMonitoring();
+    }
+
+    function filterAdminDashboardMonitoring() {
+        const query = (document.getElementById('admMonSearchInput') ? document.getElementById('admMonSearchInput').value : '').toLowerCase().trim();
+        const statusVal = document.getElementById('admMonStatusFilter') ? document.getElementById('admMonStatusFilter').value : '';
+
+        admMonState.search = query;
+        admMonState.status = statusVal;
+
+        let filtered = admMonState.allData || [];
+
+        if (admMonState.category !== 'all') {
+            filtered = filtered.filter(x => x.tipe === admMonState.category);
+        }
+
+        if (statusVal) {
+            filtered = filtered.filter(x => x.status === statusVal);
+        }
+
+        if (query) {
+            filtered = filtered.filter(x => 
+                String(x.nama || '').toLowerCase().includes(query) ||
+                String(x.id || '').toLowerCase().includes(query) ||
+                String(x.nisn || '').toLowerCase().includes(query) ||
+                String(x.username || '').toLowerCase().includes(query) ||
+                String(x.kelas || '').toLowerCase().includes(query)
+            );
+        }
+
+        admMonState.filteredData = filtered;
+
+        const countBadge = document.getElementById('admMonActiveCount');
+        if (countBadge) countBadge.textContent = `${filtered.length} Data`;
+
+        renderAdmMonRows();
+    }
+
+    function renderAdmMonRows() {
+        const tbody = document.getElementById('tbody-adm-monitoring');
+        if (!tbody) return;
+
+        const data = admMonState.filteredData || [];
+        if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="py-10 text-center text-slate-400 font-bold text-xs italic bg-white">Tidak ada data presensi yang sesuai filter.</td></tr>';
+            const pageInfo = document.getElementById('admMonPageInfo');
+            if (pageInfo) pageInfo.textContent = 'Menampilkan 0 data';
+            return;
+        }
+
+        const totalPages = Math.ceil(data.length / admMonState.limit) || 1;
+        if (admMonState.page > totalPages) admMonState.page = totalPages;
+        if (admMonState.page < 1) admMonState.page = 1;
+
+        const startIdx = (admMonState.page - 1) * admMonState.limit;
+        const endIdx = Math.min(startIdx + admMonState.limit, data.length);
+        const pageData = data.slice(startIdx, endIdx);
+
+        tbody.innerHTML = pageData.map((d, idx) => {
+            const rowNo = startIdx + idx + 1;
+            const initial = (d.nama || '?').charAt(0).toUpperCase();
+
+            let roleBadge = 'bg-blue-50 text-blue-700 border-blue-200';
+            let roleIcon = 'fa-user-graduate';
+            if (d.role === 'guru') {
+                roleBadge = 'bg-purple-50 text-purple-700 border-purple-200';
+                roleIcon = 'fa-chalkboard-teacher';
+            } else if (d.role === 'tendik') {
+                roleBadge = 'bg-amber-50 text-amber-800 border-amber-200';
+                roleIcon = 'fa-user-tie';
+            }
+
+            let statusColor = 'bg-slate-100 text-slate-600 border-slate-200';
+            if (d.status === 'Hadir') statusColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+            else if (d.status === 'Izin') statusColor = 'bg-blue-100 text-blue-800 border-blue-200';
+            else if (d.status === 'Sakit') statusColor = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            else if (d.status === 'Alpa') statusColor = 'bg-rose-100 text-rose-800 border-rose-200';
+
+            let ketText = d.keterangan || '-';
+            let ketStyle = 'text-slate-400 font-mono text-[10px]';
+            let ketIcon = '';
+
+            if (String(ketText).includes('Terlambat')) {
+                ketStyle = 'text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-100 text-[10px]';
+                ketIcon = '<i class="fas fa-history mr-1"></i>';
+            } else if (String(ketText).includes('Pulang Cepat')) {
+                ketStyle = 'text-orange-600 font-bold bg-orange-50 px-2 py-0.5 rounded border border-orange-100 text-[10px]';
+                ketIcon = '<i class="fas fa-running mr-1"></i>';
+            } else if (ketText === 'Tepat Waktu') {
+                ketStyle = 'text-emerald-600 font-bold text-[10px]';
+                ketIcon = '<i class="fas fa-check-double mr-1"></i>';
+            } else if (d.status === 'Izin' || d.status === 'Sakit') {
+                ketStyle = 'text-slate-600 font-medium text-[10px] italic';
+            }
+
+            const staffId = (d.id && d.id !== '-') ? d.id : (d.username || d.nisn);
+
+            return `
+            <tr class="hover:bg-slate-50/70 border-b border-slate-100 transition group">
+                <td class="py-3 px-4 text-center text-slate-400 text-xs">${rowNo}</td>
+                <td class="py-3 px-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl ${d.role === 'guru' ? 'bg-purple-100 text-purple-700' : (d.role === 'tendik' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-700')} font-extrabold flex items-center justify-center text-xs shrink-0 shadow-2xs">
+                            ${initial}
+                        </div>
+                        <div class="min-w-0">
+                            <div class="font-bold text-xs text-slate-800 truncate">${d.nama}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">${d.id || '-'}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="py-3 px-4 text-center">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold border ${roleBadge} mb-0.5">
+                        <i class="fas ${roleIcon} text-[9px]"></i> ${d.tipe}
+                    </span>
+                    <div class="text-[11px] font-medium text-slate-600 truncate max-w-[140px] mx-auto">${d.kelas}</div>
+                </td>
+                <td class="py-3 px-4 text-center text-xs font-mono text-slate-600 font-medium">${d.jamDatang || '-'}</td>
+                <td class="py-3 px-4 text-center text-xs font-mono text-slate-600 font-medium">${d.jamPulang || '-'}</td>
+                <td class="py-3 px-4 text-center align-middle">
+                    <span class="${ketStyle} inline-block whitespace-nowrap">${ketIcon}${ketText}</span>
+                </td>
+                <td class="py-3 px-4 text-center">
+                    <select onchange="changeAdmMonItemStatus('${staffId}', '${d.username || ''}', '${d.nama}', '${d.kelas}', '${d.role}', this)"
+                            class="text-[11px] font-bold py-1 px-2.5 rounded-xl border focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center cursor-pointer w-32 ${statusColor}">
+                        <option value="Belum Absen" ${d.status === 'Belum Absen' ? 'selected' : ''}>Belum Absen</option>
+                        <option value="Hadir" ${d.status === 'Hadir' ? 'selected' : ''}>Hadir</option>
+                        <option value="Izin" ${d.status === 'Izin' ? 'selected' : ''}>Izin</option>
+                        <option value="Sakit" ${d.status === 'Sakit' ? 'selected' : ''}>Sakit</option>
+                        <option value="Alpa" ${d.status === 'Alpa' ? 'selected' : ''}>Alpa</option>
+                    </select>
+                </td>
+            </tr>`;
+        }).join('');
+
+        const pageInfo = document.getElementById('admMonPageInfo');
+        if (pageInfo) pageInfo.textContent = `Menampilkan ${startIdx + 1} - ${endIdx} dari total ${data.length} data`;
+
+        const pageNumber = document.getElementById('admMonPageNumber');
+        if (pageNumber) pageNumber.textContent = `${admMonState.page} / ${totalPages}`;
+
+        const btnPrev = document.getElementById('btnAdmMonPrev');
+        if (btnPrev) btnPrev.disabled = (admMonState.page <= 1);
+
+        const btnNext = document.getElementById('btnAdmMonNext');
+        if (btnNext) btnNext.disabled = (admMonState.page >= totalPages);
+    }
+
+    function changeAdmMonPage(delta) {
+        admMonState.page += delta;
+        renderAdmMonRows();
+    }
+
+    function changeAdmMonItemStatus(id, username, nama, kelas, role, selectElement) {
+        const newStatus = selectElement.value;
+        selectElement.disabled = true;
+        selectElement.style.opacity = '0.5';
+        const token = currentUser ? currentUser.token : null;
+
+        google.script.run.withSuccessHandler(res => {
+            selectElement.disabled = false;
+            selectElement.style.opacity = '1';
+
+            if (res.success) {
+                let newColor = 'bg-slate-100 text-slate-600 border-slate-200';
+                if (newStatus === 'Hadir') newColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                else if (newStatus === 'Izin') newColor = 'bg-blue-100 text-blue-800 border-blue-200';
+                else if (newStatus === 'Sakit') newColor = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                else if (newStatus === 'Alpa') newColor = 'bg-rose-100 text-rose-800 border-rose-200';
+
+                selectElement.className = `text-[11px] font-bold py-1 px-2.5 rounded-xl border focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center cursor-pointer w-32 ${newColor}`;
+                showAlert('success', `Status ${nama} diubah jadi ${newStatus}`);
+
+                // Update local admMonState
+                const searchKey = String(id || username).toLowerCase();
+                const item = admMonState.allData.find(x => 
+                    String(x.id || '').toLowerCase() === searchKey ||
+                    String(x.username || '').toLowerCase() === searchKey
+                );
+                if (item) {
+                    item.status = newStatus;
+                    if (newStatus === 'Hadir' && (!item.jamDatang || item.jamDatang === '-')) {
+                        item.jamDatang = new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+                    }
+                }
+
+                // If staff, also update staff card counts
+                if (role === 'guru' || role === 'tendik') {
+                    if (window.cachedAbsensiTodayAll) {
+                        const existingIdx = window.cachedAbsensiTodayAll.findIndex(a => 
+                            (a.username && a.username.toLowerCase() === searchKey) ||
+                            (String(a.nisn).trim().toLowerCase() === searchKey)
+                        );
+                        if (newStatus === 'Belum Absen') {
+                            if (existingIdx !== -1) window.cachedAbsensiTodayAll.splice(existingIdx, 1);
+                        } else if (existingIdx !== -1) {
+                            window.cachedAbsensiTodayAll[existingIdx].status = newStatus;
+                        } else {
+                            window.cachedAbsensiTodayAll.push({
+                                nisn: id || username,
+                                username: username,
+                                nama: nama,
+                                kelas: kelas,
+                                tipeUser: role === 'guru' ? 'Guru' : 'Tendik',
+                                jamDatang: newStatus === 'Hadir' ? new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '-',
+                                jamPulang: '-',
+                                status: newStatus
+                            });
+                        }
+                    }
+                    if (typeof updateAdminStaffCards === 'function') {
+                        updateAdminStaffCards();
+                    }
+                } else if (role === 'siswa') {
+                    // Update student counter on admin dashboard
+                    if (window.cachedAttendanceMonitoringData) {
+                        const found = window.cachedAttendanceMonitoringData.find(s => String(s.nisn).trim().toLowerCase() === searchKey);
+                        if (found) found.status = newStatus;
+                        const data = window.cachedAttendanceMonitoringData;
+                        const hadir = data.filter(d => d.status === 'Hadir').length;
+                        const sakit = data.filter(d => d.status === 'Sakit').length;
+                        const izin = data.filter(d => d.status === 'Izin').length;
+                        const alpa = data.filter(d => d.status === 'Alpa').length;
+                        const belum = data.filter(d => d.status === 'Belum Absen').length;
+                        animateValue("admStatHadir", 0, hadir, 300);
+                        animateValue("admStatSakit", 0, sakit, 300);
+                        animateValue("admStatIzin", 0, izin, 300);
+                        animateValue("admStatAlpa", 0, alpa, 300);
+                        renderAdminChart(hadir, sakit, izin, alpa, belum);
+                    }
+                }
+            } else {
+                showAlert('error', res.message);
+            }
+        })
+        .withFailureHandler(error => {
+            selectElement.disabled = false;
+            selectElement.style.opacity = '1';
+            showAlert('error', 'Error: ' + error);
+        })
+        .updateAbsensiStatus(token, id || username, nama, kelas, newStatus);
+    }
+
+    function refreshAdminDashboardMonitoring() {
+        showAlert('info', 'Memperbarui monitoring presensi...');
+        loadAdminDashboard();
+    }
+
+    function exportAdminDashboardMonitoringExcel() {
+        const data = admMonState.filteredData || [];
+        if (data.length === 0) {
+            showAlert('warning', 'Tidak ada data presensi untuk di-export.');
+            return;
+        }
+
+        const excelRows = data.map((d, i) => ({
+            'No': i + 1,
+            'Identitas (NISN/NIP)': d.id || d.username || '-',
+            'Nama Lengkap': d.nama,
+            'Kategori': d.tipe,
+            'Kelas / Jabatan': d.kelas,
+            'Jam Datang': d.jamDatang || '-',
+            'Jam Pulang': d.jamPulang || '-',
+            'Keterangan': d.keterangan || '-',
+            'Status Kehadiran': d.status
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(excelRows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Monitoring_Presensi');
+        const todayStr = new Date().toISOString().split('T')[0];
+        XLSX.writeFile(wb, `Monitoring_Presensi_Dashboard_${todayStr}.xlsx`);
+        showAlert('success', 'Monitoring presensi berhasil diexport ke Excel!');
     }
 
     let cachedLoginLogs = [];
@@ -4062,11 +4639,54 @@
             if (elHp) elHp.textContent = currentUser.noHp || '-';
 
             google.script.run.withSuccessHandler(res => {
+                const elMasuk = document.getElementById('guruJamDatang');
+                const elPulang = document.getElementById('guruJamPulang');
+                const elBadge = document.getElementById('guruStatusBadge');
+                const elKetContainer = document.getElementById('guruStatusKetContainer');
+                const elKetText = document.getElementById('guruStatusKetText');
+
                 if (res.success && res.data) {
-                    const elMasuk = document.getElementById('guruJamDatang');
-                    const elPulang = document.getElementById('guruJamPulang');
                     if (elMasuk) elMasuk.textContent = res.data.jamDatang || '-';
                     if (elPulang) elPulang.textContent = res.data.jamPulang || '-';
+
+                    const status = res.data.status || 'Hadir';
+                    if (elBadge) {
+                        if (status === 'Hadir') {
+                            elBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
+                            elBadge.textContent = 'Hadir';
+                        } else if (status === 'Izin') {
+                            elBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200';
+                            elBadge.textContent = 'Izin';
+                        } else if (status === 'Sakit') {
+                            elBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200';
+                            elBadge.textContent = 'Sakit';
+                        } else if (status === 'Alpa') {
+                            elBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200';
+                            elBadge.textContent = 'Alpa';
+                        }
+                    }
+
+                    if (res.data.keterangan && res.data.keterangan !== '-' && (status === 'Izin' || status === 'Sakit')) {
+                        if (elKetContainer) {
+                            elKetContainer.classList.remove('hidden');
+                            elKetContainer.classList.add('flex');
+                        }
+                        if (elKetText) elKetText.textContent = res.data.keterangan;
+                    } else if (elKetContainer) {
+                        elKetContainer.classList.add('hidden');
+                        elKetContainer.classList.remove('flex');
+                    }
+                } else {
+                    if (elMasuk) elMasuk.textContent = '-';
+                    if (elPulang) elPulang.textContent = '-';
+                    if (elBadge) {
+                        elBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200';
+                        elBadge.textContent = 'Belum Absen';
+                    }
+                    if (elKetContainer) {
+                        elKetContainer.classList.add('hidden');
+                        elKetContainer.classList.remove('flex');
+                    }
                 }
             }).getAbsensiToday(currentUser.nip || currentUser.username);
         }
@@ -4496,6 +5116,8 @@
         if (!list || list.length === 0) {
             return `<div class="p-8 text-center text-slate-400 font-bold text-xs">Tidak ada data ditemukan.</div>`;
         }
+        const isAdmin = currentUser && currentUser.role === 'admin';
+
         return list.map(item => {
             const initial = (item.nama || item.username || (isGuru ? 'G' : 'T')).charAt(0).toUpperCase();
             const avatarHtml = item.foto ? `<img src="${item.foto}" class="w-10 h-10 rounded-2xl object-cover border border-slate-200 shrink-0 shadow-xs">` : `<div class="w-10 h-10 rounded-2xl ${isGuru ? 'bg-purple-100 text-purple-700' : 'bg-amber-100 text-amber-800'} font-extrabold flex items-center justify-center text-sm shrink-0 shadow-xs">${initial}</div>`;
@@ -4505,6 +5127,36 @@
             else if (item.status === 'Sakit') statusBadge = 'bg-yellow-100 text-yellow-800 border-yellow-200';
             else if (item.status === 'Izin') statusBadge = 'bg-blue-100 text-blue-800 border-blue-200';
             else if (item.status === 'Alpa') statusBadge = 'bg-rose-100 text-rose-800 border-rose-200';
+
+            const staffId = (item.nip && item.nip !== '-') ? item.nip : item.username;
+
+            let actionHtml = '';
+            if (isAdmin) {
+                actionHtml = `
+                <div class="text-right shrink-0 flex flex-col items-end gap-1">
+                    <select onchange="changeStaffStatus('${staffId}', '${item.username}', '${item.nama}', '${item.jabatan}', '${isGuru ? 'guru' : 'tendik'}', this)"
+                            class="text-[11px] font-bold py-1 px-2.5 rounded-xl border focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center cursor-pointer ${statusBadge}">
+                        <option value="Belum Absen" ${item.status === 'Belum Absen' ? 'selected' : ''}>Belum Absen</option>
+                        <option value="Hadir" ${item.status === 'Hadir' ? 'selected' : ''}>Hadir</option>
+                        <option value="Izin" ${item.status === 'Izin' ? 'selected' : ''}>Izin</option>
+                        <option value="Sakit" ${item.status === 'Sakit' ? 'selected' : ''}>Sakit</option>
+                        <option value="Alpa" ${item.status === 'Alpa' ? 'selected' : ''}>Alpa</option>
+                    </select>
+                    <div class="text-[10px] text-slate-500 font-mono">
+                        ${item.jamDatang && item.jamDatang !== '-' ? `<span class="text-emerald-700 font-bold">${item.jamDatang}</span>` : '<span class="text-slate-400">-</span>'}
+                        ${item.jamPulang && item.jamPulang !== '-' ? ` • <span class="text-blue-700 font-bold">${item.jamPulang}</span>` : ''}
+                    </div>
+                </div>`;
+            } else {
+                actionHtml = `
+                <div class="text-right shrink-0">
+                    <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${statusBadge}">${item.status}</span>
+                    <div class="text-[10px] text-slate-500 font-mono mt-1">
+                        ${item.jamDatang && item.jamDatang !== '-' ? `<span class="text-emerald-700 font-bold">${item.jamDatang}</span>` : '<span class="text-slate-400">-</span>'}
+                        ${item.jamPulang && item.jamPulang !== '-' ? ` • <span class="text-blue-700 font-bold">${item.jamPulang}</span>` : ''}
+                    </div>
+                </div>`;
+            }
 
             return `
             <div class="staff-modal-item-row p-3.5 bg-white hover:bg-slate-50 border border-slate-100 rounded-2xl mb-2 flex items-center justify-between gap-3 transition" data-nama="${String(item.nama || '').toLowerCase()}" data-nip="${String(item.nip || '').toLowerCase()}" data-user="${String(item.username || '').toLowerCase()}">
@@ -4516,15 +5168,207 @@
                         <p class="text-[10px] text-slate-400 font-mono">NIP: ${item.nip || '-'}</p>
                     </div>
                 </div>
-                <div class="text-right shrink-0">
-                    <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${statusBadge}">${item.status}</span>
-                    <div class="text-[10px] text-slate-500 font-mono mt-1">
-                        ${item.jamDatang && item.jamDatang !== '-' ? `<span class="text-emerald-700 font-bold">${item.jamDatang}</span>` : '<span class="text-slate-400">-</span>'}
-                        ${item.jamPulang && item.jamPulang !== '-' ? ` • <span class="text-blue-700 font-bold">${item.jamPulang}</span>` : ''}
-                    </div>
-                </div>
+                ${actionHtml}
             </div>`;
         }).join('');
+    }
+
+    function changeStaffStatus(id, username, nama, jabatan, role, selectElement) {
+        const newStatus = selectElement.value;
+        selectElement.disabled = true;
+        selectElement.style.opacity = '0.5';
+        const token = currentUser ? currentUser.token : null;
+
+        google.script.run.withSuccessHandler(res => {
+            selectElement.disabled = false;
+            selectElement.style.opacity = '1';
+
+            if (res.success) {
+                let newBadge = 'bg-slate-100 text-slate-600 border-slate-200';
+                if (newStatus === 'Hadir') newBadge = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                else if (newStatus === 'Sakit') newBadge = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                else if (newStatus === 'Izin') newBadge = 'bg-blue-100 text-blue-800 border-blue-200';
+                else if (newStatus === 'Alpa') newBadge = 'bg-rose-100 text-rose-800 border-rose-200';
+                
+                selectElement.className = `text-[11px] font-bold py-1 px-2.5 rounded-xl border focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center cursor-pointer ${newBadge}`;
+                showAlert('success', `Status ${nama} diubah jadi ${newStatus}`);
+
+                // Update cached absensi
+                if (window.cachedAbsensiTodayAll) {
+                    const searchKey = String(id || username).toLowerCase();
+                    const existingIdx = window.cachedAbsensiTodayAll.findIndex(a => 
+                        (a.username && a.username.toLowerCase() === searchKey) ||
+                        (String(a.nisn).trim().toLowerCase() === searchKey)
+                    );
+                    if (newStatus === 'Belum Absen') {
+                        if (existingIdx !== -1) window.cachedAbsensiTodayAll.splice(existingIdx, 1);
+                    } else if (existingIdx !== -1) {
+                        window.cachedAbsensiTodayAll[existingIdx].status = newStatus;
+                    } else {
+                        window.cachedAbsensiTodayAll.push({
+                            nisn: id || username,
+                            username: username,
+                            nama: nama,
+                            kelas: jabatan,
+                            tipeUser: role === 'guru' ? 'Guru' : 'Tendik',
+                            jamDatang: newStatus === 'Hadir' ? new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '-',
+                            jamPulang: '-',
+                            status: newStatus
+                        });
+                    }
+                }
+
+                // Update window.cachedCurrentStaffFiltered
+                if (window.cachedCurrentStaffFiltered) {
+                    const searchKey = String(id || username).toLowerCase();
+                    const foundStaff = window.cachedCurrentStaffFiltered.find(x => 
+                        String(x.nip || '').toLowerCase() === searchKey ||
+                        String(x.username || '').toLowerCase() === searchKey
+                    );
+                    if (foundStaff) foundStaff.status = newStatus;
+                }
+
+                // Update dashboard counters
+                if (typeof updateAdminStaffCards === 'function') {
+                    updateAdminStaffCards();
+                }
+            } else {
+                showAlert('error', res.message);
+            }
+        })
+        .withFailureHandler(error => {
+            selectElement.disabled = false;
+            selectElement.style.opacity = '1';
+            showAlert('error', 'Error: ' + error);
+        })
+        .updateAbsensiStatus(token, id || username, nama, jabatan, newStatus);
+    }
+
+    function showModalPengajuanIzinSakit(targetRole) {
+        const roleName = targetRole === 'guru' ? 'Guru' : (targetRole === 'tendik' ? 'Tendik' : 'Siswa');
+        const userName = currentUser ? (currentUser.nama || currentUser.username) : 'Pengguna';
+
+        const modalHTML = `
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 font-sans max-w-lg w-full">
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-lg backdrop-blur-sm shadow-xs">
+                        <i class="fas fa-file-medical"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold">Form Pengajuan Izin / Sakit</h3>
+                        <p class="text-xs text-indigo-100 font-medium">Pengajuan kehadiran mandiri (${roleName})</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Form Body -->
+            <form onsubmit="submitFormPengajuanIzinSakit(event, '${targetRole}')" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Pemohon</label>
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-user text-slate-400"></i>
+                        <span>${userName}</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Jenis Pengajuan <span class="text-rose-500">*</span></label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer border-2 border-slate-200 rounded-2xl p-3.5 flex items-center gap-3 transition hover:border-blue-300 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50/60 group">
+                            <input type="radio" name="pengajuanType" value="Izin" checked class="text-blue-600 focus:ring-blue-500">
+                            <div>
+                                <p class="text-xs font-extrabold text-slate-800 group-has-[:checked]:text-blue-700">Izin</p>
+                                <p class="text-[10px] text-slate-400">Keperluan tertentu</p>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer border-2 border-slate-200 rounded-2xl p-3.5 flex items-center gap-3 transition hover:border-amber-300 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/60 group">
+                            <input type="radio" name="pengajuanType" value="Sakit" class="text-amber-600 focus:ring-amber-500">
+                            <div>
+                                <p class="text-xs font-extrabold text-slate-800 group-has-[:checked]:text-amber-700">Sakit</p>
+                                <p class="text-[10px] text-slate-400">Kondisi tidak sehat</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="pengajuanAlasan" class="block text-xs font-bold text-slate-700 mb-1.5">Alasan / Keterangan <span class="text-rose-500">*</span></label>
+                    <textarea id="pengajuanAlasan" rows="3" required placeholder="Tuliskan keterangan izin atau sakit secara jelas..." class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:bg-white focus:outline-none transition"></textarea>
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 transition">
+                        Batal
+                    </button>
+                    <button type="submit" id="btnSubmitPengajuan" class="flex-1 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition shadow-md flex items-center justify-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Kirim Pengajuan
+                    </button>
+                </div>
+            </form>
+        </div>`;
+
+        showModal(modalHTML);
+    }
+
+    function submitFormPengajuanIzinSakit(event, targetRole) {
+        event.preventDefault();
+        if (!currentUser) return;
+
+        const radios = document.getElementsByName('pengajuanType');
+        let status = 'Izin';
+        for (let r of radios) {
+            if (r.checked) {
+                status = r.value;
+                break;
+            }
+        }
+
+        const alasan = document.getElementById('pengajuanAlasan').value.trim();
+        if (!alasan) {
+            showAlert('warning', 'Harap isi alasan / keterangan pengajuan.');
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmitPengajuan');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1.5"></i> Mengirim...';
+        }
+
+        const token = currentUser.token;
+        const userInfo = {
+            id: currentUser.nisn || currentUser.nip || currentUser.username,
+            nama: currentUser.nama || currentUser.username,
+            role: currentUser.role,
+            kelas: currentUser.kelas || '',
+            jabatan: currentUser.jabatan || ''
+        };
+
+        google.script.run
+            .withSuccessHandler(res => {
+                closeModal();
+                if (res.success) {
+                    showAlert('success', `Pengajuan ${status} berhasil disimpan.`);
+                    if (currentUser.role === 'guru') loadGuruDashboard();
+                    else if (currentUser.role === 'tendik') loadTendikDashboard();
+                    else if (currentUser.role === 'siswa') loadSiswaDashboard();
+                } else {
+                    showAlert('error', res.message || 'Gagal mengirim pengajuan.');
+                }
+            })
+            .withFailureHandler(err => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Pengajuan';
+                }
+                showAlert('error', 'Terjadi kesalahan koneksi: ' + err);
+            })
+            .submitIzinSakitMandiri(token, status, alasan, userInfo);
     }
 
     function filterStaffModalList(query) {
@@ -4610,22 +5454,36 @@
                     if (elAlert) { elAlert.classList.remove('hidden'); elAlert.classList.add('flex'); }
                 } else {
                     if (elAlert) { elAlert.classList.add('hidden'); elAlert.classList.remove('flex'); }
-                    if (elValMasuk) elValMasuk.textContent = absensi.jamDatang || "--:--";
-                    
-                    if (!absensi.jamPulang || absensi.jamPulang === '-') {
-                        if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-800 p-6 text-white shadow-xl shadow-emerald-200 transition-all duration-500 group";
+
+                    if (absensi.status === 'Izin' || absensi.status === 'Sakit') {
+                        const isIzin = absensi.status === 'Izin';
+                        if (elHero) elHero.className = isIzin 
+                            ? "relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-800 p-6 text-white shadow-xl shadow-blue-200 transition-all duration-500 group"
+                            : "relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-600 to-orange-800 p-6 text-white shadow-xl shadow-amber-200 transition-all duration-500 group";
                         if (elBadge) {
                             elBadge.className = "px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-sm";
-                            elBadge.innerHTML = `<i class="fas fa-clock animate-pulse mr-2"></i> SEDANG BERLANGSUNG`;
+                            elBadge.innerHTML = `<i class="fas ${isIzin ? 'fa-file-alt' : 'fa-file-medical'} mr-2"></i> ${absensi.status.toUpperCase()}`;
                         }
-                        if (elValPulang) elValPulang.textContent = "--:--";
+                        if (elValMasuk) elValMasuk.textContent = "-";
+                        if (elValPulang) elValPulang.textContent = "-";
                     } else {
-                        if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-800 p-6 text-white shadow-xl shadow-indigo-200 transition-all duration-500 group";
-                        if (elBadge) {
-                            elBadge.className = "px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-sm";
-                            elBadge.innerHTML = `<i class="fas fa-check-circle mr-2"></i> SELESAI HARI INI`;
+                        if (elValMasuk) elValMasuk.textContent = absensi.jamDatang || "--:--";
+                        
+                        if (!absensi.jamPulang || absensi.jamPulang === '-') {
+                            if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-800 p-6 text-white shadow-xl shadow-emerald-200 transition-all duration-500 group";
+                            if (elBadge) {
+                                elBadge.className = "px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-sm";
+                                elBadge.innerHTML = `<i class="fas fa-clock animate-pulse mr-2"></i> SEDANG BERLANGSUNG`;
+                            }
+                            if (elValPulang) elValPulang.textContent = "--:--";
+                        } else {
+                            if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-800 p-6 text-white shadow-xl shadow-indigo-200 transition-all duration-500 group";
+                            if (elBadge) {
+                                elBadge.className = "px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-sm";
+                                elBadge.innerHTML = `<i class="fas fa-check-circle mr-2"></i> SELESAI HARI INI`;
+                            }
+                            if (elValPulang) elValPulang.textContent = absensi.jamPulang;
                         }
-                        if (elValPulang) elValPulang.textContent = absensi.jamPulang;
                     }
                 }
             } catch (err) { console.error("Error rendering dashboard:", err); }
@@ -7120,9 +7978,54 @@
             document.getElementById('tendikProfileNoHp').textContent = currentUser.noHp || '-';
 
             google.script.run.withSuccessHandler(res => {
+                const elMasuk = document.getElementById('tendikJamDatang');
+                const elPulang = document.getElementById('tendikJamPulang');
+                const elBadge = document.getElementById('tendikStatusBadge');
+                const elKetContainer = document.getElementById('tendikStatusKetContainer');
+                const elKetText = document.getElementById('tendikStatusKetText');
+
                 if (res.success && res.data) {
-                    document.getElementById('tendikJamDatang').textContent = res.data.jamDatang || '-';
-                    document.getElementById('tendikJamPulang').textContent = res.data.jamPulang || '-';
+                    if (elMasuk) elMasuk.textContent = res.data.jamDatang || '-';
+                    if (elPulang) elPulang.textContent = res.data.jamPulang || '-';
+
+                    const status = res.data.status || 'Hadir';
+                    if (elBadge) {
+                        if (status === 'Hadir') {
+                            elBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
+                            elBadge.textContent = 'Hadir';
+                        } else if (status === 'Izin') {
+                            elBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200';
+                            elBadge.textContent = 'Izin';
+                        } else if (status === 'Sakit') {
+                            elBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200';
+                            elBadge.textContent = 'Sakit';
+                        } else if (status === 'Alpa') {
+                            elBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200';
+                            elBadge.textContent = 'Alpa';
+                        }
+                    }
+
+                    if (res.data.keterangan && res.data.keterangan !== '-' && (status === 'Izin' || status === 'Sakit')) {
+                        if (elKetContainer) {
+                            elKetContainer.classList.remove('hidden');
+                            elKetContainer.classList.add('flex');
+                        }
+                        if (elKetText) elKetText.textContent = res.data.keterangan;
+                    } else if (elKetContainer) {
+                        elKetContainer.classList.add('hidden');
+                        elKetContainer.classList.remove('flex');
+                    }
+                } else {
+                    if (elMasuk) elMasuk.textContent = '-';
+                    if (elPulang) elPulang.textContent = '-';
+                    if (elBadge) {
+                        elBadge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200';
+                        elBadge.textContent = 'Belum Absen';
+                    }
+                    if (elKetContainer) {
+                        elKetContainer.classList.add('hidden');
+                        elKetContainer.classList.remove('flex');
+                    }
                 }
             }).getAbsensiToday(currentUser.nip || currentUser.username);
         }
