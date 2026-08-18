@@ -1272,7 +1272,7 @@
                                   <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('guru', 'noHp')" data-sort-type="guru" data-sort-col="noHp">
                                       <div class="flex items-center gap-1"><span>No HP</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
                                   </th>
-                                  <th class="p-3">Password</th>
+                                  <th class="p-3 text-center">Kata Sandi</th>
                                   <th class="p-3 text-center">Aksi</th>
                               </tr>
                           </thead>
@@ -4858,15 +4858,20 @@
         if (tableState.siswa.fullData.length > 0) {
             processTableData('siswa');
         } else {
-            document.getElementById('tbody-siswa').innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data siswa...</td></tr>';
+            document.getElementById('tbody-siswa').innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data siswa...</td></tr>';
             google.script.run.withSuccessHandler(result => {
                 if (result.success) {
                     tableState.siswa.fullData = result.data;
                     processTableData('siswa');
                 } else {
+                    document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
                     showAlert('error', result.message);
                 }
-            }).getSiswaList();
+            })
+            .withFailureHandler(error => {
+                document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
+            })
+            .getSiswaList();
         }
     }
 
@@ -4895,7 +4900,8 @@
             <td class="p-4 hidden md:table-cell text-sm text-gray-600 font-mono">${siswa.nisn}</td>
             <td class="p-4 hidden sm:table-cell"><span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-100">${siswa.kelas}</span></td>
             <td class="p-4 text-center">
-                <span id="pass-siswa-${i}" class="font-mono text-xs text-indigo-800 bg-indigo-50/80 px-2.5 py-1 rounded-lg border border-indigo-200 inline-flex items-center gap-1.5 cursor-pointer hover:bg-indigo-100 transition shadow-2xs select-none" onclick="togglePasswordCell('pass-siswa-${i}', '${passVal}')" title="Klik untuk intip / sembunyikan kata sandi">
+                <span id="pass-siswa-${i}" class="font-mono text-xs text-indigo-800 bg-indigo-50/80 px-2.5 py-1 rounded-lg border border-indigo-200 inline-flex items-center gap-1.5 cursor-pointer hover:bg-indigo-100 transition shadow-2xs select-none" onclick="togglePasswordCell('pass-siswa-${i}', '${String(passVal).replace(/'/g, "\\'")}')"
+                    title="Klik untuk intip / sembunyikan kata sandi">
                     <span class="pass-text font-bold">••••••••</span>
                     <i class="fas fa-eye text-[11px] text-indigo-500"></i>
                 </span>
@@ -4906,8 +4912,8 @@
                         <i class="fas fa-eye"></i>
                     </button>
                     <button onclick='editSiswa(${JSON.stringify(siswa).replace(/'/g, "&apos;")})' class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteSiswaConfirm('${siswa.nisn}', '${siswa.nama}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition" title="Hapus"><i class="fas fa-trash"></i></button>
-                    <button onclick="generateQRForSiswa('${siswa.nisn}', '${siswa.nama}', '${siswa.kelas}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition" title="QR Code"><i class="fas fa-qrcode"></i></button>
+                    <button onclick="deleteSiswaConfirm('${String(siswa.nisn).replace(/'/g, "\\'")}'  , '${String(siswa.nama).replace(/'/g, "\\'")}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition" title="Hapus"><i class="fas fa-trash"></i></button>
+                    <button onclick="generateQRForSiswa('${String(siswa.nisn).replace(/'/g, "\\'")}'  , '${String(siswa.nama).replace(/'/g, "\\'")}', '${String(siswa.kelas).replace(/'/g, "\\'")}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition" title="QR Code"><i class="fas fa-qrcode"></i></button>
                 </div>
             </td>
         </tr>`;
@@ -6330,12 +6336,18 @@
     function closeModal() { document.getElementById('modalContainer').innerHTML = ''; }
 
     function showAlert(type, message) {
-        const bg = type === 'success' ? 'bg-emerald-600' : 'bg-rose-600';
+        const colorMap = {
+            success: { bg: 'bg-emerald-600', icon: 'fa-check-circle' },
+            error:   { bg: 'bg-rose-600',    icon: 'fa-exclamation-circle' },
+            warning: { bg: 'bg-amber-500',   icon: 'fa-exclamation-triangle' },
+            info:    { bg: 'bg-blue-600',     icon: 'fa-info-circle' }
+        };
+        const style = colorMap[type] || colorMap.error;
         const div = document.createElement('div');
-        div.className = `fixed top-6 right-6 ${bg} text-white px-5 py-3.5 rounded-2xl shadow-2xl z-[90] flex items-center font-medium animate-fade-in text-xs`;
-        div.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2.5 text-base"></i> ${message}`;
+        div.className = `fixed top-6 right-6 ${style.bg} text-white px-5 py-3.5 rounded-2xl shadow-2xl z-[90] flex items-center font-medium animate-fade-in text-xs`;
+        div.innerHTML = `<i class="fas ${style.icon} mr-2.5 text-base"></i> ${message}`;
         document.body.appendChild(div);
-        setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 3000);
+        setTimeout(() => { div.style.opacity = '0'; div.style.transition = 'opacity 0.3s'; setTimeout(() => div.remove(), 300); }, 3000);
     }
 
     function togglePasswordCell(elementId, realPassword) {
@@ -6870,13 +6882,13 @@
                     tableState.tendik.fullData = result.data || [];
                     processTableData('tendik');
                 } else {
-                    document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500 font-bold">${result ? result.message : 'Gagal memuat data'}</td></tr>`;
+                    document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-500 font-bold">${result ? result.message : 'Gagal memuat data'}</td></tr>`;
                     showAlert('error', (result ? result.message : 'Gagal memuat data tendik'));
                 }
             })
             .withFailureHandler(err => {
                 hideLoading();
-                document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">Gagal koneksi: ${err}</td></tr>`;
+                document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-500">Gagal koneksi: ${err}</td></tr>`;
                 showAlert('error', 'Gagal memuat data tendik: ' + err);
             })
             .getTendikList(currentUser ? currentUser.token : null);
