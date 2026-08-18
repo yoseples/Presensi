@@ -1171,6 +1171,7 @@
                                             <i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i>
                                         </div>
                                     </th>
+                                    <th class="p-3 text-center">Kata Sandi</th>
                                     <th class="p-3 text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -1362,6 +1363,7 @@
                                   <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('tendik', 'username')" data-sort-type="tendik" data-sort-col="username">
                                       <div class="flex items-center gap-1"><span>Username</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
                                   </th>
+                                  <th class="p-3 text-center">Kata Sandi</th>
                                   <th class="p-3 text-center">Aksi</th>
                               </tr>
                           </thead>
@@ -2133,7 +2135,7 @@
 
       getSiswaList: async () => {
         const list = await getDB('siswa');
-        return { success: true, data: list };
+        return { success: true, data: list.map(s => ({ ...s, password: s.password || s.nisn })) };
       },
 
       addSiswa: async (token, siswaData) => {
@@ -4871,10 +4873,12 @@
     function renderSiswaRows(data, startIdx) {
         const tbody = document.getElementById('tbody-siswa');
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-400">Data siswa tidak ditemukan.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-400">Data siswa tidak ditemukan.</td></tr>';
             return;
         }
-        tbody.innerHTML = data.map((siswa, i) => `
+        tbody.innerHTML = data.map((siswa, i) => {
+            const passVal = siswa.password || siswa.nisn;
+            return `
         <tr class="hover:bg-gray-50 transition border-b border-gray-100 group">
             <td class="p-4 text-center text-gray-500 text-sm">${startIdx + i + 1}</td>
             <td class="p-4">
@@ -4891,16 +4895,23 @@
             <td class="p-4 hidden md:table-cell text-sm text-gray-600 font-mono">${siswa.nisn}</td>
             <td class="p-4 hidden sm:table-cell"><span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-100">${siswa.kelas}</span></td>
             <td class="p-4 text-center">
+                <span id="pass-siswa-${i}" class="font-mono text-xs text-indigo-800 bg-indigo-50/80 px-2.5 py-1 rounded-lg border border-indigo-200 inline-flex items-center gap-1.5 cursor-pointer hover:bg-indigo-100 transition shadow-2xs select-none" onclick="togglePasswordCell('pass-siswa-${i}', '${passVal}')" title="Klik untuk intip / sembunyikan kata sandi">
+                    <span class="pass-text font-bold">••••••••</span>
+                    <i class="fas fa-eye text-[11px] text-indigo-500"></i>
+                </span>
+            </td>
+            <td class="p-4 text-center">
                 <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
-                    <button onclick='viewSiswa(${JSON.stringify(siswa)})' class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition" title="Lihat Detail">
+                    <button onclick='viewSiswa(${JSON.stringify(siswa).replace(/'/g, "&apos;")})' class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition" title="Lihat Detail & Sandi">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button onclick='editSiswa(${JSON.stringify(siswa)})' class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button onclick='editSiswa(${JSON.stringify(siswa).replace(/'/g, "&apos;")})' class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit"><i class="fas fa-edit"></i></button>
                     <button onclick="deleteSiswaConfirm('${siswa.nisn}', '${siswa.nama}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition" title="Hapus"><i class="fas fa-trash"></i></button>
                     <button onclick="generateQRForSiswa('${siswa.nisn}', '${siswa.nama}', '${siswa.kelas}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition" title="QR Code"><i class="fas fa-qrcode"></i></button>
                 </div>
             </td>
-        </tr>`).join('');
+        </tr>`;
+        }).join('');
     }
 
     function loadDataGuru() {
@@ -4964,7 +4975,12 @@
                     ${guru.kelas ? `<span class="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg text-xs font-bold">${guru.kelas}</span>` : '<span class="text-gray-400 italic text-xs">-</span>'}
                 </td>
                 <td class="p-4 text-sm text-gray-600">${guru.noHp || '-'}</td>
-                <td class="p-4 text-sm text-gray-400 font-mono">••••••••</td>
+                <td class="p-4 text-center">
+                    <span id="pass-guru-${i}" class="font-mono text-xs text-purple-800 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200 inline-flex items-center gap-1.5 cursor-pointer hover:bg-purple-100 transition shadow-2xs select-none" onclick="togglePasswordCell('pass-guru-${i}', '${guru.password || '12345'}')" title="Klik untuk intip / sembunyikan kata sandi">
+                        <span class="pass-text font-bold">••••••••</span>
+                        <i class="fas fa-eye text-[11px] text-purple-500"></i>
+                    </span>
+                </td>
                 <td class="p-4 text-center">
                     <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
                         <button onclick="loadQRCodeGuru('${guru.nip || guru.username}', '${guru.nama || guru.username}', '${guru.jabatan || (guru.kelas ? 'Wali Kelas ' + guru.kelas : 'Guru SMANSA')}', '${guru.foto || ''}')" class="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition" title="Cetak Kartu Guru"><i class="fas fa-qrcode"></i></button>
@@ -6322,6 +6338,36 @@
         setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, 3000);
     }
 
+    function togglePasswordCell(elementId, realPassword) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        const textSpan = el.querySelector('.pass-text');
+        const icon = el.querySelector('i');
+        if (!textSpan) return;
+        if (textSpan.textContent === '••••••••') {
+            textSpan.textContent = realPassword || '-';
+            if (icon) icon.className = 'fas fa-eye-slash text-[11px] text-rose-500';
+            el.classList.add('bg-rose-50', 'border-rose-300', 'text-rose-900');
+        } else {
+            textSpan.textContent = '••••••••';
+            if (icon) icon.className = 'fas fa-eye text-[11px]';
+            el.classList.remove('bg-rose-50', 'border-rose-300', 'text-rose-900');
+        }
+    }
+
+    function copyTextToClipboard(text, label = 'Kata sandi') {
+        if (!text) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                showAlert('success', `${label} berhasil disalin! (${text})`);
+            }).catch(() => {
+                showAlert('info', `${label}: ${text}`);
+            });
+        } else {
+            showAlert('info', `${label}: ${text}`);
+        }
+    }
+
     function showAddSiswaModal() { showModal(createSiswaModal()); }
     function editSiswa(s) { showModal(createSiswaModal(s)); }
     function showAddGuruModal() { showModal(createGuruModal()); }
@@ -6484,6 +6530,22 @@
                         <p class="text-xs text-gray-700 leading-relaxed font-medium">
                             ${s.alamat || 'Alamat belum diisi.'}
                         </p>
+                    </div>
+                </div>
+
+                <!-- Informasi Akun & Password Siswa (Bisa Dilihat & Disalin Admin) -->
+                <div>
+                    <h4 class="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2.5 flex items-center gap-2">
+                        <i class="fas fa-key"></i> Informasi Akun & Kata Sandi
+                    </h4>
+                    <div class="bg-indigo-50/70 p-4 rounded-2xl border border-indigo-100 flex items-center justify-between gap-3 shadow-xs">
+                        <div>
+                            <p class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">Kata Sandi Akun Siswa</p>
+                            <p class="text-sm font-mono font-black text-indigo-950 mt-0.5">${s.password || s.nisn}</p>
+                        </div>
+                        <button onclick="copyTextToClipboard('${s.password || s.nisn}', 'Kata sandi siswa ${s.nama}')" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                            <i class="fas fa-copy"></i> Salin Sandi
+                        </button>
                     </div>
                 </div>
             </div>
@@ -6825,7 +6887,7 @@
         if (!tbody) return;
 
         if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-bold">Data tendik/staf tidak ditemukan.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 font-bold">Data tendik/staf tidak ditemukan.</td></tr>`;
             return;
         }
 
@@ -6843,6 +6905,12 @@
                 <td class="p-4"><span class="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg font-bold text-xs">${item.jabatan || 'Staf Kependidikan'}</span></td>
                 <td class="p-4 text-slate-600 text-sm">${item.noHp || '-'}</td>
                 <td class="p-4 text-slate-500 font-mono text-sm">${item.username}</td>
+                <td class="p-4 text-center">
+                    <span id="pass-tendik-${idx}" class="font-mono text-xs text-amber-900 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 inline-flex items-center gap-1.5 cursor-pointer hover:bg-amber-100 transition shadow-2xs select-none" onclick="togglePasswordCell('pass-tendik-${idx}', '${item.password || '12345'}')" title="Klik untuk intip / sembunyikan kata sandi">
+                        <span class="pass-text font-bold">••••••••</span>
+                        <i class="fas fa-eye text-[11px] text-amber-600"></i>
+                    </span>
+                </td>
                 <td class="p-4 text-center">
                     <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
                         <button onclick="loadQRCodeTendik('${item.nip || item.username}', '${item.nama || item.username}', '${item.jabatan || 'Staf Tendik'}', '${item.foto || ''}')" class="p-2 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition" title="Cetak Kartu Tendik"><i class="fas fa-qrcode"></i></button>

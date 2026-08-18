@@ -237,6 +237,22 @@ function getSiswaList() {
     const sheet = ss.getSheetByName('siswa');
     if (!sheet) return { success: true, data: [] };
     
+    // Mapping kata sandi akun siswa dari sheet users (jika pernah diubah)
+    const usersSheet = ss.getSheetByName('users');
+    const userPassMap = {};
+    if (usersSheet) {
+      const uData = usersSheet.getDataRange().getValues();
+      for (let j = 1; j < uData.length; j++) {
+        const uId = String(uData[j][0]).trim().toLowerCase();
+        const uNisn = uData[j][4] ? String(uData[j][4]).trim().toLowerCase() : '';
+        const uPass = String(uData[j][1] || '').trim();
+        if (uPass) {
+          if (uId) userPassMap[uId] = uPass;
+          if (uNisn) userPassMap[uNisn] = uPass;
+        }
+      }
+    }
+
     const data = sheet.getDataRange().getValues();
     const siswaList = [];
     
@@ -259,9 +275,13 @@ function getSiswaList() {
           }
         }
 
+        const nisnClean = String(data[i][1]).replace(/^'/, '').trim();
+        const customPass = userPassMap[nisnClean.toLowerCase()] || '';
+
         siswaList.push({
           nama: data[i][0],
-          nisn: String(data[i][1]).replace(/^'/, ''),
+          nisn: nisnClean,
+          password: customPass || nisnClean, // Password akun siswa (default NISN atau custom)
           jenisKelamin: data[i][2],
           tanggalLahir: tglLahir,
           agama: data[i][4],
