@@ -4157,7 +4157,7 @@
                     <span class="${ketStyle} inline-block whitespace-nowrap">${ketIcon}${ketText}</span>
                 </td>
                 <td class="py-3 px-4 text-center">
-                    <select onchange="changeAdmMonItemStatus('${staffId}', '${d.username || ''}', '${d.nama}', '${d.kelas}', '${d.role}', this)"
+                    <select onchange="changeAdmMonItemStatus('${escHtml(staffId)}', '${escHtml(d.username || '')}', '${escHtml(d.nama)}', '${escHtml(d.kelas)}', '${d.role}', this)"
                             class="text-[11px] font-bold py-1 px-2.5 rounded-xl border focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center cursor-pointer w-32 ${statusColor}">
                         <option value="Belum Absen" ${d.status === 'Belum Absen' ? 'selected' : ''}>Belum Absen</option>
                         <option value="Hadir" ${d.status === 'Hadir' ? 'selected' : ''}>Hadir</option>
@@ -4820,6 +4820,11 @@
         });
     }
 
+    // Utility: Escape string untuk aman digunakan di atribut HTML inline (onchange, onclick, dll)
+    function escHtml(str) {
+        return String(str || '').replace(/&/g, '&amp;').replace(/'/g, '&#39;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     function animateValue(id, start, end, duration) {
         const obj = document.getElementById(id);
         if(!obj) return;
@@ -5134,7 +5139,7 @@
             if (isAdmin) {
                 actionHtml = `
                 <div class="text-right shrink-0 flex flex-col items-end gap-1">
-                    <select onchange="changeStaffStatus('${staffId}', '${item.username}', '${item.nama}', '${item.jabatan}', '${isGuru ? 'guru' : 'tendik'}', this)"
+                    <select onchange="changeStaffStatus('${escHtml(staffId)}', '${escHtml(item.username)}', '${escHtml(item.nama)}', '${escHtml(item.jabatan)}', '${isGuru ? 'guru' : 'tendik'}', this)"
                             class="text-[11px] font-bold py-1 px-2.5 rounded-xl border focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center cursor-pointer ${statusBadge}">
                         <option value="Belum Absen" ${item.status === 'Belum Absen' ? 'selected' : ''}>Belum Absen</option>
                         <option value="Hadir" ${item.status === 'Hadir' ? 'selected' : ''}>Hadir</option>
@@ -6189,7 +6194,7 @@
                      <span class="${ketStyle} inline-block whitespace-nowrap">${ketIcon}${ketText}</span>
                 </td>
                 <td class="p-4 text-center relative">
-                    <select onchange="changeStatus('${d.nisn}', '${d.nama}', '${d.kelas}', this)" 
+                    <select onchange="changeStatus('${escHtml(d.nisn)}', '${escHtml(d.nama)}', '${escHtml(d.kelas)}', this)" 
                             class="text-xs font-bold py-1.5 px-3 rounded-xl border-0 focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center w-36 ${statusColor} ${cursorClass}"
                             ${disabledAttr}>
                         <option value="Belum Absen" ${d.status === 'Belum Absen' ? 'selected' : ''}>Belum Absen</option>
