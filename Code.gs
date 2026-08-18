@@ -435,30 +435,36 @@ function getGuruList(token) {
     const usersSheet = ss.getSheetByName('users');
     const guruList = [];
 
-    // Baca dari sheet guru jika ada
+    // Baca dari sheet guru jika ada (hanya guru, sembunyikan administrator)
     if (guruSheet) {
       const data = guruSheet.getDataRange().getValues();
       for (let i = 1; i < data.length; i++) {
         if (data[i][1]) {
-          guruList.push({
-            nip: String(data[i][0]).replace(/^'/, ''),
-            nama: data[i][1],
-            jabatan: data[i][2] || 'Guru SMANSA',
-            kelas: data[i][2] || '',
-            noHp: String(data[i][3]).replace(/^'/, ''),
-            username: String(data[i][4]),
-            password: String(data[i][5]),
-            role: 'guru'
-          });
+          const uRole = String(data[i][2] || 'guru').toLowerCase();
+          const uUsername = String(data[i][4] || '').toLowerCase();
+          if (uRole !== 'admin' && uUsername !== 'admin') {
+            guruList.push({
+              nip: String(data[i][0]).replace(/^'/, ''),
+              nama: data[i][1],
+              jabatan: data[i][2] || 'Guru SMANSA',
+              kelas: data[i][2] || '',
+              noHp: String(data[i][3]).replace(/^'/, ''),
+              username: String(data[i][4]),
+              password: String(data[i][5]),
+              role: 'guru'
+            });
+          }
         }
       }
     }
 
-    // Jika belum ada data dari sheet guru, baca dari sheet users
+    // Jika belum ada data dari sheet guru, baca dari sheet users (hanya role guru)
     if (guruList.length === 0 && usersSheet) {
       const data = usersSheet.getDataRange().getValues();
       for (let i = 1; i < data.length; i++) {
-        if (data[i][2] == 'guru' || data[i][2] == 'admin') {
+        const uRole = String(data[i][2] || '').toLowerCase();
+        const uUsername = String(data[i][0] || '').toLowerCase();
+        if (uRole === 'guru' && uUsername !== 'admin') {
           guruList.push({
             username: String(data[i][0]),
             password: String(data[i][1]),
@@ -473,7 +479,10 @@ function getGuruList(token) {
       }
     }
 
-    return { success: true, data: guruList };
+    // Pastikan akun admin tidak pernah muncul di list guru
+    const cleanList = guruList.filter(g => String(g.role || '').toLowerCase() !== 'admin' && String(g.username || '').toLowerCase() !== 'admin');
+
+    return { success: true, data: cleanList };
   } catch (error) {
     return { success: false, message: error.message };
   }

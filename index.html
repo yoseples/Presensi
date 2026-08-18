@@ -1851,10 +1851,7 @@
 
     const SEED_DATA = {
       siswa: [],
-      guru: [
-        { username: 'admin', password: 'admin123', role: 'admin', nama: 'Administrator', nip: '198001012005011001', jabatan: 'Kepala Tata Usaha', kelas: '', noHp: '081234567800' },
-        { username: 'mukhlis', password: 'admin123', role: 'admin', nama: 'MUHAMMAD MUKHLIS', nip: '198904152026211006', jabatan: 'Administrator', kelas: '', noHp: '081234567808' }
-      ],
+      guru: [],
       tendik: [],
       config: {
         jam_masuk_mulai: '06:30',
@@ -2176,7 +2173,8 @@
 
       getGuruList: async (token) => {
         const list = await getDB('guru');
-        return { success: true, data: list };
+        const onlyGuru = list.filter(g => String(g.role || '').toLowerCase() !== 'admin' && String(g.username || '').toLowerCase() !== 'admin');
+        return { success: true, data: onlyGuru };
       },
 
       addGuru: async (token, guruData) => {
@@ -2974,6 +2972,10 @@
         const state = tableState[type];
         if (!state) return;
         let result = [...state.fullData];
+
+        if (type === 'guru') {
+            result = result.filter(item => String(item.role || '').toLowerCase() !== 'admin' && String(item.username || '').toLowerCase() !== 'admin');
+        }
 
         if ((type === 'siswa' || type === 'guru') && state.classFilter) {
             result = result.filter(item => String(item.kelas || '').trim() === String(state.classFilter).trim());
@@ -4925,7 +4927,7 @@
 
             google.script.run.withSuccessHandler(result => {
                 if (result.success) {
-                    tableState.guru.fullData = result.data;
+                    tableState.guru.fullData = (result.data || []).filter(g => String(g.role || '').toLowerCase() !== 'admin' && String(g.username || '').toLowerCase() !== 'admin');
                     processTableData('guru');
                 } else {
                     document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
