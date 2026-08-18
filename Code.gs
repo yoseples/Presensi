@@ -96,10 +96,10 @@ function login(username, password, nisn) {
         const userData = usersSheet.getDataRange().getValues();
         for (let i = 1; i < userData.length; i++) {
           const uUsername = String(userData[i][0]).trim().toLowerCase();
-          const uPassword = String(userData[i][1]).trim();
+          const uPassword = String(userData[i][1]).replace(/^'/, '').trim();
           const uNip = userData[i][4] ? String(userData[i][4]).trim() : '';
 
-          if ((uUsername === targetUser.toLowerCase() || uNip === targetUser) && (uPassword === targetPass || targetPass === '12345' || targetPass === 'admin123' || targetPass === 'guru123' || targetPass === 'tendik123')) {
+          if ((uUsername === targetUser.toLowerCase() || uNip === targetUser) && uPassword === targetPass) {
             userFound = {
               role: userData[i][2] || 'guru',
               identifier: userData[i][0], // Username
@@ -121,9 +121,9 @@ function login(username, password, nisn) {
           const gNip = String(gData[i][0]).trim();
           const gName = String(gData[i][1]).trim();
           const gUser = String(gData[i][4] || '').trim().toLowerCase();
-          const gPass = String(gData[i][5] || '').trim();
+          const gPass = String(gData[i][5] || '').replace(/^'/, '').trim();
 
-          if ((gUser === targetUser.toLowerCase() || gNip === targetUser) && (gPass === targetPass || targetPass === '12345' || targetPass === 'guru123')) {
+          if ((gUser === targetUser.toLowerCase() || gNip === targetUser) && gPass === targetPass) {
             userFound = {
               role: 'guru',
               identifier: gUser || gNip,
@@ -145,9 +145,9 @@ function login(username, password, nisn) {
           const tNip = String(tData[i][0]).trim();
           const tName = String(tData[i][1]).trim();
           const tUser = String(tData[i][4] || '').trim().toLowerCase();
-          const tPass = String(tData[i][5] || '').trim();
+          const tPass = String(tData[i][5] || '').replace(/^'/, '').trim();
 
-          if ((tUser === targetUser.toLowerCase() || tNip === targetUser) && (tPass === targetPass || targetPass === '12345' || targetPass === 'tendik123')) {
+          if ((tUser === targetUser.toLowerCase() || tNip === targetUser) && tPass === targetPass) {
             userFound = {
               role: 'tendik',
               identifier: tUser || tNip,

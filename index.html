@@ -2010,7 +2010,7 @@
           const guruList = await getDB('guru');
           const guru = guruList.find(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
           if (guru) {
-            if (guru.password === inputPass || inputPass === '12345' || inputPass === 'admin123' || inputPass === 'guru123') {
+            if (guru.password === inputPass) {
               userResult = {
                 success: true,
                 role: guru.role,
@@ -2035,7 +2035,7 @@
           const tendikList = await getDB('tendik');
           const tendik = tendikList.find(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
           if (tendik) {
-            if (tendik.password === inputPass || inputPass === '12345' || inputPass === 'tendik123') {
+            if (tendik.password === inputPass) {
               userResult = {
                 success: true,
                 role: 'tendik',
@@ -2325,6 +2325,7 @@
         if (siswa) {
           if (newU) siswa.username = newU;
           if (cleanNama) siswa.nama = cleanNama;
+          if (newPassword) siswa.password = newPassword;
           await setDB('siswa', siswaList);
         }
 
