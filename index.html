@@ -121,12 +121,32 @@
     .view-section { display: none; }
     .view-section.active { display: block; }
 
+    /* Zero-FOUC (Flash of Unstyled/Login Content) state handling */
+    html.app-has-session #loginPage { display: none !important; }
+    html.app-has-session #dashboardContainer { display: flex !important; }
+
     /* Live Scanner Camera Stream Video */
     #reader { width: 100% !important; border: none !important; }
     #reader video { width: 100% !important; height: 100% !important; object-fit: cover !important; border-radius: 1rem !important; }
     #reader__scan_region { border-radius: 1rem !important; }
     #reader__scan_region img { display: none !important; }
   </style>
+
+  <!-- Instant Early Session Loader (Zero-Flicker on Refresh) -->
+  <script>
+    (function() {
+      try {
+        var s = localStorage.getItem('absensiAppSession');
+        if (s) {
+          var d = JSON.parse(s);
+          if (d && d.success && d.role) {
+            document.documentElement.classList.add('app-has-session');
+            window.__PRE_SESSION = d;
+          }
+        }
+      } catch(e){}
+    })();
+  </script>
 </head>
 <body class="bg-slate-900 font-sans antialiased text-slate-800 selection:bg-indigo-500 selection:text-white overflow-x-hidden">
 
@@ -250,10 +270,10 @@
      
           <div class="p-4 overflow-hidden transition-all duration-300">
               <div id="userProfileCard" onclick="showUserProfileAndSecurityModal()" class="flex items-center space-x-3 p-3 bg-white/5 hover:bg-white/10 active:scale-95 rounded-2xl border border-white/10 transition-all duration-300 overflow-hidden cursor-pointer group" title="Klik untuk lihat Profil & Akun">
-                  <div id="navUserInitial" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-sm shadow-inner shrink-0 text-white group-hover:scale-105 transition-transform">U</div>
+                  <div id="navUserInitial" class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-sm shadow-inner shrink-0 text-white group-hover:scale-105 transition-transform"><i class="fas fa-user text-xs opacity-60"></i></div>
                   <div id="userInfo" class="sidebar-label transition-opacity duration-300 whitespace-nowrap overflow-hidden">
-                      <p id="navUserName" class="font-semibold text-xs truncate text-white max-w-[130px]">User</p>
-                      <span id="navUserRole" class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-indigo-950 text-indigo-300 border border-indigo-800/60 tracking-wider">Role</span>
+                      <p id="navUserName" class="font-semibold text-xs truncate text-white max-w-[130px]"></p>
+                      <span id="navUserRole" class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-indigo-950 text-indigo-300 border border-indigo-800/60 tracking-wider"></span>
                   </div>
               </div>
           </div>
@@ -3288,27 +3308,45 @@
     }
 
     function checkSession() {
-        const storedSession = localStorage.getItem('absensiAppSession');
-        if (storedSession) {
-            try {
-                const sessionData = JSON.parse(storedSession);
-                if (sessionData && sessionData.success) {
-                    currentUser = sessionData;
-                    document.getElementById('loginPage').classList.add('hidden');
-                    document.getElementById('dashboardContainer').classList.remove('hidden');
-                    
-                    if (window.innerWidth < 768) {
-                         document.getElementById('sidebar').classList.add('-translate-x-full');
-                    }
-                    
-                    ensureActiveSessionLogged(currentUser).finally(() => {
-                        initDashboard();
-                    });
-                    return;
+        let sessionData = window.__PRE_SESSION;
+        if (!sessionData) {
+            const storedSession = localStorage.getItem('absensiAppSession');
+            if (storedSession) {
+                try {
+                    sessionData = JSON.parse(storedSession);
+                } catch (e) {
+                    localStorage.removeItem('absensiAppSession');
                 }
-            } catch (e) {
-                localStorage.removeItem('absensiAppSession');
             }
+        }
+
+        if (sessionData && sessionData.success && sessionData.role) {
+            currentUser = sessionData;
+            document.documentElement.classList.add('app-has-session');
+            
+            const loginPage = document.getElementById('loginPage');
+            const dashboardContainer = document.getElementById('dashboardContainer');
+            if (loginPage) loginPage.classList.add('hidden');
+            if (dashboardContainer) dashboardContainer.classList.remove('hidden');
+            
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) sidebar.classList.add('-translate-x-full');
+            }
+            
+            // Inisialisasi UI dashboard secara instan dan sinkron
+            initDashboard();
+            
+            // Catat sesi aktif di background tanpa memblokir rendering UI
+            ensureActiveSessionLogged(currentUser);
+            return;
+        } else {
+            currentUser = null;
+            document.documentElement.classList.remove('app-has-session');
+            const loginPage = document.getElementById('loginPage');
+            const dashboardContainer = document.getElementById('dashboardContainer');
+            if (loginPage) loginPage.classList.remove('hidden');
+            if (dashboardContainer) dashboardContainer.classList.add('hidden');
         }
     }
 
