@@ -810,9 +810,9 @@ function scanAbsensi(nisn, scannerRole, scannerKelas, userLat, userLng, scannerU
       jam_masuk_akhir: '07:15',
       jam_pulang_mulai: '15:00',
       jam_pulang_akhir: '17:00',
-      lokasi_lat: '5.048744',
-      lokasi_lng: '97.288285',
-      radius_meter: '500'
+      lokasi_lat: '5.0505556',
+      lokasi_lng: '97.3358611',
+      radius_meter: '200'
     };
 
     // Cek Hari Libur
@@ -897,11 +897,11 @@ function scanAbsensi(nisn, scannerRole, scannerKelas, userLat, userLng, scannerU
         return { success: false, message: 'Presensi Guru dan Tendik hanya dapat dilakukan melalui Presensi Mandiri (GPS) atau dipindai oleh Administrator.' };
       }
 
-      // Validasi GPS Radius Wajib untuk Guru & Tendik
+      // Validasi GPS Radius Wajib untuk Guru & Tendik (Maksimal 200 Meter)
       if (isSelfPresensi) {
-        const targetLat = parseFloat(config.lokasi_lat || '5.048744');
-        const targetLng = parseFloat(config.lokasi_lng || '97.288285');
-        const maxRadius = parseFloat(config.radius_meter || '500');
+        const targetLat = parseFloat(config.lokasi_lat || '5.0505556');
+        const targetLng = parseFloat(config.lokasi_lng || '97.3358611');
+        const maxRadius = parseFloat(config.radius_meter || '200');
         const dist = calculateDistanceInMeters(parseFloat(userLat), parseFloat(userLng), targetLat, targetLng);
 
         if (dist > maxRadius) {
@@ -1497,9 +1497,9 @@ function getAppConfig() {
       jam_masuk_akhir: '07:15',
       jam_pulang_mulai: '15:00',
       jam_pulang_akhir: '17:00',
-      lokasi_lat: '5.048744',
-      lokasi_lng: '97.288285',
-      radius_meter: '500'
+      lokasi_lat: '5.0505556',
+      lokasi_lng: '97.3358611',
+      radius_meter: '200'
     };
     
     if (sheet) {
@@ -1533,9 +1533,9 @@ function saveAppConfig(newConfig) {
       sheet.appendRow(['jam_masuk_akhir', '07:15', 'Jam Masuk Akhir (Terlambat)']);
       sheet.appendRow(['jam_pulang_mulai', '15:00', 'Jam Pulang Mulai']);
       sheet.appendRow(['jam_pulang_akhir', '17:00', 'Jam Pulang Akhir']);
-      sheet.appendRow(['lokasi_lat', '5.048744', 'Latitude Sekolah']);
-      sheet.appendRow(['lokasi_lng', '97.288285', 'Longitude Sekolah']);
-      sheet.appendRow(['radius_meter', '500', 'Radius Maksimal GPS (Meter)']);
+      sheet.appendRow(['lokasi_lat', '5.0505556', 'Latitude Sekolah']);
+      sheet.appendRow(['lokasi_lng', '97.3358611', 'Longitude Sekolah']);
+      sheet.appendRow(['radius_meter', '200', 'Radius Maksimal GPS (Meter)']);
     }
     
     const data = sheet.getDataRange().getValues();
@@ -1851,9 +1851,9 @@ function setupInitialData() {
       configSheet.appendRow(['jam_masuk_akhir', '07:15', 'Batas waktu terlambat']);
       configSheet.appendRow(['jam_pulang_mulai', '15:00', 'Waktu absen pulang dibuka']);
       configSheet.appendRow(['jam_pulang_akhir', '17:00', 'Batas akhir absen pulang']);
-      configSheet.appendRow(['lokasi_lat', '5.048744', 'Latitude Titik Pusat Sekolah']);
-      configSheet.appendRow(['lokasi_lng', '97.288285', 'Longitude Titik Pusat Sekolah']);
-      configSheet.appendRow(['radius_meter', '500', 'Radius Maksimal GPS (Meter)']);
+      configSheet.appendRow(['lokasi_lat', '5.0505556', 'Latitude Titik Pusat Sekolah']);
+      configSheet.appendRow(['lokasi_lng', '97.3358611', 'Longitude Titik Pusat Sekolah']);
+      configSheet.appendRow(['radius_meter', '200', 'Radius Maksimal GPS (Meter)']);
     }
 
     return { success: true, message: 'Setup database SMANSA Lhoksukon (Siswa, Guru, Tendik, Users) berhasil!' };

@@ -781,7 +781,7 @@
                               <i class="fas fa-map-marker-alt text-indigo-600 text-lg"></i>
                               <div>
                                   <p class="font-bold">Informasi Presensi Guru (Anti-Fraud GPS):</p>
-                                  <p class="text-[11px] text-indigo-700">Presensi mandiri guru <b>wajib mengaktifkan GPS lokasi</b> dan berada dalam radius area sekolah SMA Negeri 1 Lhoksukon.</p>
+                                  <p class="text-[11px] text-indigo-700">Presensi mandiri guru <b>wajib mengaktifkan GPS lokasi</b> dan berada dalam radius maksimal <b>200 meter</b> dari SMA Negeri 1 Lhoksukon (5°03'02.0"N 97°20'09.1"E).</p>
                               </div>
                           </div>
                       </div>
@@ -1080,7 +1080,7 @@
                               <i class="fas fa-map-marker-alt text-amber-600 text-lg"></i>
                               <div>
                                   <p class="font-bold">Info Presensi Staf (Anti-Fraud GPS):</p>
-                                  <p class="text-[11px] text-amber-700">Presensi mandiri staf tendik <b>wajib mengaktifkan GPS lokasi</b> dan berada dalam radius area sekolah SMA Negeri 1 Lhoksukon.</p>
+                                  <p class="text-[11px] text-amber-700">Presensi mandiri staf tendik <b>wajib mengaktifkan GPS lokasi</b> dan berada dalam radius maksimal <b>200 meter</b> dari SMA Negeri 1 Lhoksukon (5°03'02.0"N 97°20'09.1"E).</p>
                               </div>
                           </div>
                       </div>
@@ -1422,6 +1422,29 @@
                                                 </div>
                                             </div>
                                             <p class="text-[10px] text-orange-500 mt-1.5"><i class="fas fa-info-circle"></i> Pulang sebelum dibuka: <b>Pulang Cepat</b></p>
+                                        </div>
+
+                                        <!-- Pengaturan Titik Lokasi GPS & Radius Sekolah -->
+                                        <div class="bg-indigo-50/60 p-3.5 rounded-xl border border-indigo-100">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <p class="text-[10px] uppercase font-bold text-indigo-700">Titik GPS & Radius Sekolah</p>
+                                                <span class="text-[9px] font-bold bg-indigo-200 text-indigo-800 px-1.5 py-0.5 rounded">5°03'02.0"N 97°20'09.1"E</span>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                                <div>
+                                                    <label class="block text-[11px] font-bold text-gray-700 mb-1">Latitude</label>
+                                                    <input type="text" id="conf_lokasi_lat" name="lokasi_lat" value="5.0505556" required class="w-full border-gray-300 rounded-lg text-xs p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[11px] font-bold text-gray-700 mb-1">Longitude</label>
+                                                    <input type="text" id="conf_lokasi_lng" name="lokasi_lng" value="97.3358611" required class="w-full border-gray-300 rounded-lg text-xs p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-bold text-gray-700 mb-1">Radius Maksimal (Meter)</label>
+                                                <input type="number" id="conf_radius_meter" name="radius_meter" value="200" min="10" max="5000" required class="w-full border-gray-300 rounded-lg text-xs p-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold text-indigo-800">
+                                            </div>
+                                            <p class="text-[10px] text-rose-600 mt-1.5 font-medium"><i class="fas fa-shield-alt mr-1"></i>Presensi mandiri guru & tendik <b>ditolak jika &gt; 200 meter</b>.</p>
                                         </div>
                                     </div>
                                     
@@ -1838,9 +1861,9 @@
         jam_masuk_akhir: '07:15',
         jam_pulang_mulai: '15:00',
         jam_pulang_akhir: '17:00',
-        lokasi_lat: '5.048744',
-        lokasi_lng: '97.288285',
-        radius_meter: '500'
+        lokasi_lat: '5.0505556',
+        lokasi_lng: '97.3358611',
+        radius_meter: '200'
       },
       libur: [
         { tanggal: '2026-08-17', keterangan: 'HUT Kemerdekaan RI' },
@@ -2480,9 +2503,9 @@
           }
 
           if (isSelfPresensi) {
-            const targetLat = parseFloat(config.lokasi_lat || '5.048744');
-            const targetLng = parseFloat(config.lokasi_lng || '97.288285');
-            const maxRadius = parseFloat(config.radius_meter || '500');
+            const targetLat = parseFloat(config.lokasi_lat || '5.0505556');
+            const targetLng = parseFloat(config.lokasi_lng || '97.3358611');
+            const maxRadius = parseFloat(config.radius_meter || '200');
             const dist = getDistance(parseFloat(userLat), parseFloat(userLng), targetLat, targetLng);
             if (dist > maxRadius) {
               return { success: false, message: `Presensi DITOLAK. Anda berada di luar radius sekolah (${dist} meter dari lokasi sekolah, batas maksimal ${maxRadius} meter).` };
@@ -2557,9 +2580,9 @@
           }
 
           if (isSelfPresensi) {
-            const targetLat = parseFloat(config.lokasi_lat || '5.048744');
-            const targetLng = parseFloat(config.lokasi_lng || '97.288285');
-            const maxRadius = parseFloat(config.radius_meter || '500');
+            const targetLat = parseFloat(config.lokasi_lat || '5.0505556');
+            const targetLng = parseFloat(config.lokasi_lng || '97.3358611');
+            const maxRadius = parseFloat(config.radius_meter || '200');
             const dist = getDistance(parseFloat(userLat), parseFloat(userLng), targetLat, targetLng);
             if (dist > maxRadius) {
               return { success: false, message: `Presensi DITOLAK. Anda berada di luar radius sekolah (${dist} meter dari lokasi sekolah, batas maksimal ${maxRadius} meter).` };
@@ -4498,7 +4521,7 @@
     }
 
     function loadGlobalConfig() {
-        const inputs = document.querySelectorAll('#view-kelola-absen input[type="time"]');
+        const inputs = document.querySelectorAll('#view-kelola-absen input');
         inputs.forEach(el => el.disabled = true);
 
         google.script.run.withSuccessHandler(res => {
@@ -4509,6 +4532,9 @@
                 document.getElementById('conf_masuk_akhir').value = conf.jam_masuk_akhir || '07:15';
                 document.getElementById('conf_pulang_mulai').value = conf.jam_pulang_mulai || '15:00';
                 document.getElementById('conf_pulang_akhir').value = conf.jam_pulang_akhir || '17:00';
+                if (document.getElementById('conf_lokasi_lat')) document.getElementById('conf_lokasi_lat').value = conf.lokasi_lat || '5.0505556';
+                if (document.getElementById('conf_lokasi_lng')) document.getElementById('conf_lokasi_lng').value = conf.lokasi_lng || '97.3358611';
+                if (document.getElementById('conf_radius_meter')) document.getElementById('conf_radius_meter').value = conf.radius_meter || '200';
             }
         }).getAppConfig();
     }
@@ -4526,14 +4552,17 @@
             jam_masuk_mulai: formData.get('jam_masuk_mulai'),
             jam_masuk_akhir: formData.get('jam_masuk_akhir'),
             jam_pulang_mulai: formData.get('jam_pulang_mulai'),
-            jam_pulang_akhir: formData.get('jam_pulang_akhir')
+            jam_pulang_akhir: formData.get('jam_pulang_akhir'),
+            lokasi_lat: formData.get('lokasi_lat') || '5.0505556',
+            lokasi_lng: formData.get('lokasi_lng') || '97.3358611',
+            radius_meter: formData.get('radius_meter') || '200'
         };
 
         google.script.run.withSuccessHandler(res => {
             btn.disabled = false;
             btn.innerHTML = originalText;
             if(res.success) {
-                showAlert('success', 'Pengaturan waktu berhasil disimpan!');
+                showAlert('success', 'Pengaturan waktu & GPS (Radius 200m) berhasil disimpan!');
             } else {
                 showAlert('error', res.message);
             }
