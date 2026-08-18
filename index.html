@@ -694,7 +694,7 @@
                                       <th class="py-3 px-4 w-12 text-center">No</th>
                                       <th class="py-3 px-4">Pengguna</th>
                                       <th class="py-3 px-4">Peran & Jabatan</th>
-                                      <th class="py-3 px-4">Perangkat & Browser</th>
+                                      <th class="py-3 px-4">Merk & Tipe Perangkat</th>
                                       <th class="py-3 px-4">Waktu Login</th>
                                       <th class="py-3 px-4 text-center">Status Sesi</th>
                                       <th class="py-3 px-4 text-center">Aksi</th>
@@ -3088,6 +3088,10 @@
                 logs.unshift(logEntry);
                 if (logs.length > 300) logs = logs.slice(0, 300);
                 await setDB('login_logs', logs);
+            } else {
+                // Selalu perbarui informasi merk & tipe perangkat sesi aktif agar mutakhir
+                existingActive.device = dev;
+                await setDB('login_logs', logs);
             }
         } catch(e) {
             console.warn('ensureActiveSessionLogged notice:', e);
@@ -3251,50 +3255,130 @@
         showAlert('success', `Akun ${username} siap digunakan. Klik Masuk.`);
     }
 
+    // Inisialisasi deteksi Client Hints untuk merk dan tipe perangkat
+    (function initDeviceModelHints() {
+      try {
+        if (navigator.userAgentData && typeof navigator.userAgentData.getHighEntropyValues === 'function') {
+          navigator.userAgentData.getHighEntropyValues(['model', 'platform', 'platformVersion', 'architecture'])
+            .then(hints => {
+              if (hints && hints.model) {
+                window.__exactDeviceModel = hints.model;
+                localStorage.setItem('absensi_device_model', hints.model);
+              }
+            })
+            .catch(() => {});
+        }
+      } catch(e) {}
+    })();
+
     function getDeviceInformation() {
       const ua = navigator.userAgent || '';
+      let brand = 'Lainnya';
+      let model = 'Perangkat Standar';
       let os = 'Lainnya';
       let browser = 'Browser Web';
       let type = 'Desktop';
       let icon = 'fa-laptop';
 
-      // 1. Detect OS
-      if (/android/i.test(ua)) {
-        os = 'Android';
-        const match = ua.match(/Android\s([0-9\.]+)/i);
-        if (match) os = 'Android ' + match[1];
-        type = 'Mobile';
-        icon = 'fa-mobile-alt';
-      } else if (/iPhone/i.test(ua)) {
-        os = 'iOS (iPhone)';
-        const match = ua.match(/OS\s([0-9_\.]+)/i);
-        if (match) os = 'iOS ' + match[1].replace(/_/g, '.');
+      const cachedModel = window.__exactDeviceModel || localStorage.getItem('absensi_device_model') || '';
+
+      // 1. Deteksi OS & Brand & Model Perangkat
+      if (/iPhone/i.test(ua)) {
+        brand = 'Apple';
+        const osMatch = ua.match(/OS\s([0-9_\.]+)/i);
+        const osVer = osMatch ? 'iOS ' + osMatch[1].replace(/_/g, '.') : 'iOS';
+        os = osVer;
+        model = 'Apple iPhone';
         type = 'Mobile';
         icon = 'fa-mobile-alt';
       } else if (/iPad/i.test(ua)) {
+        brand = 'Apple';
+        model = 'Apple iPad';
         os = 'iPadOS';
         type = 'Tablet';
         icon = 'fa-tablet-alt';
-      } else if (/Windows/i.test(ua)) {
-        os = 'Windows';
-        if (/Windows NT 10.0/i.test(ua)) os = 'Windows 10/11';
-        else if (/Windows NT 6.3/i.test(ua)) os = 'Windows 8.1';
-        else if (/Windows NT 6.1/i.test(ua)) os = 'Windows 7';
-        type = 'Desktop';
-        icon = 'fa-laptop';
       } else if (/Macintosh|Mac OS X/i.test(ua)) {
-        os = 'macOS';
+        brand = 'Apple';
+        model = 'Apple Mac / MacBook';
         const match = ua.match(/Mac OS X\s([0-9_\.]+)/i);
-        if (match) os = 'macOS ' + match[1].replace(/_/g, '.');
+        os = match ? 'macOS ' + match[1].replace(/_/g, '.') : 'macOS';
         type = 'Desktop';
         icon = 'fa-laptop';
-      } else if (/Linux/i.test(ua)) {
+      } else if (/Windows/i.test(ua)) {
+        brand = 'PC / Laptop';
+        if (/Windows NT 10.0/i.test(ua)) { os = 'Windows 10/11'; model = 'Komputer Windows 10/11'; }
+        else if (/Windows NT 6.3/i.test(ua)) { os = 'Windows 8.1'; model = 'Komputer Windows 8.1'; }
+        else if (/Windows NT 6.1/i.test(ua)) { os = 'Windows 7'; model = 'Komputer Windows 7'; }
+        else { os = 'Windows'; model = 'Komputer Windows PC'; }
+        type = 'Desktop';
+        icon = 'fa-laptop';
+      } else if (/CrOS/i.test(ua)) {
+        brand = 'Google';
+        model = 'Chromebook';
+        os = 'ChromeOS';
+        type = 'Desktop';
+        icon = 'fa-laptop';
+      } else if (/Linux/i.test(ua) && !/Android/i.test(ua)) {
+        brand = 'Linux PC';
+        model = 'Komputer Linux';
         os = 'Linux';
         type = 'Desktop';
         icon = 'fa-laptop';
+      } else if (/Android/i.test(ua)) {
+        type = 'Mobile';
+        icon = 'fa-mobile-alt';
+        const match = ua.match(/Android\s([0-9\.]+)/i);
+        os = match ? 'Android ' + match[1] : 'Android';
+
+        let rawModel = cachedModel;
+        if (!rawModel) {
+          const m = ua.match(/Android\s[^;]+;\s*([^;)]+?)(?:\s*Build|[;)])/i);
+          if (m && m[1]) rawModel = m[1].trim();
+        }
+
+        // Parsing brand populer Android di Indonesia
+        if (/SM-|GT-|SCH-|SGH-|SHV-|Samsung/i.test(rawModel) || /Samsung/i.test(ua)) {
+          brand = 'Samsung';
+          model = rawModel.startsWith('SM-') ? `Samsung Galaxy (${rawModel})` : (rawModel || 'Samsung Galaxy');
+        } else if (/Redmi|POCO|Mi\s|Xiaomi/i.test(rawModel) || /Redmi|POCO|Xiaomi/i.test(ua)) {
+          brand = 'Xiaomi';
+          model = rawModel || 'Xiaomi Smartphone';
+        } else if (/CPH|PCH|OPPO|Reno|Find/i.test(rawModel) || /OPPO/i.test(ua)) {
+          brand = 'OPPO';
+          model = rawModel.startsWith('CPH') ? `OPPO (${rawModel})` : (rawModel || 'OPPO Smartphone');
+        } else if (/vivo|V2[0-9]|V1[0-9]|Y1[0-9]|Y2[0-9]|Y3[0-9]|IQOO/i.test(rawModel) || /vivo/i.test(ua)) {
+          brand = 'Vivo';
+          model = rawModel || 'Vivo Smartphone';
+        } else if (/RMX|realme/i.test(rawModel) || /realme/i.test(ua)) {
+          brand = 'Realme';
+          model = rawModel.startsWith('RMX') ? `Realme (${rawModel})` : (rawModel || 'Realme Smartphone');
+        } else if (/Infinix|X6[0-9]|X5[0-9]|Hot|Smart|Note/i.test(rawModel) || /Infinix/i.test(ua)) {
+          brand = 'Infinix';
+          model = rawModel || 'Infinix Smartphone';
+        } else if (/TECNO|Spark|Pova|Camon/i.test(rawModel) || /TECNO/i.test(ua)) {
+          brand = 'Tecno';
+          model = rawModel || 'Tecno Smartphone';
+        } else if (/itel|Vision|A60|P40/i.test(rawModel) || /itel/i.test(ua)) {
+          brand = 'Itel';
+          model = rawModel || 'Itel Smartphone';
+        } else if (/Pixel/i.test(rawModel) || /Pixel/i.test(ua)) {
+          brand = 'Google';
+          model = rawModel || 'Google Pixel';
+        } else if (/HUAWEI|HONOR|DRA-|ANE-|VOG-|POT-/i.test(rawModel) || /HUAWEI/i.test(ua)) {
+          brand = 'Huawei';
+          model = rawModel || 'Huawei Smartphone';
+        } else if (/ASUS|ROG|Zenfone/i.test(rawModel) || /ASUS/i.test(ua)) {
+          brand = 'Asus';
+          model = rawModel || 'Asus Smartphone';
+        } else {
+          brand = 'Android';
+          model = rawModel || 'Smartphone Android';
+        }
       }
 
-      // 2. Detect Wrapper / Browser
+      const merkDanTipe = (model.toLowerCase().includes(brand.toLowerCase()) ? model : `${brand} ${model}`).trim();
+
+      // 2. Deteksi Wrapper / Browser
       const isCapacitor = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
       const isStandalonePWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
@@ -3318,14 +3402,36 @@
         browser = 'Opera';
       }
 
+      // 3. Ekstraksi Spesifikasi Hardware & Layar
+      let gpu = '';
+      try {
+        const glCanvas = document.createElement('canvas');
+        const gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
+        if (gl) {
+          const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+          if (dbg) {
+            gpu = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || '';
+            gpu = gpu.replace(/ANGLE \((.*?)\)/, '$1').replace(/Direct3D.*?vs_.*?,/g, '').replace(/OpenGL.*?/, '').trim();
+          }
+        }
+      } catch(e) {}
+
+      const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency}-Core` : '';
+      const ram = navigator.deviceMemory ? `${navigator.deviceMemory}GB RAM` : '';
+      const hardware = [cores, ram, gpu].filter(Boolean).join(' • ');
+
       return {
+        brand: brand,
+        model: model,
+        merkDanTipe: merkDanTipe,
         os: os,
         browser: browser,
         type: type,
         icon: icon,
-        fullString: `${os} - ${browser}`,
-        userAgent: ua,
-        screen: `${window.screen.width}x${window.screen.height}`
+        fullString: `${merkDanTipe} • ${os} • ${browser}`,
+        hardware: hardware,
+        screen: `${window.screen.width}x${window.screen.height}`,
+        userAgent: ua
       };
     }
 
@@ -3695,12 +3801,17 @@
         const statusFilter = document.getElementById('filterLogStatus') ? document.getElementById('filterLogStatus').value : 'Semua';
 
         const filtered = logs.filter(item => {
+            const dev = item.device || {};
             const matchSearch = !search || 
                 (item.nama && item.nama.toLowerCase().includes(search)) ||
                 (item.username && item.username.toLowerCase().includes(search)) ||
                 (item.userId && String(item.userId).toLowerCase().includes(search)) ||
-                (item.device && item.device.fullString && item.device.fullString.toLowerCase().includes(search)) ||
-                (item.device && item.device.os && item.device.os.toLowerCase().includes(search));
+                (dev.brand && dev.brand.toLowerCase().includes(search)) ||
+                (dev.model && dev.model.toLowerCase().includes(search)) ||
+                (dev.merkDanTipe && dev.merkDanTipe.toLowerCase().includes(search)) ||
+                (dev.fullString && dev.fullString.toLowerCase().includes(search)) ||
+                (dev.os && dev.os.toLowerCase().includes(search)) ||
+                (dev.browser && dev.browser.toLowerCase().includes(search));
 
             const matchRole = (roleFilter === 'Semua') || (item.role === roleFilter);
             const matchStatus = (statusFilter === 'Semua') || 
@@ -3736,8 +3847,19 @@
                 ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Aktif</span>'
                 : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">${item.status || 'Logout'}</span>`;
 
-            const dev = item.device || { os: 'Perangkat', browser: 'Browser', type: 'Desktop', icon: 'fa-laptop' };
+            const dev = item.device || { brand: 'Perangkat', model: 'Standar', merkDanTipe: 'Perangkat Web', os: 'OS Unknown', browser: 'Browser', type: 'Desktop', icon: 'fa-laptop' };
+            const devBrand = dev.brand || 'Perangkat';
+            const devModel = dev.merkDanTipe || dev.model || `${dev.os} (${dev.type})`;
             const devIconClass = dev.type === 'Mobile' ? 'fa-mobile-alt text-blue-600 bg-blue-50' : (dev.type === 'Tablet' ? 'fa-tablet-alt text-purple-600 bg-purple-50' : 'fa-laptop text-slate-700 bg-slate-100');
+
+            const brandBadgeColor = devBrand === 'Samsung' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                (devBrand === 'Xiaomi' ? 'bg-orange-100 text-orange-800 border-orange-200' :
+                (devBrand === 'Apple' ? 'bg-slate-200 text-slate-800 border-slate-300' :
+                (devBrand === 'OPPO' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' :
+                (devBrand === 'Vivo' ? 'bg-indigo-100 text-indigo-800 border-indigo-200' :
+                (devBrand === 'Realme' ? 'bg-amber-100 text-amber-800 border-amber-200' :
+                (devBrand === 'Infinix' ? 'bg-teal-100 text-teal-800 border-teal-200' :
+                'bg-slate-100 text-slate-700 border-slate-200'))))));
 
             const avatarBg = item.role === 'admin' ? 'bg-rose-500' : (item.role === 'guru' ? 'bg-purple-600' : (item.role === 'tendik' ? 'bg-amber-600' : 'bg-indigo-600'));
 
@@ -3762,13 +3884,17 @@
                         </div>
                     </td>
                     <td class="py-3.5 px-4">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl ${devIconClass} flex items-center justify-center text-sm shrink-0 border border-slate-200/50">
+                        <div class="flex items-start gap-2.5">
+                            <div class="w-9 h-9 rounded-xl ${devIconClass} flex items-center justify-center text-sm shrink-0 border border-slate-200/50 mt-0.5">
                                 <i class="fas ${dev.icon || 'fa-desktop'}"></i>
                             </div>
-                            <div>
-                                <div class="font-bold text-slate-800 text-[11px]">${dev.os || 'OS Unknown'}</div>
-                                <div class="text-[10px] text-slate-400">${dev.browser || 'Web Browser'}</div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5 flex-wrap mb-0.5">
+                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase border ${brandBadgeColor}">${devBrand}</span>
+                                    <span class="font-bold text-slate-800 text-xs truncate">${devModel}</span>
+                                </div>
+                                <div class="text-[10px] text-slate-500 font-medium">${dev.os || 'OS'} • ${dev.browser || 'Web Browser'}</div>
+                                ${dev.hardware || dev.screen ? `<div class="text-[9px] text-slate-400 font-mono mt-0.5 truncate">${dev.hardware ? dev.hardware + ' • ' : ''}${dev.screen || ''}</div>` : ''}
                             </div>
                         </div>
                     </td>
