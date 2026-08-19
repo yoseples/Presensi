@@ -2010,7 +2010,18 @@
 
     const SEED_DATA = {
       siswa: [],
-      guru: [],
+      guru: [
+        {
+          username: 'admin',
+          password: 'admin123',
+          nama: 'Administrator SMANSA',
+          role: 'admin',
+          nip: '198001012005011001',
+          jabatan: 'Administrator Sistem',
+          kelas: '',
+          noHp: '081234567890'
+        }
+      ],
       tendik: [],
       config: {
         jam_masuk_mulai: '06:30',
@@ -2226,6 +2237,23 @@
               return { success: false, message: 'Password salah untuk akun ' + tendik.username };
             }
           }
+        }
+
+        // 4. Default Superadmin Fallback jika database masih baru / belum ada akun admin
+        if (!userResult && inputUser.toLowerCase() === 'admin' && inputPass === 'admin123') {
+          userResult = {
+            success: true,
+            role: 'admin',
+            username: 'admin',
+            nama: 'Administrator SMANSA',
+            nip: '198001012005011001',
+            jabatan: 'Administrator Sistem',
+            noHp: '081234567890',
+            kelas: 'Admin',
+            foto: '',
+            token: 'tok_admin',
+            sessionId: sessionId
+          };
         }
 
         if (!userResult) {
@@ -3688,7 +3716,7 @@
 
       // 2. Deteksi Wrapper / Browser
       const isCapacitor = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
-      const isStandalonePWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      const isStandalonePWA = (typeof window.matchMedia === 'function' && window.matchMedia('(display-mode: standalone)').matches) || (window.navigator && window.navigator.standalone === true);
 
       if (isCapacitor) {
         browser = 'Aplikasi Android (APK)';
@@ -3713,20 +3741,23 @@
       // 3. Ekstraksi Spesifikasi Hardware & Layar
       let gpu = '';
       try {
-        const glCanvas = document.createElement('canvas');
-        const gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
-        if (gl) {
-          const dbg = gl.getExtension('WEBGL_debug_renderer_info');
-          if (dbg) {
-            gpu = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || '';
-            gpu = gpu.replace(/ANGLE \((.*?)\)/, '$1').replace(/Direct3D.*?vs_.*?,/g, '').replace(/OpenGL.*?/, '').trim();
+        if (typeof document !== 'undefined' && document.createElement) {
+          const glCanvas = document.createElement('canvas');
+          const gl = glCanvas.getContext('webgl') || glCanvas.getContext('experimental-webgl');
+          if (gl) {
+            const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+            if (dbg) {
+              gpu = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || '';
+              gpu = gpu.replace(/ANGLE \((.*?)\)/, '$1').replace(/Direct3D.*?vs_.*?,/g, '').replace(/OpenGL.*?/, '').trim();
+            }
           }
         }
       } catch(e) {}
 
-      const cores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency}-Core` : '';
-      const ram = navigator.deviceMemory ? `${navigator.deviceMemory}GB RAM` : '';
+      const cores = (navigator && navigator.hardwareConcurrency) ? `${navigator.hardwareConcurrency}-Core` : '';
+      const ram = (navigator && navigator.deviceMemory) ? `${navigator.deviceMemory}GB RAM` : '';
       const hardware = [cores, ram, gpu].filter(Boolean).join(' • ');
+      const screenRes = (window && window.screen) ? `${window.screen.width || 0}x${window.screen.height || 0}` : '-';
 
       return {
         brand: brand,
@@ -3738,7 +3769,7 @@
         icon: icon,
         fullString: `${merkDanTipe} • ${os} • ${browser}`,
         hardware: hardware,
-        screen: `${window.screen.width}x${window.screen.height}`,
+        screen: screenRes,
         userAgent: ua
       };
     }
@@ -3792,9 +3823,10 @@
     }
 
     function initDashboard() {
-        const name = currentUser.nama || currentUser.username;
-        document.getElementById('navUserName').textContent = name;
-        document.getElementById('navUserRole').textContent = currentUser.role.toUpperCase();
+        if (!currentUser) return;
+        const name = currentUser.nama || currentUser.username || 'Pengguna';
+        if (document.getElementById('navUserName')) document.getElementById('navUserName').textContent = name;
+        if (document.getElementById('navUserRole')) document.getElementById('navUserRole').textContent = (currentUser.role || 'user').toUpperCase();
         
         const navInit = document.getElementById('navUserInitial');
         if (navInit) {
@@ -5364,27 +5396,27 @@
                             });
                         }
                     }
-                    const foundStaff = window.cachedCurrentStaffFiltered.find(x => 
-                        String(x.nip || '').toLowerCase() === searchKey ||
-                        String(x.username || '').toLowerCase() === searchKey
-                    );
-                    if (foundStaff) foundStaff.status = newStatus;
+                    const searchKey = String(id || username).toLowerCase();
+                    if (window.cachedCurrentStaffFiltered) {
+                        const foundStaff = window.cachedCurrentStaffFiltered.find(x => 
+                            String(x.nip || '').toLowerCase() === searchKey ||
+                            String(x.username || '').toLowerCase() === searchKey
+                        );
+                        if (foundStaff) foundStaff.status = newStatus;
+                    }
                 }
 
                 // Update dashboard counters
                 if (typeof updateAdminStaffCards === 'function') {
                     updateAdminStaffCards();
                 }
-            } else {
-                showAlert('error', res.message);
+            },
+            error => {
+                selectElement.disabled = false;
+                selectElement.style.opacity = '1';
+                showAlert('error', 'Error: ' + error);
             }
-        })
-        .withFailureHandler(error => {
-            selectElement.disabled = false;
-            selectElement.style.opacity = '1';
-            showAlert('error', 'Error: ' + error);
-        })
-        .updateAbsensiStatus(token, id || username, nama, jabatan, newStatus);
+        );
     }
 
     function showModalPengajuanIzinSakit(targetRole) {
