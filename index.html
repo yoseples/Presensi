@@ -2326,52 +2326,75 @@
 
       updateSiswa: async (token, oldNisn, siswaData) => {
         let list = await getDB('siswa');
-        const cleanOld = String(oldNisn).replace(/^'+/, '').trim();
-        const idx = list.findIndex(x => String(x.nisn).replace(/^'+/, '').trim() === cleanOld);
+        if (!Array.isArray(list)) list = Object.values(list || {});
+        
+        const cleanOld = String(oldNisn || '').replace(/^'+/, '').trim();
+        const cleanNew = String(siswaData.nisn || '').replace(/^'+/, '').trim();
+
+        if (!cleanOld && !cleanNew) {
+          return { success: false, message: 'NISN tidak valid!' };
+        }
+
+        // Cari berdasarkan oldNisn atau cleanNew
+        const targetSearch = cleanOld || cleanNew;
+        const idx = list.findIndex(x => {
+          const itemNisn = String(x.nisn || '').replace(/^'+/, '').trim();
+          return itemNisn === targetSearch || (cleanOld && itemNisn === cleanOld);
+        });
+
         if (idx !== -1) {
-          siswaData.nisn = String(siswaData.nisn).replace(/^'+/, '').trim();
-          siswaData.noHp = String(siswaData.noHp).replace(/^'+/, '').trim();
+          siswaData.nisn = cleanNew;
+          siswaData.noHp = String(siswaData.noHp || '').replace(/^'+/, '').trim();
 
           // Cek jika NISN baru duplikat dengan siswa lain
-          if (siswaData.nisn !== cleanOld && list.some((x, i) => i !== idx && String(x.nisn).replace(/^'+/, '').trim() === siswaData.nisn)) {
-            return { success: false, message: 'NISN baru sudah digunakan oleh siswa lain!' };
+          if (cleanNew !== cleanOld && list.some((x, i) => i !== idx && String(x.nisn || '').replace(/^'+/, '').trim() === cleanNew)) {
+            return { success: false, message: 'NISN ' + cleanNew + ' sudah digunakan oleh siswa lain!' };
           }
 
-          list[idx] = siswaData;
+          // Gabungkan dengan data lama agar field lain (misal password, foto) tidak hilang
+          list[idx] = {
+            ...list[idx],
+            ...siswaData
+          };
+
           await setDB('siswa', list);
 
           // Sinkronisasi data presensi & izin jika NISN berubah
-          if (siswaData.nisn !== cleanOld) {
+          if (cleanNew !== cleanOld && cleanOld) {
             try {
               let absensiList = await getDB('absensi');
-              let absUpdated = false;
-              absensiList = absensiList.map(a => {
-                if (String(a.nisn).replace(/^'+/, '').trim() === cleanOld) {
-                  absUpdated = true;
-                  return { ...a, nisn: siswaData.nisn, nama: siswaData.nama, kelas: siswaData.kelas };
-                }
-                return a;
-              });
-              if (absUpdated) await setDB('absensi', absensiList);
+              if (Array.isArray(absensiList)) {
+                let absUpdated = false;
+                absensiList = absensiList.map(a => {
+                  if (String(a.nisn || '').replace(/^'+/, '').trim() === cleanOld) {
+                    absUpdated = true;
+                    return { ...a, nisn: cleanNew, nama: siswaData.nama, kelas: siswaData.kelas };
+                  }
+                  return a;
+                });
+                if (absUpdated) await setDB('absensi', absensiList);
+              }
 
               let izinList = await getDB('perizinan');
-              let izinUpdated = false;
-              izinList = izinList.map(iz => {
-                if (String(iz.nisn).replace(/^'+/, '').trim() === cleanOld) {
-                  izinUpdated = true;
-                  return { ...iz, nisn: siswaData.nisn, nama: siswaData.nama, kelas: siswaData.kelas };
-                }
-                return iz;
-              });
-              if (izinUpdated) await setDB('perizinan', izinList);
+              if (Array.isArray(izinList)) {
+                let izinUpdated = false;
+                izinList = izinList.map(iz => {
+                  if (String(iz.nisn || '').replace(/^'+/, '').trim() === cleanOld) {
+                    izinUpdated = true;
+                    return { ...iz, nisn: cleanNew, nama: siswaData.nama, kelas: siswaData.kelas };
+                  }
+                  return iz;
+                });
+                if (izinUpdated) await setDB('perizinan', izinList);
+              }
             } catch (syncErr) {
               console.warn('Sync cascade error:', syncErr);
             }
           }
 
-          return { success: true, message: 'Data siswa berhasil diperbarui' };
+          return { success: true, message: 'Data siswa ' + (siswaData.nama || '') + ' berhasil diperbarui' };
         }
-        return { success: false, message: 'Siswa tidak ditemukan' };
+        return { success: false, message: 'Siswa dengan NISN ' + targetSearch + ' tidak ditemukan di database' };
       },
 
       deleteSiswa: async (token, nisn) => {
@@ -5903,10 +5926,10 @@
             </td>
             <td class="p-4 text-center">
                 <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
-                    <button onclick='viewSiswa(${JSON.stringify(siswa).replace(/'/g, "&apos;")})' class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition" title="Lihat Detail & Sandi">
+                    <button onclick="viewSiswa('${String(siswa.nisn).replace(/'/g, "\\'")}')" class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition" title="Lihat Detail & Sandi">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button onclick='editSiswa(${JSON.stringify(siswa).replace(/'/g, "&apos;")})' class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button onclick="editSiswa('${String(siswa.nisn).replace(/'/g, "\\'")}')" class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit"><i class="fas fa-edit"></i></button>
                     <button onclick="deleteSiswaConfirm('${String(siswa.nisn).replace(/'/g, "\\'")}'  , '${String(siswa.nama).replace(/'/g, "\\'")}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition" title="Hapus"><i class="fas fa-trash"></i></button>
                     <button onclick="generateQRForSiswa('${String(siswa.nisn).replace(/'/g, "\\'")}'  , '${String(siswa.nama).replace(/'/g, "\\'")}', '${String(siswa.kelas).replace(/'/g, "\\'")}')" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition" title="QR Code"><i class="fas fa-qrcode"></i></button>
                 </div>
@@ -5986,7 +6009,7 @@
                 <td class="p-4 text-center">
                     <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
                         <button onclick="loadQRCodeGuru('${guru.nip || guru.username}', '${guru.nama || guru.username}', '${guru.jabatan || (guru.kelas ? 'Wali Kelas ' + guru.kelas : 'Guru SMANSA')}', '${guru.foto || ''}')" class="p-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition" title="Cetak Kartu Guru"><i class="fas fa-qrcode"></i></button>
-                        <button onclick='editGuru(${JSON.stringify(guru)})' class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit Akun"><i class="fas fa-edit"></i></button>
+                        <button onclick="editGuru('${String(guru.username).replace(/'/g, "\\'")}')" class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit Akun"><i class="fas fa-edit"></i></button>
                         <button onclick="deleteGuruConfirm('${guru.username}')" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition" title="Hapus Akun"><i class="fas fa-trash"></i></button>
                     </div>
                 </td>
@@ -6000,30 +6023,30 @@
 
         const fd = new FormData(e.target);
         const siswaData = {
-            nama: fd.get('nama'),
-            nisn: String(fd.get('nisn')).replace(/^'+/, '').trim(),  // bersihkan apostrophe prefix
-            jenisKelamin: fd.get('jenisKelamin'),
-            tanggalLahir: fd.get('tanggalLahir'),
-            agama: fd.get('agama'),
-            namaAyah: fd.get('namaAyah'),
-            namaIbu: fd.get('namaIbu'),
-            noHp: String(fd.get('noHp')).replace(/^'+/, '').trim(),  // bersihkan apostrophe prefix
-            kelas: fd.get('kelas'),
-            alamat: fd.get('alamat')
+            nama: String(fd.get('nama') || '').trim(),
+            nisn: String(fd.get('nisn') || '').replace(/^'+/, '').trim(),
+            jenisKelamin: fd.get('jenisKelamin') || 'Laki-laki',
+            tanggalLahir: fd.get('tanggalLahir') || '',
+            agama: fd.get('agama') || 'Islam',
+            namaAyah: String(fd.get('namaAyah') || '').trim(),
+            namaIbu: String(fd.get('namaIbu') || '').trim(),
+            noHp: String(fd.get('noHp') || '').replace(/^'+/, '').trim(),
+            kelas: String(fd.get('kelas') || '').trim(),
+            alamat: String(fd.get('alamat') || '').trim()
         };
 
         const token = currentUser ? currentUser.token : null;
 
         const callback = (res) => {
             hideLoading();
-            if (res.success) {
+            if (res && res.success) {
                 closeModal();
                 tableState.siswa.fullData = [];
                 loadDataSiswa();
                 loadKelasSuggestions();
-                showAlert('success', res.message);
+                showAlert('success', res.message || 'Data siswa berhasil disimpan!');
             } else {
-                showAlert('error', res.message);
+                showAlert('error', (res && res.message) ? res.message : 'Gagal menyimpan data siswa');
             }
         };
 
@@ -6032,9 +6055,9 @@
             showAlert('error', 'Terjadi kesalahan: ' + err);
         };
 
-        if (isEdit) {
-            const oldNisn = String(fd.get('oldNisn')).replace(/^'+/, '').trim();
-            runAPI('updateSiswa', [token, oldNisn, siswaData], callback, failureCallback);
+        const oldNisn = String(fd.get('oldNisn') || '').replace(/^'+/, '').trim();
+        if (isEdit || oldNisn) {
+            runAPI('updateSiswa', [token, oldNisn || siswaData.nisn, siswaData], callback, failureCallback);
         } else {
             runAPI('addSiswa', [token, siswaData], callback, failureCallback);
         }
@@ -7395,12 +7418,35 @@
     }
 
     function showAddSiswaModal() { showModal(createSiswaModal()); }
-    function editSiswa(s) { showModal(createSiswaModal(s)); }
+    function editSiswa(s) {
+        let studentObj = s;
+        if (typeof s === 'string' || typeof s === 'number') {
+            const cleanNisn = String(s).replace(/^'+/, '').trim();
+            studentObj = (tableState.siswa.fullData || []).find(item => String(item.nisn).replace(/^'+/, '').trim() === cleanNisn) || { nisn: cleanNisn };
+        }
+        showModal(createSiswaModal(studentObj));
+    }
     function showAddGuruModal() { showModal(createGuruModal()); }
-    function editGuru(guruData) { showModal(createGuruModal(guruData)); }
+    function editGuru(guruData) {
+        let gObj = guruData;
+        if (typeof guruData === 'string') {
+            const cleanUser = String(guruData).trim().toLowerCase();
+            gObj = (tableState.guru.fullData || []).find(item => String(item.username).trim().toLowerCase() === cleanUser || String(item.nip || '').trim() === cleanUser) || { username: cleanUser };
+        }
+        showModal(createGuruModal(gObj));
+    }
+
+    function viewSiswa(s) {
+        let studentObj = s;
+        if (typeof s === 'string' || typeof s === 'number') {
+            const cleanNisn = String(s).replace(/^'+/, '').trim();
+            studentObj = (tableState.siswa.fullData || []).find(item => String(item.nisn).replace(/^'+/, '').trim() === cleanNisn) || { nisn: cleanNisn };
+        }
+        showModal(createViewSiswaModal(studentObj));
+    }
 
     function createSiswaModal(s = null) {
-        const isEdit = s !== null;
+        const isEdit = (s !== null && typeof s === 'object' && Boolean(s.nisn || s.nama));
         const inputClass = "w-full bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-3 transition-all";
         const labelClass = "block mb-1 text-[11px] font-bold text-gray-500 uppercase tracking-wider";
         
@@ -7483,7 +7529,7 @@
                         <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl text-gray-600 font-medium hover:bg-gray-100 transition text-xs">Batal</button>
                         <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition transform active:scale-95 text-xs">Simpan Data</button>
                     </div>
-                    ${isEdit ? `<input type="hidden" name="oldNisn" value="${s.nisn}">` : ''}
+                    ${isEdit ? `<input type="hidden" name="oldNisn" value="${String(s?.nisn || '').replace(/^'+/, '').trim()}">` : ''}
                 </form>
             </div>
         </div>`;
@@ -7577,7 +7623,7 @@
             </div>
 
             <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2">
-                <button onclick="editSiswa(${JSON.stringify(s).replace(/"/g, '&quot;')})" class="px-4 py-2 bg-amber-100 text-amber-700 rounded-xl font-bold text-xs hover:bg-amber-200 transition flex items-center gap-1.5">
+                <button onclick="editSiswa('${String(s.nisn).replace(/'/g, "\\'")}')" class="px-4 py-2 bg-amber-100 text-amber-700 rounded-xl font-bold text-xs hover:bg-amber-200 transition flex items-center gap-1.5">
                     <i class="fas fa-edit"></i> Edit Data
                 </button>
                 <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-bold text-xs hover:bg-gray-300 transition">
