@@ -2172,21 +2172,26 @@
 
         // 1. Cek Apakah Siswa (berdasarkan NISN)
         const siswaList = await getDB('siswa');
-        const siswa = siswaList.find(x => String(x.nisn).trim() === inputUser);
+        const siswa = siswaList.find(x => String(x.nisn || '').replace(/^'+/, '').trim() === inputUser);
         if (siswa) {
-          userResult = {
-            success: true,
-            role: 'siswa',
-            nama: siswa.nama,
-            nisn: siswa.nisn,
-            kelas: siswa.kelas,
-            foto: siswa.foto || '',
-            jenisKelamin: siswa.jenisKelamin || '',
-            tanggalLahir: siswa.tanggalLahir || '',
-            alamat: siswa.alamat || '',
-            token: 'tok_' + siswa.nisn,
-            sessionId: sessionId
-          };
+          const expectedPassword = String(siswa.password || siswa.nisn || '').replace(/^'+/, '').trim();
+          if (inputPass === expectedPassword) {
+            userResult = {
+              success: true,
+              role: 'siswa',
+              nama: siswa.nama,
+              nisn: String(siswa.nisn || '').replace(/^'+/, '').trim(),
+              kelas: siswa.kelas,
+              foto: siswa.foto || '',
+              jenisKelamin: siswa.jenisKelamin || '',
+              tanggalLahir: siswa.tanggalLahir || '',
+              alamat: siswa.alamat || '',
+              token: 'tok_' + String(siswa.nisn || '').replace(/^'+/, '').trim(),
+              sessionId: sessionId
+            };
+          } else {
+            return { success: false, message: 'Password salah untuk NISN ' + siswa.nisn };
+          }
         }
 
         // 2. Cek Apakah Guru / Admin (berdasarkan Username atau NIP)
@@ -2555,41 +2560,61 @@
       },
 
       changeCredentials: async (token, oldUsername, newUsername, oldPassword, newPassword, newNama) => {
-        const oldU = String(oldUsername || '').trim().toLowerCase();
-        const newU = String(newUsername || '').trim();
+        const oldU = String(oldUsername || '').replace(/^'+/, '').trim().toLowerCase();
+        const newU = String(newUsername || '').replace(/^'+/, '').trim();
         const cleanNama = String(newNama || '').trim();
+        const oldP = String(oldPassword || '').trim();
+        const newP = String(newPassword || '').trim();
 
         // 1. Guru & Admin
         const guruList = await getDB('guru');
         const guru = guruList.find(g => (g.username && g.username.toLowerCase() === oldU) || (g.nip && String(g.nip) === oldU));
         if (guru) {
+          if (newP) {
+            if (!oldP || String(guru.password || '12345').trim() !== oldP) {
+              return { success: false, message: 'Password saat ini salah!' };
+            }
+            guru.password = newP;
+          }
           if (newU) guru.username = newU;
           if (cleanNama) guru.nama = cleanNama;
-          if (newPassword) guru.password = newPassword;
           await setDB('guru', guruList);
+          return { success: true, message: 'Data akun berhasil diperbarui!' };
         }
 
         // 2. Tendik
         const tendikList = await getDB('tendik');
         const tendik = tendikList.find(t => (t.username && t.username.toLowerCase() === oldU) || (t.nip && String(t.nip) === oldU));
         if (tendik) {
+          if (newP) {
+            if (!oldP || String(tendik.password || 'tendik123').trim() !== oldP) {
+              return { success: false, message: 'Password saat ini salah!' };
+            }
+            tendik.password = newP;
+          }
           if (newU) tendik.username = newU;
           if (cleanNama) tendik.nama = cleanNama;
-          if (newPassword) tendik.password = newPassword;
           await setDB('tendik', tendikList);
+          return { success: true, message: 'Data akun berhasil diperbarui!' };
         }
 
         // 3. Siswa
         const siswaList = await getDB('siswa');
-        const siswa = siswaList.find(s => (s.nisn && String(s.nisn).toLowerCase() === oldU) || (s.username && s.username.toLowerCase() === oldU));
+        const siswa = siswaList.find(s => (s.nisn && String(s.nisn).replace(/^'+/, '').toLowerCase() === oldU) || (s.username && s.username.toLowerCase() === oldU));
         if (siswa) {
-          if (newU) siswa.username = newU;
+          if (newP) {
+            const expectedOldPass = String(siswa.password || siswa.nisn || '').replace(/^'+/, '').trim();
+            if (!oldP || expectedOldPass !== oldP) {
+              return { success: false, message: 'Password saat ini salah!' };
+            }
+            siswa.password = newP;
+          }
           if (cleanNama) siswa.nama = cleanNama;
-          if (newPassword) siswa.password = newPassword;
           await setDB('siswa', siswaList);
+          return { success: true, message: 'Profil dan password siswa berhasil diperbarui!' };
         }
 
-        return { success: true, message: 'Nama Lengkap, Username & Password berhasil diperbarui!' };
+        return { success: false, message: 'Pengguna tidak ditemukan' };
       },
 
       updateUserProfilePhoto: async (token, userId, fotoBase64) => {
