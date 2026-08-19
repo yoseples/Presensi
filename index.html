@@ -2130,6 +2130,36 @@
       return d.toTimeString().substring(0, 5);
     }
 
+    // ============================================================================
+    // runAPI — Universal API Router (GAS Mode ↔ Local/Firebase Mode)
+    // Semua operasi CRUD harus melalui fungsi ini agar bekerja di kedua mode.
+    // GAS Mode  : Dijalankan di dalam Google Apps Script → pakai google.script.run
+    // Local Mode: Dijalankan di cPanel/hosting/GitHub Pages → pakai BackendAPI
+    // ============================================================================
+    function runAPI(fnName, args, successCb, failureCb) {
+      const isGAS = (typeof google !== 'undefined' && google.script && google.script.run);
+      if (isGAS) {
+        // GAS Mode: gunakan google.script.run
+        let runner = google.script.run;
+        if (successCb) runner = runner.withSuccessHandler(successCb);
+        if (failureCb) runner = runner.withFailureHandler(failureCb);
+        if (typeof runner[fnName] !== 'function') {
+          if (failureCb) failureCb('Fungsi ' + fnName + ' tidak ditemukan di server GAS.');
+          return;
+        }
+        runner[fnName].apply(runner, args || []);
+      } else {
+        // Local/Firebase Mode: gunakan BackendAPI
+        if (typeof BackendAPI[fnName] !== 'function') {
+          if (failureCb) failureCb('Fungsi BackendAPI.' + fnName + ' tidak ditemukan.');
+          return;
+        }
+        BackendAPI[fnName].apply(BackendAPI, args || [])
+          .then(res => { if (successCb) successCb(res); })
+          .catch(err => { if (failureCb) failureCb(err && err.message ? err.message : String(err)); });
+      }
+    }
+
     const BackendAPI = {
       login: async (username, password, nisn, deviceInfo) => {
         const inputUser = String(username || nisn || '').trim();
@@ -2560,14 +2590,19 @@
         const mapAbsen = {};
         absensiList.forEach(a => {
           if (a.tanggal === today) {
-            mapAbsen[String(a.nisn)] = a;
+            const cleanNisn = String(a.nisn || '').replace(/^'/, '').trim().toLowerCase();
+            const cleanNama = a.nama ? String(a.nama).trim().toLowerCase() : '';
+            if (cleanNisn) mapAbsen[cleanNisn] = a;
+            if (cleanNama) mapAbsen[cleanNama] = a;
           }
         });
 
         const result = [];
         siswaList.forEach(s => {
           if (filterKelas && s.kelas !== filterKelas) return;
-          const a = mapAbsen[String(s.nisn)] || {
+          const sNisn = String(s.nisn || '').replace(/^'/, '').trim().toLowerCase();
+          const sNama = String(s.nama || '').trim().toLowerCase();
+          const a = mapAbsen[sNisn] || mapAbsen[sNama] || {
             jamDatang: '-',
             jamPulang: '-',
             keterangan: '-',
@@ -2904,14 +2939,15 @@
       submitIzinSakitMandiri: async (token, status, alasan, userInfo) => {
         const today = getTodayString();
         let absensiList = await getDB('absensi');
-        let searchId = userInfo && userInfo.id ? String(userInfo.id).trim().toLowerCase() : '';
+        let searchId = userInfo && userInfo.id ? String(userInfo.id).replace(/^'/, '').trim().toLowerCase() : '';
         let nama = userInfo && userInfo.nama ? userInfo.nama : searchId;
         let kelasOrJabatan = userInfo && (userInfo.kelas || userInfo.jabatan) ? (userInfo.kelas || userInfo.jabatan) : '-';
         let tipeUser = userInfo && userInfo.role === 'guru' ? 'Guru' : (userInfo && userInfo.role === 'tendik' ? 'Tendik' : 'Siswa');
 
         const idx = absensiList.findIndex(a => a.tanggal === today && (
-          String(a.nisn || '').trim().toLowerCase() === searchId ||
-          (a.username && String(a.username).trim().toLowerCase() === searchId)
+          String(a.nisn || '').replace(/^'/, '').trim().toLowerCase() === searchId ||
+          (a.username && String(a.username).replace(/^'/, '').trim().toLowerCase() === searchId) ||
+          (nama && String(a.nama || '').trim().toLowerCase() === String(nama).trim().toLowerCase())
         ));
 
         const ketText = alasan ? (status + ': ' + alasan) : status;
@@ -3923,13 +3959,18 @@
         let izinSakitGuru = 0;
 
         guruList.forEach(g => {
-            const gNip = String(g.nip || '').trim().toLowerCase();
-            const gUser = String(g.username || '').trim().toLowerCase();
-            const rec = absToday.find(a => 
-                (a.username && a.username.toLowerCase() === gUser) ||
-                (String(a.nisn).trim().toLowerCase() === gNip) ||
-                (String(a.nisn).trim().toLowerCase() === gUser)
-            );
+            const gNip = String(g.nip || '').replace(/^'/, '').trim().toLowerCase();
+            const gUser = String(g.username || '').replace(/^'/, '').trim().toLowerCase();
+            const gName = String(g.nama || '').trim().toLowerCase();
+            const rec = absToday.find(a => {
+                const aNisn = String(a.nisn || '').replace(/^'/, '').trim().toLowerCase();
+                const aUser = a.username ? String(a.username).replace(/^'/, '').trim().toLowerCase() : '';
+                const aName = a.nama ? String(a.nama).trim().toLowerCase() : '';
+                return (aUser && aUser === gUser) ||
+                       (gNip && gNip !== '-' && aNisn === gNip) ||
+                       (gUser && aNisn === gUser) ||
+                       (gName && aName === gName);
+            });
             if (rec) {
                 if (rec.status === 'Hadir') hadirGuru++;
                 else if (rec.status === 'Izin' || rec.status === 'Sakit') izinSakitGuru++;
@@ -3942,13 +3983,18 @@
         let izinSakitTendik = 0;
 
         tendikList.forEach(t => {
-            const tNip = String(t.nip || '').trim().toLowerCase();
-            const tUser = String(t.username || '').trim().toLowerCase();
-            const rec = absToday.find(a => 
-                (a.username && a.username.toLowerCase() === tUser) ||
-                (String(a.nisn).trim().toLowerCase() === tNip) ||
-                (String(a.nisn).trim().toLowerCase() === tUser)
-            );
+            const tNip = String(t.nip || '').replace(/^'/, '').trim().toLowerCase();
+            const tUser = String(t.username || '').replace(/^'/, '').trim().toLowerCase();
+            const tName = String(t.nama || '').trim().toLowerCase();
+            const rec = absToday.find(a => {
+                const aNisn = String(a.nisn || '').replace(/^'/, '').trim().toLowerCase();
+                const aUser = a.username ? String(a.username).replace(/^'/, '').trim().toLowerCase() : '';
+                const aName = a.nama ? String(a.nama).trim().toLowerCase() : '';
+                return (aUser && aUser === tUser) ||
+                       (tNip && tNip !== '-' && aNisn === tNip) ||
+                       (tUser && aNisn === tUser) ||
+                       (tName && aName === tName);
+            });
             if (rec) {
                 if (rec.status === 'Hadir') hadirTendik++;
                 else if (rec.status === 'Izin' || rec.status === 'Sakit') izinSakitTendik++;
@@ -4005,13 +4051,18 @@
 
         // 2. Guru
         guruList.forEach(g => {
-            const gNip = String(g.nip || '').trim().toLowerCase();
-            const gUser = String(g.username || '').trim().toLowerCase();
-            const rec = absToday.find(a => 
-                (a.username && a.username.toLowerCase() === gUser) ||
-                (String(a.nisn).trim().toLowerCase() === gNip) ||
-                (String(a.nisn).trim().toLowerCase() === gUser)
-            );
+            const gNip = String(g.nip || '').replace(/^'/, '').trim().toLowerCase();
+            const gUser = String(g.username || '').replace(/^'/, '').trim().toLowerCase();
+            const gName = String(g.nama || '').trim().toLowerCase();
+            const rec = absToday.find(a => {
+                const aNisn = String(a.nisn || '').replace(/^'/, '').trim().toLowerCase();
+                const aUser = a.username ? String(a.username).replace(/^'/, '').trim().toLowerCase() : '';
+                const aName = a.nama ? String(a.nama).trim().toLowerCase() : '';
+                return (aUser && aUser === gUser) ||
+                       (gNip && gNip !== '-' && aNisn === gNip) ||
+                       (gUser && aNisn === gUser) ||
+                       (gName && aName === gName);
+            });
             combined.push({
                 id: g.nip && g.nip !== '-' ? g.nip : g.username,
                 nisn: g.nip || '-',
@@ -4030,13 +4081,18 @@
 
         // 3. Tendik
         tendikList.forEach(t => {
-            const tNip = String(t.nip || '').trim().toLowerCase();
-            const tUser = String(t.username || '').trim().toLowerCase();
-            const rec = absToday.find(a => 
-                (a.username && a.username.toLowerCase() === tUser) ||
-                (String(a.nisn).trim().toLowerCase() === tNip) ||
-                (String(a.nisn).trim().toLowerCase() === tUser)
-            );
+            const tNip = String(t.nip || '').replace(/^'/, '').trim().toLowerCase();
+            const tUser = String(t.username || '').replace(/^'/, '').trim().toLowerCase();
+            const tName = String(t.nama || '').trim().toLowerCase();
+            const rec = absToday.find(a => {
+                const aNisn = String(a.nisn || '').replace(/^'/, '').trim().toLowerCase();
+                const aUser = a.username ? String(a.username).replace(/^'/, '').trim().toLowerCase() : '';
+                const aName = a.nama ? String(a.nama).trim().toLowerCase() : '';
+                return (aUser && aUser === tUser) ||
+                       (tNip && tNip !== '-' && aNisn === tNip) ||
+                       (tUser && aNisn === tUser) ||
+                       (tName && aName === tName);
+            });
             combined.push({
                 id: t.nip && t.nip !== '-' ? t.nip : t.username,
                 nisn: t.nip || '-',
@@ -4726,7 +4782,7 @@
                         elKetContainer.classList.remove('flex');
                     }
                 }
-            }).getAbsensiToday(currentUser.nip || currentUser.username);
+            }).getAbsensiToday((currentUser.nip && currentUser.nip !== '-') ? currentUser.nip : currentUser.username);
         }
 
         const myClass = currentUser.role === 'guru' ? currentUser.kelas : null;
@@ -5071,13 +5127,18 @@
 
         // Gabungkan profil staff dengan absensi hari ini
         const combined = list.map(item => {
-            const uId = String(item.username || '').toLowerCase();
-            const nId = String(item.nip || '').toLowerCase();
-            const rec = absList.find(a => 
-                (a.username && a.username.toLowerCase() === uId) ||
-                (String(a.nisn).trim().toLowerCase() === nId) ||
-                (String(a.nisn).trim().toLowerCase() === uId)
-            );
+            const uId = String(item.username || '').replace(/^'/, '').trim().toLowerCase();
+            const nId = String(item.nip || '').replace(/^'/, '').trim().toLowerCase();
+            const itmNama = String(item.nama || '').trim().toLowerCase();
+            const rec = absList.find(a => {
+                const aNisn = String(a.nisn || '').replace(/^'/, '').trim().toLowerCase();
+                const aUser = a.username ? String(a.username).replace(/^'/, '').trim().toLowerCase() : '';
+                const aName = a.nama ? String(a.nama).trim().toLowerCase() : '';
+                return (aUser && aUser === uId) ||
+                       (nId && nId !== '-' && aNisn === nId) ||
+                       (uId && aNisn === uId) ||
+                       (itmNama && aName === itmNama);
+            });
             return {
                 nama: item.nama || item.username,
                 nip: item.nip || '-',
@@ -5384,16 +5445,24 @@
         }
 
         const token = currentUser.token;
+        let userId = '';
+        if (currentUser.role === 'siswa') {
+            userId = currentUser.nisn || currentUser.username;
+        } else {
+            userId = (currentUser.nip && currentUser.nip !== '-') ? currentUser.nip : currentUser.username;
+        }
+
         const userInfo = {
-            id: currentUser.nisn || currentUser.nip || currentUser.username,
+            id: userId,
             nama: currentUser.nama || currentUser.username,
             role: currentUser.role,
             kelas: currentUser.kelas || '',
-            jabatan: currentUser.jabatan || ''
+            jabatan: currentUser.jabatan || '',
+            username: currentUser.username || ''
         };
 
-        google.script.run
-            .withSuccessHandler(res => {
+        runAPI('submitIzinSakitMandiri', [token, status, alasan, userInfo],
+            res => {
                 closeModal();
                 if (res.success) {
                     showAlert('success', `Pengajuan ${status} berhasil disimpan.`);
@@ -5403,15 +5472,15 @@
                 } else {
                     showAlert('error', res.message || 'Gagal mengirim pengajuan.');
                 }
-            })
-            .withFailureHandler(err => {
+            },
+            err => {
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kirim Pengajuan';
                 }
                 showAlert('error', 'Terjadi kesalahan koneksi: ' + err);
-            })
-            .submitIzinSakitMandiri(token, status, alasan, userInfo);
+            }
+        );
     }
 
     function filterStaffModalList(query) {
@@ -5761,19 +5830,20 @@
             processTableData('siswa');
         } else {
             document.getElementById('tbody-siswa').innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data siswa...</td></tr>';
-            google.script.run.withSuccessHandler(result => {
-                if (result.success) {
-                    tableState.siswa.fullData = result.data;
-                    processTableData('siswa');
-                } else {
-                    document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
-                    showAlert('error', result.message);
+            runAPI('getSiswaList', [],
+                result => {
+                    if (result.success) {
+                        tableState.siswa.fullData = result.data;
+                        processTableData('siswa');
+                    } else {
+                        document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
+                        showAlert('error', result.message);
+                    }
+                },
+                error => {
+                    document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
                 }
-            })
-            .withFailureHandler(error => {
-                document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
-            })
-            .getSiswaList();
+            );
         }
     }
 
@@ -5907,18 +5977,18 @@
         const fd = new FormData(e.target);
         const siswaData = {
             nama: fd.get('nama'),
-            nisn: "'" + fd.get('nisn'),
+            nisn: String(fd.get('nisn')).replace(/^'+/, '').trim(),  // bersihkan apostrophe prefix
             jenisKelamin: fd.get('jenisKelamin'),
             tanggalLahir: fd.get('tanggalLahir'),
             agama: fd.get('agama'),
             namaAyah: fd.get('namaAyah'),
             namaIbu: fd.get('namaIbu'),
-            noHp: "'" + fd.get('noHp'),
+            noHp: String(fd.get('noHp')).replace(/^'+/, '').trim(),  // bersihkan apostrophe prefix
             kelas: fd.get('kelas'),
             alamat: fd.get('alamat')
         };
 
-        const token = currentUser ? currentUser.token : null; 
+        const token = currentUser ? currentUser.token : null;
 
         const callback = (res) => {
             hideLoading();
@@ -5939,18 +6009,13 @@
         };
 
         if (isEdit) {
-            const oldNisn = fd.get('oldNisn');
-            google.script.run
-                .withSuccessHandler(callback)
-                .withFailureHandler(failureCallback)
-                .updateSiswa(token, oldNisn, siswaData);
+            const oldNisn = String(fd.get('oldNisn')).replace(/^'+/, '').trim();
+            runAPI('updateSiswa', [token, oldNisn, siswaData], callback, failureCallback);
         } else {
-            google.script.run
-                .withSuccessHandler(callback)
-                .withFailureHandler(failureCallback)
-                .addSiswa(token, siswaData);
+            runAPI('addSiswa', [token, siswaData], callback, failureCallback);
         }
     }
+
 
     function loadRekapAbsensi() {
         stopAndBack(false);
@@ -7588,15 +7653,9 @@
 
         if (isEdit) {
             const oldUsername = fd.get('oldUsername');
-            google.script.run
-                .withSuccessHandler(onComplete)
-                .withFailureHandler(onFailure)
-                .updateGuru(token, oldUsername, guruData);
+            runAPI('updateGuru', [token, oldUsername, guruData], onComplete, onFailure);
         } else {
-            google.script.run
-                .withSuccessHandler(onComplete)
-                .withFailureHandler(onFailure)
-                .addGuru(token, guruData);
+            runAPI('addGuru', [token, guruData], onComplete, onFailure);
         }
     }
 
@@ -7615,21 +7674,22 @@
             if (result.isConfirmed) {
                 showLoading();
                 const token = currentUser ? currentUser.token : ''; 
-                google.script.run.withSuccessHandler(r => {
-                    hideLoading();
-                    if (r.success) {
-                        tableState.siswa.fullData = [];
-                        loadDataSiswa();
-                        Swal.fire('Terhapus!', 'Data siswa berhasil dihapus.', 'success');
-                    } else {
-                        Swal.fire('Gagal!', r.message, 'error');
+                runAPI('deleteSiswa', [token, nisn],
+                    r => {
+                        hideLoading();
+                        if (r.success) {
+                            tableState.siswa.fullData = [];
+                            loadDataSiswa();
+                            Swal.fire('Terhapus!', 'Data siswa berhasil dihapus.', 'success');
+                        } else {
+                            Swal.fire('Gagal!', r.message, 'error');
+                        }
+                    },
+                    err => {
+                        hideLoading();
+                        Swal.fire('Error', 'Terjadi kesalahan: ' + err, 'error');
                     }
-                })
-                .withFailureHandler(err => {
-                    hideLoading();
-                    Swal.fire('Error', 'Terjadi kesalahan: ' + err, 'error');
-                })
-                .deleteSiswa(token, nisn);
+                );
             }
         });
     }
@@ -7638,21 +7698,22 @@
         if (confirm(`Hapus akun guru: ${username}?`)) {
             showLoading();
             const token = currentUser ? currentUser.token : null;
-            google.script.run.withSuccessHandler(r => {
-                hideLoading();
-                if (r.success) {
-                    tableState.guru.fullData = []; 
-                    loadDataGuru();
-                    showAlert('success', 'Akun guru berhasil dihapus');
-                } else {
-                    showAlert('error', r.message);
+            runAPI('deleteGuru', [token, username],
+                r => {
+                    hideLoading();
+                    if (r.success) {
+                        tableState.guru.fullData = [];
+                        loadDataGuru();
+                        showAlert('success', 'Akun guru berhasil dihapus');
+                    } else {
+                        showAlert('error', r.message);
+                    }
+                },
+                error => {
+                    hideLoading();
+                    showAlert('error', 'Gagal menghapus: ' + error);
                 }
-            })
-            .withFailureHandler(error => {
-                hideLoading();
-                showAlert('error', 'Gagal menghapus: ' + error);
-            })
-            .deleteGuru(token, username);
+            );
         }
     }
 
@@ -7777,8 +7838,8 @@
             return;
         }
         showLoading();
-        google.script.run
-            .withSuccessHandler(result => {
+        runAPI('getTendikList', [currentUser ? currentUser.token : null],
+            result => {
                 hideLoading();
                 if (result && result.success) {
                     tableState.tendik.fullData = result.data || [];
@@ -7787,13 +7848,13 @@
                     document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-500 font-bold">${result ? result.message : 'Gagal memuat data'}</td></tr>`;
                     showAlert('error', (result ? result.message : 'Gagal memuat data tendik'));
                 }
-            })
-            .withFailureHandler(err => {
+            },
+            err => {
                 hideLoading();
                 document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-500">Gagal koneksi: ${err}</td></tr>`;
                 showAlert('error', 'Gagal memuat data tendik: ' + err);
-            })
-            .getTendikList(currentUser ? currentUser.token : null);
+            }
+        );
     }
 
     function renderTendikRows(data, startIdx) {
@@ -7890,8 +7951,8 @@
         const noHp = document.getElementById('tendikNoHp').value.trim();
 
         showLoading();
-        google.script.run
-            .withSuccessHandler(res => {
+        runAPI('addTendik', [currentUser.token, username, password, nip, nama, jabatan, noHp],
+            res => {
                 hideLoading();
                 if (res.success) {
                     showAlert('success', res.message);
@@ -7901,12 +7962,12 @@
                 } else {
                     showAlert('error', res.message);
                 }
-            })
-            .withFailureHandler(err => {
+            },
+            err => {
                 hideLoading();
                 showAlert('error', 'Gagal menambah tendik: ' + err);
-            })
-            .addTendik(currentUser.token, username, password, nip, nama, jabatan, noHp);
+            }
+        );
     }
 
     function showEditTendikModal(username) {
@@ -7966,8 +8027,8 @@
         const noHp = document.getElementById('editTendikNoHp').value.trim();
 
         showLoading();
-        google.script.run
-            .withSuccessHandler(res => {
+        runAPI('updateTendik', [currentUser.token, oldUsername, username, password, nip, nama, jabatan, noHp],
+            res => {
                 hideLoading();
                 if (res.success) {
                     showAlert('success', res.message);
@@ -7977,19 +8038,19 @@
                 } else {
                     showAlert('error', res.message);
                 }
-            })
-            .withFailureHandler(err => {
+            },
+            err => {
                 hideLoading();
                 showAlert('error', 'Gagal update tendik: ' + err);
-            })
-            .updateTendik(currentUser.token, oldUsername, username, password, nip, nama, jabatan, noHp);
+            }
+        );
     }
 
     function deleteTendikPrompt(username) {
         if (confirm(`Hapus data tendik/staf "${username}"?`)) {
             showLoading();
-            google.script.run
-                .withSuccessHandler(res => {
+            runAPI('deleteTendik', [currentUser.token, username],
+                res => {
                     hideLoading();
                     if (res.success) {
                         showAlert('success', res.message);
@@ -7998,12 +8059,12 @@
                     } else {
                         showAlert('error', res.message);
                     }
-                })
-                .withFailureHandler(err => {
+                },
+                err => {
                     hideLoading();
                     showAlert('error', 'Gagal menghapus tendik: ' + err);
-                })
-                .deleteTendik(currentUser.token, username);
+                }
+            );
         }
     }
 
@@ -8070,7 +8131,7 @@
                         elKetContainer.classList.remove('flex');
                     }
                 }
-            }).getAbsensiToday(currentUser.nip || currentUser.username);
+            }).getAbsensiToday((currentUser.nip && currentUser.nip !== '-') ? currentUser.nip : currentUser.username);
         }
     }
 
@@ -8533,8 +8594,8 @@
         showLoading();
         const oldUsername = currentUser.username || currentUser.nisn;
         
-        google.script.run
-            .withSuccessHandler(res => {
+        runAPI('changeCredentials', [currentUser.token, oldUsername, newUsername, oldPass, newPass, newNama],
+            res => {
                 hideLoading();
                 if (res.success) {
                     currentUser.username = newUsername;
@@ -8546,12 +8607,12 @@
                 } else {
                     showAlert('error', res.message || 'Gagal mengubah akun.');
                 }
-            })
-            .withFailureHandler(err => {
+            },
+            err => {
                 hideLoading();
                 showAlert('error', 'Error ganti akun: ' + err);
-            })
-            .changeCredentials(currentUser.token, oldUsername, newUsername, oldPass, newPass, newNama);
+            }
+        );
     }
 
     // ============================================================================

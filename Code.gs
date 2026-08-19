@@ -386,7 +386,9 @@ function updateSiswa(token, oldNisn, siswaData) {
     const ss = getSpreadsheet();
     const sheet = ss.getSheetByName('siswa');
     const data = sheet.getDataRange().getValues();
-    const cleanOld = String(oldNisn).trim();
+    // Bersihkan prefix apostrophe dari oldNisn maupun siswaData.nisn (frontend mungkin kirim bersih)
+    const cleanOld = String(oldNisn).replace(/^'+/, '').trim();
+    const cleanNewNisn = String(siswaData.nisn).replace(/^'+/, '').trim();
     
     let tglSimpan = siswaData.tanggalLahir;
     if (tglSimpan && tglSimpan.includes('-')) {
@@ -397,16 +399,17 @@ function updateSiswa(token, oldNisn, siswaData) {
     }
 
     for (let i = 1; i < data.length; i++) {
-      if (String(data[i][1]).trim() == cleanOld) {
+      const rowNisn = String(data[i][1]).replace(/^'+/, '').trim();
+      if (rowNisn === cleanOld) {
         sheet.getRange(i + 1, 1, 1, 10).setValues([[
           siswaData.nama,
-          "'" + siswaData.nisn,
+          "'" + cleanNewNisn,   // simpan dengan satu apostrophe prefix saja (format Google Sheet)
           siswaData.jenisKelamin,
           tglSimpan,
           siswaData.agama,
           siswaData.namaAyah,
           siswaData.namaIbu,
-          "'" + siswaData.noHp,
+          "'" + String(siswaData.noHp).replace(/^'+/, '').trim(),
           siswaData.kelas,
           siswaData.alamat
         ]]);
@@ -508,9 +511,29 @@ function getGuruList(token) {
   }
 }
 
-function addGuru(token, username, password, kelas, nip, nama, jabatan, noHp) {
+function addGuru(token, usernameOrObj, password, kelas, nip, nama, jabatan, noHp) {
   try {
     verifyUser(token, 'admin');
+
+    // Support panggilan dengan object guruData (dari frontend runAPI)
+    let username, _password, _kelas, _nip, _nama, _jabatan, _noHp;
+    if (usernameOrObj && typeof usernameOrObj === 'object') {
+      username  = usernameOrObj.username;
+      _password = usernameOrObj.password;
+      _kelas    = usernameOrObj.kelas;
+      _nip      = usernameOrObj.nip;
+      _nama     = usernameOrObj.nama;
+      _jabatan  = usernameOrObj.jabatan;
+      _noHp     = usernameOrObj.noHp;
+    } else {
+      username  = usernameOrObj;
+      _password = password;
+      _kelas    = kelas;
+      _nip      = nip;
+      _nama     = nama;
+      _jabatan  = jabatan;
+      _noHp     = noHp;
+    }
 
     const ss = getSpreadsheet();
     let usersSheet = ss.getSheetByName('users');
@@ -529,25 +552,25 @@ function addGuru(token, username, password, kelas, nip, nama, jabatan, noHp) {
 
     usersSheet.appendRow([
       "'" + cleanU, 
-      "'" + password, 
+      "'" + _password, 
       'guru', 
-      kelas || '',
-      "'" + (nip || '-'),
-      nama || cleanU,
-      jabatan || (kelas ? 'Wali Kelas ' + kelas : 'Guru SMANSA'),
-      "'" + (noHp || '-')
+      _kelas || '',
+      "'" + (_nip || '-'),
+      _nama || cleanU,
+      _jabatan || (_kelas ? 'Wali Kelas ' + _kelas : 'Guru SMANSA'),
+      "'" + (_noHp || '-')
     ]);
 
     // Sinkronisasi ke sheet guru jika ada
     let guruSheet = ss.getSheetByName('guru');
     if (guruSheet) {
       guruSheet.appendRow([
-        "'" + (nip || '-'),
-        nama || cleanU,
-        jabatan || (kelas ? 'Wali Kelas ' + kelas : 'Guru SMANSA'),
-        "'" + (noHp || '-'),
+        "'" + (_nip || '-'),
+        _nama || cleanU,
+        _jabatan || (_kelas ? 'Wali Kelas ' + _kelas : 'Guru SMANSA'),
+        "'" + (_noHp || '-'),
         "'" + cleanU,
-        "'" + password
+        "'" + _password
       ]);
     }
 
@@ -557,9 +580,29 @@ function addGuru(token, username, password, kelas, nip, nama, jabatan, noHp) {
   }
 }
 
-function updateGuru(token, oldUsername, newUsername, password, kelas, nip, nama, jabatan, noHp) {
+function updateGuru(token, oldUsername, newUsernameOrObj, password, kelas, nip, nama, jabatan, noHp) {
   try {
     verifyUser(token, 'admin');
+
+    // Support panggilan dengan object guruData (dari frontend runAPI)
+    let newUsername, _password, _kelas, _nip, _nama, _jabatan, _noHp;
+    if (newUsernameOrObj && typeof newUsernameOrObj === 'object') {
+      newUsername = newUsernameOrObj.username;
+      _password   = newUsernameOrObj.password;
+      _kelas      = newUsernameOrObj.kelas;
+      _nip        = newUsernameOrObj.nip;
+      _nama       = newUsernameOrObj.nama;
+      _jabatan    = newUsernameOrObj.jabatan;
+      _noHp       = newUsernameOrObj.noHp;
+    } else {
+      newUsername = newUsernameOrObj;
+      _password   = password;
+      _kelas      = kelas;
+      _nip        = nip;
+      _nama       = nama;
+      _jabatan    = jabatan;
+      _noHp       = noHp;
+    }
 
     const ss = getSpreadsheet();
     const usersSheet = ss.getSheetByName('users');
@@ -570,13 +613,13 @@ function updateGuru(token, oldUsername, newUsername, password, kelas, nip, nama,
         if (String(data[i][0]).trim().toLowerCase() === cleanOld) {
           usersSheet.getRange(i + 1, 1, 1, 8).setValues([[
             "'" + newUsername, 
-            "'" + password, 
+            "'" + _password, 
             data[i][2] || 'guru', 
-            kelas || '',
-            "'" + (nip || '-'),
-            nama || newUsername,
-            jabatan || (kelas ? 'Wali Kelas ' + kelas : 'Guru SMANSA'),
-            "'" + (noHp || '-')
+            _kelas || '',
+            "'" + (_nip || '-'),
+            _nama || newUsername,
+            _jabatan || (_kelas ? 'Wali Kelas ' + _kelas : 'Guru SMANSA'),
+            "'" + (_noHp || '-')
           ]]);
           break;
         }
@@ -589,12 +632,12 @@ function updateGuru(token, oldUsername, newUsername, password, kelas, nip, nama,
       for (let i = 1; i < gData.length; i++) {
         if (String(gData[i][4]).trim().toLowerCase() === String(oldUsername).trim().toLowerCase()) {
           guruSheet.getRange(i + 1, 1, 1, 6).setValues([[
-            "'" + (nip || '-'),
-            nama || newUsername,
-            jabatan || (kelas ? 'Wali Kelas ' + kelas : 'Guru SMANSA'),
-            "'" + (noHp || '-'),
+            "'" + (_nip || '-'),
+            _nama || newUsername,
+            _jabatan || (_kelas ? 'Wali Kelas ' + _kelas : 'Guru SMANSA'),
+            "'" + (_noHp || '-'),
             "'" + newUsername,
-            "'" + password
+            "'" + _password
           ]]);
           break;
         }
@@ -1158,7 +1201,7 @@ function getAbsensiToday(nisn) {
     if (!sheet) return { success: true, data: null, isLibur: isLibur, keteranganLibur: keteranganLibur };
 
     const data = sheet.getDataRange().getValues();
-    const searchNisn = String(nisn || '').trim().toLowerCase();
+    const searchNisn = String(nisn || '').replace(/^'/, '').trim().toLowerCase();
     let absensiData = null;
     
     for (let i = 1; i < data.length; i++) {
@@ -1166,9 +1209,10 @@ function getAbsensiToday(nisn) {
       if (!rowDateCell) continue;
       
       const rowDateStr = Utilities.formatDate(new Date(rowDateCell), 'Asia/Jakarta', 'yyyy-MM-dd');
-      const rowNisn = String(data[i][1]).trim().toLowerCase();
+      const rowNisn = String(data[i][1]).replace(/^'/, '').trim().toLowerCase();
+      const rowNama = String(data[i][2] || '').trim().toLowerCase();
 
-      if (rowDateStr === todayStr && (rowNisn === searchNisn || rowNisn === ("'" + searchNisn))) {
+      if (rowDateStr === todayStr && (rowNisn === searchNisn || (searchNisn && rowNama === searchNisn))) {
         let jamDatang = data[i][4];
         if (jamDatang instanceof Date) {
           jamDatang = Utilities.formatDate(jamDatang, 'Asia/Jakarta', 'HH:mm:ss');
@@ -1227,15 +1271,18 @@ function getMonitoringRealtime(filterKelas) {
       if (!rowDate) continue;
 
       let tgl = Utilities.formatDate(new Date(rowDate), 'Asia/Jakarta', 'yyyy-MM-dd');
-      let nisn = String(dataAbsensi[i][1]).trim();
+      let rawNisn = String(dataAbsensi[i][1]).replace(/^'/, '').trim().toLowerCase();
+      let rawNama = String(dataAbsensi[i][2] || '').trim().toLowerCase();
       
       if (tgl === todayStr) {
-        absensiMap[nisn] = {
+        const itemInfo = {
           jamDatang: dataAbsensi[i][4],
           jamPulang: dataAbsensi[i][5],
           keterangan: dataAbsensi[i][6],
           status: dataAbsensi[i][7]
         };
+        if (rawNisn) absensiMap[rawNisn] = itemInfo;
+        if (rawNama) absensiMap[rawNama] = itemInfo;
       }
     }
 
@@ -1243,13 +1290,13 @@ function getMonitoringRealtime(filterKelas) {
     for (let i = 1; i < dataSiswa.length; i++) {
       if (!dataSiswa[i][0]) continue;
 
-      let nama = dataSiswa[i][0];
-      let nisn = String(dataSiswa[i][1]).trim();
+      let nama = String(dataSiswa[i][0]).trim();
+      let nisn = String(dataSiswa[i][1]).replace(/^'/, '').trim();
       let kelas = dataSiswa[i][8];
 
       if (filterKelas && kelas !== filterKelas) continue;
       
-      let statusInfo = absensiMap[nisn];
+      let statusInfo = absensiMap[nisn.toLowerCase()] || absensiMap[nama.toLowerCase()];
       let jamDatang = '-';
       let jamPulang = '-';
       let displayStatus = 'Belum Absen'; 
@@ -1303,7 +1350,8 @@ function updateAbsensiStatus(token, nisn, nama, kelas, newStatus) {
 
     const todayStr = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
     const data = absensiSheet.getDataRange().getValues();
-    const searchNisn = String(nisn).trim().toLowerCase();
+    const searchNisn = String(nisn || '').replace(/^'/, '').trim().toLowerCase();
+    const searchNama = String(nama || '').trim().toLowerCase();
     
     let found = false;
     let rowIndex = -1;
@@ -1311,9 +1359,10 @@ function updateAbsensiStatus(token, nisn, nama, kelas, newStatus) {
     for (let i = 1; i < data.length; i++) {
       if (!data[i][0]) continue;
       let tgl = Utilities.formatDate(new Date(data[i][0]), 'Asia/Jakarta', 'yyyy-MM-dd');
-      let rowNisn = String(data[i][1]).trim().toLowerCase();
+      let rowNisn = String(data[i][1]).replace(/^'/, '').trim().toLowerCase();
+      let rowNama = String(data[i][2] || '').trim().toLowerCase();
       
-      if (tgl === todayStr && (rowNisn === searchNisn || rowNisn === ("'" + searchNisn))) {
+      if (tgl === todayStr && (rowNisn === searchNisn || (searchNama && rowNama === searchNama))) {
         found = true;
         rowIndex = i + 1;
         break;
@@ -1337,7 +1386,7 @@ function updateAbsensiStatus(token, nisn, nama, kelas, newStatus) {
       
       absensiSheet.appendRow([
         new Date(), 
-        "'" + nisn, 
+        "'" + searchNisn, 
         nama, 
         kelas || '-', 
         jamDatang, 
@@ -1366,41 +1415,59 @@ function submitIzinSakitMandiri(token, status, alasan, userInfo) {
     let nama = '';
     let kelasOrJabatan = '-';
 
-    if (userInfo && userInfo.id) {
-      searchId = String(userInfo.id).trim();
+    // Prioritas 1: gunakan userInfo yang dikirim dari frontend (paling akurat)
+    if (userInfo && userInfo.id && String(userInfo.id).replace(/^'/, '').trim() !== '' && String(userInfo.id).replace(/^'/, '').trim() !== '-') {
+      searchId = String(userInfo.id).replace(/^'/, '').trim();
       nama = userInfo.nama || searchId;
       kelasOrJabatan = userInfo.kelas || userInfo.jabatan || '-';
-    } else {
-      // Lookup from sessions
+    }
+
+    // Prioritas 2: fallback lookup dari tabel sessions menggunakan token
+    if (!searchId || searchId === '-') {
       const sessionSheet = ss.getSheetByName('sessions');
       if (sessionSheet) {
         const sData = sessionSheet.getDataRange().getValues();
         for (let i = 1; i < sData.length; i++) {
           if (sData[i][0] === token) {
-            searchId = String(sData[i][1]).trim();
+            searchId = String(sData[i][1]).replace(/^'/, '').trim();
             break;
           }
         }
       }
     }
 
+    // Prioritas 3: coba cari berdasarkan nama jika id masih kosong
+    if (!searchId || searchId === '-') {
+      if (userInfo && userInfo.nama) {
+        searchId = userInfo.nama.trim();
+        nama = userInfo.nama.trim();
+      }
+    }
+
     if (!searchId) {
-      throw new Error('Identitas pengguna tidak ditemukan.');
+      return { success: false, message: 'Identitas pengguna tidak ditemukan. Pastikan Anda sudah login.' };
     }
 
     const todayStr = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd');
     const data = absensiSheet.getDataRange().getValues();
     const cleanSearch = searchId.toLowerCase();
+    const cleanNama = nama ? nama.trim().toLowerCase() : '';
     
     let found = false;
     let rowIndex = -1;
 
     for (let i = 1; i < data.length; i++) {
       if (!data[i][0]) continue;
-      let tgl = Utilities.formatDate(new Date(data[i][0]), 'Asia/Jakarta', 'yyyy-MM-dd');
-      let rowNisn = String(data[i][1]).trim().toLowerCase();
+      let tgl;
+      try {
+        tgl = Utilities.formatDate(new Date(data[i][0]), 'Asia/Jakarta', 'yyyy-MM-dd');
+      } catch(e) {
+        continue;
+      }
+      let rowNisn = String(data[i][1]).replace(/^'/, '').trim().toLowerCase();
+      let rowNama = String(data[i][2] || '').trim().toLowerCase();
       
-      if (tgl === todayStr && (rowNisn === cleanSearch || rowNisn === ("'" + cleanSearch))) {
+      if (tgl === todayStr && (rowNisn === cleanSearch || (cleanNama && rowNama === cleanNama))) {
         found = true;
         rowIndex = i + 1;
         break;
