@@ -2131,33 +2131,19 @@
     }
 
     // ============================================================================
-    // runAPI — Universal API Router (GAS Mode ↔ Local/Firebase Mode)
-    // Semua operasi CRUD harus melalui fungsi ini agar bekerja di kedua mode.
-    // GAS Mode  : Dijalankan di dalam Google Apps Script → pakai google.script.run
-    // Local Mode: Dijalankan di cPanel/hosting/GitHub Pages → pakai BackendAPI
+    // runAPI — Firebase/BackendAPI Router (Full Firebase Mode)
+    // Seluruh operasi CRUD menggunakan BackendAPI (Firebase/localStorage).
     // ============================================================================
     function runAPI(fnName, args, successCb, failureCb) {
-      const isGAS = (typeof google !== 'undefined' && google.script && google.script.run);
-      if (isGAS) {
-        // GAS Mode: gunakan google.script.run
-        let runner = google.script.run;
-        if (successCb) runner = runner.withSuccessHandler(successCb);
-        if (failureCb) runner = runner.withFailureHandler(failureCb);
-        if (typeof runner[fnName] !== 'function') {
-          if (failureCb) failureCb('Fungsi ' + fnName + ' tidak ditemukan di server GAS.');
-          return;
-        }
-        runner[fnName].apply(runner, args || []);
-      } else {
-        // Local/Firebase Mode: gunakan BackendAPI
-        if (typeof BackendAPI[fnName] !== 'function') {
-          if (failureCb) failureCb('Fungsi BackendAPI.' + fnName + ' tidak ditemukan.');
-          return;
-        }
-        BackendAPI[fnName].apply(BackendAPI, args || [])
-          .then(res => { if (successCb) successCb(res); })
-          .catch(err => { if (failureCb) failureCb(err && err.message ? err.message : String(err)); });
+      if (typeof BackendAPI[fnName] !== 'function') {
+        console.error('BackendAPI.' + fnName + ' tidak tersedia.');
+        if (failureCb) failureCb('Fungsi ' + fnName + ' tidak tersedia.');
+        return;
       }
+      Promise.resolve()
+        .then(() => BackendAPI[fnName].apply(BackendAPI, args || []))
+        .then(res => { if (successCb) successCb(res); })
+        .catch(err => { if (failureCb) failureCb(err && err.message ? err.message : String(err)); });
     }
 
     const BackendAPI = {
@@ -2340,13 +2326,49 @@
 
       updateSiswa: async (token, oldNisn, siswaData) => {
         let list = await getDB('siswa');
-        const cleanOld = String(oldNisn).replace(/^'/, '');
-        const idx = list.findIndex(x => String(x.nisn) === cleanOld);
+        const cleanOld = String(oldNisn).replace(/^'+/, '').trim();
+        const idx = list.findIndex(x => String(x.nisn).replace(/^'+/, '').trim() === cleanOld);
         if (idx !== -1) {
-          siswaData.nisn = String(siswaData.nisn).replace(/^'/, '');
-          siswaData.noHp = String(siswaData.noHp).replace(/^'/, '');
+          siswaData.nisn = String(siswaData.nisn).replace(/^'+/, '').trim();
+          siswaData.noHp = String(siswaData.noHp).replace(/^'+/, '').trim();
+
+          // Cek jika NISN baru duplikat dengan siswa lain
+          if (siswaData.nisn !== cleanOld && list.some((x, i) => i !== idx && String(x.nisn).replace(/^'+/, '').trim() === siswaData.nisn)) {
+            return { success: false, message: 'NISN baru sudah digunakan oleh siswa lain!' };
+          }
+
           list[idx] = siswaData;
           await setDB('siswa', list);
+
+          // Sinkronisasi data presensi & izin jika NISN berubah
+          if (siswaData.nisn !== cleanOld) {
+            try {
+              let absensiList = await getDB('absensi');
+              let absUpdated = false;
+              absensiList = absensiList.map(a => {
+                if (String(a.nisn).replace(/^'+/, '').trim() === cleanOld) {
+                  absUpdated = true;
+                  return { ...a, nisn: siswaData.nisn, nama: siswaData.nama, kelas: siswaData.kelas };
+                }
+                return a;
+              });
+              if (absUpdated) await setDB('absensi', absensiList);
+
+              let izinList = await getDB('perizinan');
+              let izinUpdated = false;
+              izinList = izinList.map(iz => {
+                if (String(iz.nisn).replace(/^'+/, '').trim() === cleanOld) {
+                  izinUpdated = true;
+                  return { ...iz, nisn: siswaData.nisn, nama: siswaData.nama, kelas: siswaData.kelas };
+                }
+                return iz;
+              });
+              if (izinUpdated) await setDB('perizinan', izinList);
+            } catch (syncErr) {
+              console.warn('Sync cascade error:', syncErr);
+            }
+          }
+
           return { success: true, message: 'Data siswa berhasil diperbarui' };
         }
         return { success: false, message: 'Siswa tidak ditemukan' };
@@ -3706,10 +3728,7 @@
         const password = document.getElementById('loginPassword') ? document.getElementById('loginPassword').value : '';
         const deviceInfo = getDeviceInformation();
 
-        google.script.run
-            .withSuccessHandler(onLoginSuccess)
-            .withFailureHandler(onLoginFailure)
-            .login(username, password, username, deviceInfo);
+        runAPI('login', [username, password, username, deviceInfo], onLoginSuccess, onLoginFailure);
     }
 
     function onLoginSuccess(result) {
@@ -3738,7 +3757,7 @@
     function logout() {
         stopAndBack(false);
         if (currentUser && currentUser.sessionId) {
-            google.script.run.recordLogoutLog(currentUser.sessionId);
+            runAPI('recordLogoutLog', [currentUser.sessionId]);
         }
         localStorage.removeItem('absensiAppSession');
         currentUser = null;
@@ -3821,11 +3840,11 @@
     }
     
     function loadKelasSuggestions() {
-        google.script.run.withSuccessHandler(result => {
+        runAPI('getKelasList', [], result => {
             if (result.success) {
                 existingClasses = result.data;
             }
-        }).getKelasList();
+        });
     }
 
     function openKelasDropdown() {
@@ -3900,7 +3919,7 @@
         document.getElementById('adminDateDisplay').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         // 1. Load Data Siswa Realtime
-        google.script.run.withSuccessHandler(result => {
+        runAPI('getMonitoringRealtime', [], result => {
             if (result.success) {
                 const data = result.data;
                 window.cachedAttendanceMonitoringData = data;
@@ -3920,29 +3939,30 @@
                 renderAdminChart(hadir, sakit, izin, alpa, belum);
                 buildAdminDashboardMonitoringData();
             }
-        }).getMonitoringRealtime();
+        });
 
         // 2. Load Data Guru, Tendik & Presensi Hari Ini
         const today = (typeof getTodayString === 'function') ? getTodayString() : new Date().toISOString().split('T')[0];
         const token = currentUser ? currentUser.token : null;
 
-        google.script.run.withSuccessHandler(guruRes => {
+        runAPI('getGuruList', [token], guruRes => {
             const guruList = (guruRes && guruRes.success) ? (guruRes.data || []) : [];
             window.cachedGuruList = guruList;
 
-            google.script.run.withSuccessHandler(tendikRes => {
+            runAPI('getTendikList', [token], tendikRes => {
                 const tendikList = (tendikRes && tendikRes.success) ? (tendikRes.data || []) : [];
                 window.cachedTendikList = tendikList;
 
-                google.script.run.withSuccessHandler(absRes => {
+                runAPI('getAbsensiList', [{ tanggalMulai: today, tanggalAkhir: today }], absRes => {
                     const absToday = (absRes && absRes.success) ? (absRes.data || []) : [];
                     window.cachedAbsensiTodayAll = absToday;
 
                     updateAdminStaffCards();
                     buildAdminDashboardMonitoringData();
-                }).getAbsensiList({ tanggalMulai: today, tanggalAkhir: today });
-            }).getTendikList(token);
-        }).getGuruList(token);
+                });
+            });
+        });
+
 
         // 3. Load Riwayat & Sesi Login Pengguna
         loadAdminLoginLogs();
@@ -4287,88 +4307,89 @@
         selectElement.style.opacity = '0.5';
         const token = currentUser ? currentUser.token : null;
 
-        google.script.run.withSuccessHandler(res => {
-            selectElement.disabled = false;
-            selectElement.style.opacity = '1';
+        runAPI('updateAbsensiStatus', [token, id || username, nama, kelas, newStatus],
+            res => {
+                selectElement.disabled = false;
+                selectElement.style.opacity = '1';
 
-            if (res.success) {
-                let newColor = 'bg-slate-100 text-slate-600 border-slate-200';
-                if (newStatus === 'Hadir') newColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-                else if (newStatus === 'Izin') newColor = 'bg-blue-100 text-blue-800 border-blue-200';
-                else if (newStatus === 'Sakit') newColor = 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                else if (newStatus === 'Alpa') newColor = 'bg-rose-100 text-rose-800 border-rose-200';
+                if (res.success) {
+                    let newColor = 'bg-slate-100 text-slate-600 border-slate-200';
+                    if (newStatus === 'Hadir') newColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                    else if (newStatus === 'Izin') newColor = 'bg-blue-100 text-blue-800 border-blue-200';
+                    else if (newStatus === 'Sakit') newColor = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                    else if (newStatus === 'Alpa') newColor = 'bg-rose-100 text-rose-800 border-rose-200';
 
-                selectElement.className = `text-[11px] font-bold py-1 px-2.5 rounded-xl border focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center cursor-pointer w-32 ${newColor}`;
-                showAlert('success', `Status ${nama} diubah jadi ${newStatus}`);
+                    selectElement.className = `text-[11px] font-bold py-1 px-2.5 rounded-xl border focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center cursor-pointer w-32 ${newColor}`;
+                    showAlert('success', `Status ${nama} diubah jadi ${newStatus}`);
 
-                // Update local admMonState
-                const searchKey = String(id || username).toLowerCase();
-                const item = admMonState.allData.find(x => 
-                    String(x.id || '').toLowerCase() === searchKey ||
-                    String(x.username || '').toLowerCase() === searchKey
-                );
-                if (item) {
-                    item.status = newStatus;
-                    if (newStatus === 'Hadir' && (!item.jamDatang || item.jamDatang === '-')) {
-                        item.jamDatang = new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
-                    }
-                }
-
-                // If staff, also update staff card counts
-                if (role === 'guru' || role === 'tendik') {
-                    if (window.cachedAbsensiTodayAll) {
-                        const existingIdx = window.cachedAbsensiTodayAll.findIndex(a => 
-                            (a.username && a.username.toLowerCase() === searchKey) ||
-                            (String(a.nisn).trim().toLowerCase() === searchKey)
-                        );
-                        if (newStatus === 'Belum Absen') {
-                            if (existingIdx !== -1) window.cachedAbsensiTodayAll.splice(existingIdx, 1);
-                        } else if (existingIdx !== -1) {
-                            window.cachedAbsensiTodayAll[existingIdx].status = newStatus;
-                        } else {
-                            window.cachedAbsensiTodayAll.push({
-                                nisn: id || username,
-                                username: username,
-                                nama: nama,
-                                kelas: kelas,
-                                tipeUser: role === 'guru' ? 'Guru' : 'Tendik',
-                                jamDatang: newStatus === 'Hadir' ? new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '-',
-                                jamPulang: '-',
-                                status: newStatus
-                            });
+                    // Update local admMonState
+                    const searchKey = String(id || username).toLowerCase();
+                    const item = admMonState.allData.find(x => 
+                        String(x.id || '').toLowerCase() === searchKey ||
+                        String(x.username || '').toLowerCase() === searchKey
+                    );
+                    if (item) {
+                        item.status = newStatus;
+                        if (newStatus === 'Hadir' && (!item.jamDatang || item.jamDatang === '-')) {
+                            item.jamDatang = new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
                         }
                     }
-                    if (typeof updateAdminStaffCards === 'function') {
-                        updateAdminStaffCards();
+
+                    // If staff, also update staff card counts
+                    if (role === 'guru' || role === 'tendik') {
+                        if (window.cachedAbsensiTodayAll) {
+                            const existingIdx = window.cachedAbsensiTodayAll.findIndex(a => 
+                                (a.username && a.username.toLowerCase() === searchKey) ||
+                                (String(a.nisn).trim().toLowerCase() === searchKey)
+                            );
+                            if (newStatus === 'Belum Absen') {
+                                if (existingIdx !== -1) window.cachedAbsensiTodayAll.splice(existingIdx, 1);
+                            } else if (existingIdx !== -1) {
+                                window.cachedAbsensiTodayAll[existingIdx].status = newStatus;
+                            } else {
+                                window.cachedAbsensiTodayAll.push({
+                                    nisn: id || username,
+                                    username: username,
+                                    nama: nama,
+                                    kelas: kelas,
+                                    tipeUser: role === 'guru' ? 'Guru' : 'Tendik',
+                                    jamDatang: newStatus === 'Hadir' ? new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '-',
+                                    jamPulang: '-',
+                                    status: newStatus
+                                });
+                            }
+                        }
+                        if (typeof updateAdminStaffCards === 'function') {
+                            updateAdminStaffCards();
+                        }
+                    } else if (role === 'siswa') {
+                        // Update student counter on admin dashboard
+                        if (window.cachedAttendanceMonitoringData) {
+                            const found = window.cachedAttendanceMonitoringData.find(s => String(s.nisn).trim().toLowerCase() === searchKey);
+                            if (found) found.status = newStatus;
+                            const data = window.cachedAttendanceMonitoringData;
+                            const hadir = data.filter(d => d.status === 'Hadir').length;
+                            const sakit = data.filter(d => d.status === 'Sakit').length;
+                            const izin = data.filter(d => d.status === 'Izin').length;
+                            const alpa = data.filter(d => d.status === 'Alpa').length;
+                            const belum = data.filter(d => d.status === 'Belum Absen').length;
+                            animateValue("admStatHadir", 0, hadir, 300);
+                            animateValue("admStatSakit", 0, sakit, 300);
+                            animateValue("admStatIzin", 0, izin, 300);
+                            animateValue("admStatAlpa", 0, alpa, 300);
+                            renderAdminChart(hadir, sakit, izin, alpa, belum);
+                        }
                     }
-                } else if (role === 'siswa') {
-                    // Update student counter on admin dashboard
-                    if (window.cachedAttendanceMonitoringData) {
-                        const found = window.cachedAttendanceMonitoringData.find(s => String(s.nisn).trim().toLowerCase() === searchKey);
-                        if (found) found.status = newStatus;
-                        const data = window.cachedAttendanceMonitoringData;
-                        const hadir = data.filter(d => d.status === 'Hadir').length;
-                        const sakit = data.filter(d => d.status === 'Sakit').length;
-                        const izin = data.filter(d => d.status === 'Izin').length;
-                        const alpa = data.filter(d => d.status === 'Alpa').length;
-                        const belum = data.filter(d => d.status === 'Belum Absen').length;
-                        animateValue("admStatHadir", 0, hadir, 300);
-                        animateValue("admStatSakit", 0, sakit, 300);
-                        animateValue("admStatIzin", 0, izin, 300);
-                        animateValue("admStatAlpa", 0, alpa, 300);
-                        renderAdminChart(hadir, sakit, izin, alpa, belum);
-                    }
+                } else {
+                    showAlert('error', res.message);
                 }
-            } else {
-                showAlert('error', res.message);
+            },
+            error => {
+                selectElement.disabled = false;
+                selectElement.style.opacity = '1';
+                showAlert('error', 'Error: ' + error);
             }
-        })
-        .withFailureHandler(error => {
-            selectElement.disabled = false;
-            selectElement.style.opacity = '1';
-            showAlert('error', 'Error: ' + error);
-        })
-        .updateAbsensiStatus(token, id || username, nama, kelas, newStatus);
+        );
     }
 
     function refreshAdminDashboardMonitoring() {
@@ -4444,12 +4465,12 @@
             }
         }
         
-        google.script.run.withSuccessHandler(res => {
+        runAPI('getLoginLogs', [], res => {
             if (res && res.success) {
                 cachedLoginLogs = res.data || [];
                 renderAdminLoginLogs(cachedLoginLogs);
             }
-        }).getLoginLogs();
+        });
     }
 
     function renderAdminLoginLogs(logs) {
@@ -4627,8 +4648,7 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                showLoading();
-                google.script.run.withSuccessHandler(res => {
+                runAPI('terminateUserSession', [sessionId], res => {
                     hideLoading();
                     if (res && res.success) {
                         showAlert('success', res.message);
@@ -4636,7 +4656,7 @@
                     } else {
                         showAlert('error', res.message || 'Gagal memutuskan sesi');
                     }
-                }).terminateUserSession(sessionId);
+                });
             }
         });
     }
@@ -4653,14 +4673,13 @@
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                showLoading();
-                google.script.run.withSuccessHandler(res => {
+                runAPI('clearLoginLogs', [], res => {
                     hideLoading();
                     if (res && res.success) {
                         showAlert('success', 'Riwayat login berhasil dibersihkan.');
                         loadAdminLoginLogs();
                     }
-                }).clearLoginLogs();
+                });
             }
         });
     }
@@ -4732,7 +4751,8 @@
             if (elNip) elNip.textContent = currentUser.nip || '-';
             if (elHp) elHp.textContent = currentUser.noHp || '-';
 
-            google.script.run.withSuccessHandler(res => {
+            runAPI('getAbsensiToday', [(currentUser.nip && currentUser.nip !== '-') ? currentUser.nip : currentUser.username],
+                res => {
                 const elMasuk = document.getElementById('guruJamDatang');
                 const elPulang = document.getElementById('guruJamPulang');
                 const elBadge = document.getElementById('guruStatusBadge');
@@ -4782,12 +4802,12 @@
                         elKetContainer.classList.remove('flex');
                     }
                 }
-            }).getAbsensiToday((currentUser.nip && currentUser.nip !== '-') ? currentUser.nip : currentUser.username);
+            });
         }
 
         const myClass = currentUser.role === 'guru' ? currentUser.kelas : null;
 
-        google.script.run.withSuccessHandler(result => {
+        runAPI('getMonitoringRealtime', [myClass], result => {
             if (result.success) {
                 const data = result.data; 
                 window.cachedAttendanceMonitoringData = data;
@@ -4810,7 +4830,7 @@
                 animateValue("statGuruAlpa", 0, alpa, 600);
                 renderGuruChart(hadir, sakit, izin, alpa, belumAbsen);
             }
-        }).getMonitoringRealtime(myClass);
+        });
     }
 
     function getCurrentGPSPosition() {
@@ -4846,8 +4866,8 @@
         showLoading();
         try {
             const gps = await getCurrentGPSPosition();
-            google.script.run
-                .withSuccessHandler(res => {
+            runAPI('scanAbsensi', [targetId, currentUser.role, currentUser.kelas, gps.lat, gps.lng],
+                res => {
                     hideLoading();
                     if (res.success) {
                         showAlert('success', res.message);
@@ -4855,12 +4875,12 @@
                     } else {
                         showAlert('error', res.message);
                     }
-                })
-                .withFailureHandler(err => {
+                },
+                err => {
                     hideLoading();
                     showAlert('error', 'Gagal presensi: ' + err);
-                })
-                .scanAbsensi(targetId, currentUser.role, currentUser.kelas, gps.lat, gps.lng);
+                }
+            );
         } catch (gpsError) {
             hideLoading();
             showAlert('error', gpsError.message || 'Wajib menyalakan dan mengizinkan GPS untuk melakukan presensi.');
@@ -5037,15 +5057,14 @@
         if (window.cachedAttendanceMonitoringData && window.cachedAttendanceMonitoringData.length > 0) {
             renderModalContent(window.cachedAttendanceMonitoringData);
         } else {
-            showLoading();
-            google.script.run.withSuccessHandler(res => {
+            runAPI('getMonitoringRealtime', [myClass], res => {
                 hideLoading();
                 if (res.success) {
                     renderModalContent(res.data);
                 } else {
                     showAlert('error', 'Gagal memuat data presensi.');
                 }
-            }).getMonitoringRealtime(myClass);
+            });
         }
     }
 
@@ -5283,48 +5302,45 @@
         selectElement.style.opacity = '0.5';
         const token = currentUser ? currentUser.token : null;
 
-        google.script.run.withSuccessHandler(res => {
-            selectElement.disabled = false;
-            selectElement.style.opacity = '1';
+        runAPI('updateAbsensiStatus', [token, id || username, nama, jabatan, newStatus],
+            res => {
+                selectElement.disabled = false;
+                selectElement.style.opacity = '1';
 
-            if (res.success) {
-                let newBadge = 'bg-slate-100 text-slate-600 border-slate-200';
-                if (newStatus === 'Hadir') newBadge = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-                else if (newStatus === 'Sakit') newBadge = 'bg-yellow-100 text-yellow-800 border-yellow-200';
-                else if (newStatus === 'Izin') newBadge = 'bg-blue-100 text-blue-800 border-blue-200';
-                else if (newStatus === 'Alpa') newBadge = 'bg-rose-100 text-rose-800 border-rose-200';
-                
-                selectElement.className = `text-[11px] font-bold py-1 px-2.5 rounded-xl border focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center cursor-pointer ${newBadge}`;
-                showAlert('success', `Status ${nama} diubah jadi ${newStatus}`);
+                if (res.success) {
+                    let newBadge = 'bg-slate-100 text-slate-600 border-slate-200';
+                    if (newStatus === 'Hadir') newBadge = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                    else if (newStatus === 'Sakit') newBadge = 'bg-yellow-100 text-yellow-800 border-yellow-200';
+                    else if (newStatus === 'Izin') newBadge = 'bg-blue-100 text-blue-800 border-blue-200';
+                    else if (newStatus === 'Alpa') newBadge = 'bg-rose-100 text-rose-800 border-rose-200';
+                    
+                    selectElement.className = `text-[11px] font-bold py-1 px-2.5 rounded-xl border focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center cursor-pointer ${newBadge}`;
+                    showAlert('success', `Status ${nama} diubah jadi ${newStatus}`);
 
-                // Update cached absensi
-                if (window.cachedAbsensiTodayAll) {
-                    const searchKey = String(id || username).toLowerCase();
-                    const existingIdx = window.cachedAbsensiTodayAll.findIndex(a => 
-                        (a.username && a.username.toLowerCase() === searchKey) ||
-                        (String(a.nisn).trim().toLowerCase() === searchKey)
-                    );
-                    if (newStatus === 'Belum Absen') {
-                        if (existingIdx !== -1) window.cachedAbsensiTodayAll.splice(existingIdx, 1);
-                    } else if (existingIdx !== -1) {
-                        window.cachedAbsensiTodayAll[existingIdx].status = newStatus;
-                    } else {
-                        window.cachedAbsensiTodayAll.push({
-                            nisn: id || username,
-                            username: username,
-                            nama: nama,
-                            kelas: jabatan,
-                            tipeUser: role === 'guru' ? 'Guru' : 'Tendik',
-                            jamDatang: newStatus === 'Hadir' ? new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '-',
-                            jamPulang: '-',
-                            status: newStatus
-                        });
+                    // Update cached absensi
+                    if (window.cachedAbsensiTodayAll) {
+                        const searchKey = String(id || username).toLowerCase();
+                        const existingIdx = window.cachedAbsensiTodayAll.findIndex(a => 
+                            (a.username && a.username.toLowerCase() === searchKey) ||
+                            (String(a.nisn).trim().toLowerCase() === searchKey)
+                        );
+                        if (newStatus === 'Belum Absen') {
+                            if (existingIdx !== -1) window.cachedAbsensiTodayAll.splice(existingIdx, 1);
+                        } else if (existingIdx !== -1) {
+                            window.cachedAbsensiTodayAll[existingIdx].status = newStatus;
+                        } else {
+                            window.cachedAbsensiTodayAll.push({
+                                nisn: id || username,
+                                username: username,
+                                nama: nama,
+                                kelas: jabatan,
+                                tipeUser: role === 'guru' ? 'Guru' : 'Tendik',
+                                jamDatang: newStatus === 'Hadir' ? new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) : '-',
+                                jamPulang: '-',
+                                status: newStatus
+                            });
+                        }
                     }
-                }
-
-                // Update window.cachedCurrentStaffFiltered
-                if (window.cachedCurrentStaffFiltered) {
-                    const searchKey = String(id || username).toLowerCase();
                     const foundStaff = window.cachedCurrentStaffFiltered.find(x => 
                         String(x.nip || '').toLowerCase() === searchKey ||
                         String(x.username || '').toLowerCase() === searchKey
@@ -5521,85 +5537,88 @@
             safeSetText('dashDate', today);
         } catch (e) {}
 
-        google.script.run.withSuccessHandler(result => {
-            hideLoading();
-            try {
-                const absensi = result && result.success ? result.data : null;
-                const isLibur = result.isLibur;
-                const infoLibur = result.keteranganLibur;
+        runAPI('getAbsensiToday', [currentUser.nisn],
+            result => {
+                hideLoading();
+                try {
+                    const absensi = result && result.success ? result.data : null;
+                    const isLibur = result.isLibur;
+                    const infoLibur = result.keteranganLibur;
 
-                const elHero = document.getElementById('heroCard');
-                const elBadge = document.getElementById('dashStatusBadge');
-                const elValMasuk = document.getElementById('valMasuk');
-                const elValPulang = document.getElementById('valPulang');
-                const elAlert = document.getElementById('alertBelumAbsen');
+                    const elHero = document.getElementById('heroCard');
+                    const elBadge = document.getElementById('dashStatusBadge');
+                    const elValMasuk = document.getElementById('valMasuk');
+                    const elValPulang = document.getElementById('valPulang');
+                    const elAlert = document.getElementById('alertBelumAbsen');
 
-                if (isLibur) {
-                    if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-600 to-red-800 p-6 text-white shadow-xl shadow-rose-200 transition-all duration-500 group";
-                    if (elBadge) {
-                        elBadge.className = "px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-sm";
-                        elBadge.innerHTML = `<i class="fas fa-calendar-times mr-2"></i> HARI LIBUR`;
-                    }
-                    if (elValMasuk) {
-                        elValMasuk.parentElement.innerHTML = `
-                            <div class="text-center py-2">
-                                <i class="fas fa-mug-hot text-3xl mb-2 opacity-80"></i>
-                                <p class="text-sm font-bold uppercase tracking-widest">${infoLibur}</p>
-                                <p class="text-[10px] mt-1 opacity-75">Tidak ada absensi hari ini</p>
-                            </div>
-                        `;
-                        if(elValPulang) elValPulang.parentElement.style.display = 'none';
-                        if(elValMasuk) elValMasuk.parentElement.classList.add('col-span-2');
-                    }
-                    if (elAlert) { elAlert.classList.add('hidden'); elAlert.classList.remove('flex'); }
-                    return; 
-                }
-
-                if (!absensi) {
-                    if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-slate-800 p-6 text-white shadow-xl shadow-slate-200 transition-all duration-500 group";
-                    if (elBadge) {
-                        elBadge.className = "px-4 py-2 rounded-xl bg-rose-500/20 backdrop-blur-md border border-rose-500/30 text-rose-200 text-xs font-bold shadow-sm animate-pulse";
-                        elBadge.innerHTML = `<i class="fas fa-circle text-[8px] mr-2"></i> BELUM ABSEN`;
-                    }
-                    if (elValMasuk) elValMasuk.textContent = "--:--";
-                    if (elValPulang) elValPulang.textContent = "--:--";
-                    if (elAlert) { elAlert.classList.remove('hidden'); elAlert.classList.add('flex'); }
-                } else {
-                    if (elAlert) { elAlert.classList.add('hidden'); elAlert.classList.remove('flex'); }
-
-                    if (absensi.status === 'Izin' || absensi.status === 'Sakit') {
-                        const isIzin = absensi.status === 'Izin';
-                        if (elHero) elHero.className = isIzin 
-                            ? "relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-800 p-6 text-white shadow-xl shadow-blue-200 transition-all duration-500 group"
-                            : "relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-600 to-orange-800 p-6 text-white shadow-xl shadow-amber-200 transition-all duration-500 group";
+                    if (isLibur) {
+                        if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-600 to-red-800 p-6 text-white shadow-xl shadow-rose-200 transition-all duration-500 group";
                         if (elBadge) {
                             elBadge.className = "px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-sm";
-                            elBadge.innerHTML = `<i class="fas ${isIzin ? 'fa-file-alt' : 'fa-file-medical'} mr-2"></i> ${absensi.status.toUpperCase()}`;
+                            elBadge.innerHTML = `<i class="fas fa-calendar-times mr-2"></i> HARI LIBUR`;
                         }
-                        if (elValMasuk) elValMasuk.textContent = "-";
-                        if (elValPulang) elValPulang.textContent = "-";
+                        if (elValMasuk) {
+                            elValMasuk.parentElement.innerHTML = `
+                                <div class="text-center py-2">
+                                    <i class="fas fa-mug-hot text-3xl mb-2 opacity-80"></i>
+                                    <p class="text-sm font-bold uppercase tracking-widest">${infoLibur}</p>
+                                    <p class="text-[10px] mt-1 opacity-75">Tidak ada absensi hari ini</p>
+                                </div>
+                            `;
+                            if(elValPulang) elValPulang.parentElement.style.display = 'none';
+                            if(elValMasuk) elValMasuk.parentElement.classList.add('col-span-2');
+                        }
+                        if (elAlert) { elAlert.classList.add('hidden'); elAlert.classList.remove('flex'); }
+                        return; 
+                    }
+
+                    if (!absensi) {
+                        if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-slate-800 p-6 text-white shadow-xl shadow-slate-200 transition-all duration-500 group";
+                        if (elBadge) {
+                            elBadge.className = "px-4 py-2 rounded-xl bg-rose-500/20 backdrop-blur-md border border-rose-500/30 text-rose-200 text-xs font-bold shadow-sm animate-pulse";
+                            elBadge.innerHTML = `<i class="fas fa-circle text-[8px] mr-2"></i> BELUM ABSEN`;
+                        }
+                        if (elValMasuk) elValMasuk.textContent = "--:--";
+                        if (elValPulang) elValPulang.textContent = "--:--";
+                        if (elAlert) { elAlert.classList.remove('hidden'); elAlert.classList.add('flex'); }
                     } else {
-                        if (elValMasuk) elValMasuk.textContent = absensi.jamDatang || "--:--";
-                        
-                        if (!absensi.jamPulang || absensi.jamPulang === '-') {
-                            if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-800 p-6 text-white shadow-xl shadow-emerald-200 transition-all duration-500 group";
+                        if (elAlert) { elAlert.classList.add('hidden'); elAlert.classList.remove('flex'); }
+
+                        if (absensi.status === 'Izin' || absensi.status === 'Sakit') {
+                            const isIzin = absensi.status === 'Izin';
+                            if (elHero) elHero.className = isIzin 
+                                ? "relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-800 p-6 text-white shadow-xl shadow-blue-200 transition-all duration-500 group"
+                                : "relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-600 to-orange-800 p-6 text-white shadow-xl shadow-amber-200 transition-all duration-500 group";
                             if (elBadge) {
                                 elBadge.className = "px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-sm";
-                                elBadge.innerHTML = `<i class="fas fa-clock animate-pulse mr-2"></i> SEDANG BERLANGSUNG`;
+                                elBadge.innerHTML = `<i class="fas ${isIzin ? 'fa-file-alt' : 'fa-file-medical'} mr-2"></i> ${absensi.status.toUpperCase()}`;
                             }
-                            if (elValPulang) elValPulang.textContent = "--:--";
+                            if (elValMasuk) elValMasuk.textContent = "-";
+                            if (elValPulang) elValPulang.textContent = "-";
                         } else {
-                            if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-800 p-6 text-white shadow-xl shadow-indigo-200 transition-all duration-500 group";
-                            if (elBadge) {
-                                elBadge.className = "px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-sm";
-                                elBadge.innerHTML = `<i class="fas fa-check-circle mr-2"></i> SELESAI HARI INI`;
+                            if (elValMasuk) elValMasuk.textContent = absensi.jamDatang || "--:--";
+                            
+                            if (!absensi.jamPulang || absensi.jamPulang === '-') {
+                                if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-800 p-6 text-white shadow-xl shadow-emerald-200 transition-all duration-500 group";
+                                if (elBadge) {
+                                    elBadge.className = "px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-sm";
+                                    elBadge.innerHTML = `<i class="fas fa-clock animate-pulse mr-2"></i> SEDANG BERLANGSUNG`;
+                                }
+                                if (elValPulang) elValPulang.textContent = "--:--";
+                            } else {
+                                if (elHero) elHero.className = "relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-800 p-6 text-white shadow-xl shadow-indigo-200 transition-all duration-500 group";
+                                if (elBadge) {
+                                    elBadge.className = "px-4 py-2 rounded-xl bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold shadow-sm";
+                                    elBadge.innerHTML = `<i class="fas fa-check-circle mr-2"></i> SELESAI HARI INI`;
+                                }
+                                if (elValPulang) elValPulang.textContent = absensi.jamPulang;
                             }
-                            if (elValPulang) elValPulang.textContent = absensi.jamPulang;
                         }
                     }
-                }
-            } catch (err) { console.error("Error rendering dashboard:", err); }
-        }).withFailureHandler(error => { hideLoading(); }).getAbsensiToday(currentUser.nisn);
+                } catch (err) { console.error("Error rendering dashboard:", err); }
+            },
+            error => { hideLoading(); }
+        );
     }
 
     function loadKelolaAbsen() {
@@ -5609,14 +5628,14 @@
         
         document.getElementById('tbody-libur').innerHTML = '<tr><td colspan="4" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data...</td></tr>';
         
-        google.script.run.withSuccessHandler(result => {
+        runAPI('getHariLibur', [], result => {
             if (result.success) {
                 tableState.libur.fullData = result.data;
                 processTableData('libur');
             } else {
                 document.getElementById('tbody-libur').innerHTML = '<tr><td colspan="4" class="p-4 text-center text-red-500">Gagal memuat data.</td></tr>';
             }
-        }).getHariLibur();
+        });
 
         loadGlobalConfig();
     }
@@ -5625,7 +5644,7 @@
         const inputs = document.querySelectorAll('#view-kelola-absen input');
         inputs.forEach(el => el.disabled = true);
 
-        google.script.run.withSuccessHandler(res => {
+        runAPI('getAppConfig', [], res => {
             inputs.forEach(el => el.disabled = false);
             if(res.success) {
                 const conf = res.data;
@@ -5637,7 +5656,7 @@
                 if (document.getElementById('conf_lokasi_lng')) document.getElementById('conf_lokasi_lng').value = conf.lokasi_lng || '97.3358611';
                 if (document.getElementById('conf_radius_meter')) document.getElementById('conf_radius_meter').value = conf.radius_meter || '200';
             }
-        }).getAppConfig();
+        });
     }
 
     function saveGlobalConfig(e) {
@@ -5659,19 +5678,22 @@
             radius_meter: formData.get('radius_meter') || '200'
         };
 
-        google.script.run.withSuccessHandler(res => {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            if(res.success) {
-                showAlert('success', 'Pengaturan waktu & GPS (Radius 200m) berhasil disimpan!');
-            } else {
-                showAlert('error', res.message);
+        runAPI('saveAppConfig', [newConfig],
+            res => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                if(res.success) {
+                    showAlert('success', 'Pengaturan waktu & GPS (Radius 200m) berhasil disimpan!');
+                } else {
+                    showAlert('error', res.message);
+                }
+            },
+            err => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                showAlert('error', 'Gagal koneksi: ' + err);
             }
-        }).withFailureHandler(err => {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            showAlert('error', 'Gagal koneksi: ' + err);
-        }).saveAppConfig(newConfig);
+        );
     }
 
     function renderLiburRows(data, startIdx) {
@@ -5759,25 +5781,26 @@
         const newDate = fd.get('newDate');
         const newKet = fd.get('newKeterangan');
         
-        google.script.run.withSuccessHandler(res => {
-            hideLoading();
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            if (res.success) {
-                closeModal();
-                loadKelolaAbsen(); 
-                showAlert('success', res.message);
-            } else {
-                showAlert('error', res.message);
+        runAPI('updateHariLibur', [oldDate, newDate, newKet],
+            res => {
+                hideLoading();
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                if (res.success) {
+                    closeModal();
+                    loadKelolaAbsen(); 
+                    showAlert('success', res.message);
+                } else {
+                    showAlert('error', res.message);
+                }
+            },
+            error => {
+                hideLoading();
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                showAlert('error', 'Gagal: ' + error);
             }
-        })
-        .withFailureHandler(error => {
-            hideLoading();
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            showAlert('error', 'Gagal: ' + error);
-        })
-        .updateHariLibur(oldDate, newDate, newKet);
+        );
     }
             
     function handleAddLibur(e) {
@@ -5787,7 +5810,7 @@
         const tgl = fd.get('tanggal');
         const ket = fd.get('keterangan');
 
-        google.script.run.withSuccessHandler(res => {
+        runAPI('addHariLibur', [tgl, ket], res => {
             hideLoading();
             if (res.success) {
                 e.target.reset();
@@ -5796,17 +5819,17 @@
             } else {
                 showAlert('error', res.message);
             }
-        }).addHariLibur(tgl, ket);
+        });
     }
 
     function deleteLiburConfirm(tgl) {
         if (confirm('Hapus hari libur ini? Siswa akan bisa absen pada tanggal tersebut.')) {
             showLoading();
-            google.script.run.withSuccessHandler(res => {
+            runAPI('deleteHariLibur', [tgl], res => {
                 hideLoading();
                 loadKelolaAbsen();
                 showAlert('success', 'Jadwal libur dihapus');
-            }).deleteHariLibur(tgl);
+            });
         }
     }
 
@@ -5914,19 +5937,20 @@
             document.getElementById('tbody-guru').innerHTML = '<tr><td colspan="9" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data guru...</td></tr>';
             const token = currentUser ? currentUser.token : '';
 
-            google.script.run.withSuccessHandler(result => {
-                if (result.success) {
-                    tableState.guru.fullData = (result.data || []).filter(g => String(g.role || '').toLowerCase() !== 'admin' && String(g.username || '').toLowerCase() !== 'admin');
-                    processTableData('guru');
-                } else {
-                    document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
-                    showAlert('error', result.message);
+            runAPI('getGuruList', [token],
+                result => {
+                    if (result.success) {
+                        tableState.guru.fullData = (result.data || []).filter(g => String(g.role || '').toLowerCase() !== 'admin' && String(g.username || '').toLowerCase() !== 'admin');
+                        processTableData('guru');
+                    } else {
+                        document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
+                        showAlert('error', result.message);
+                    }
+                },
+                error => {
+                    document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
                 }
-            })
-            .withFailureHandler(error => {
-                document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
-            })
-            .getGuruList(token);
+            );
         }
     }
 
@@ -6057,7 +6081,7 @@
             kelas: document.getElementById('fKelasRekap').value
         };
 
-        google.script.run.withSuccessHandler(result => {
+        runAPI('getAbsensiList', [filter], result => {
             loading.classList.add('hidden');
             container.classList.remove('hidden');
             
@@ -6068,7 +6092,7 @@
                  tableState.rekap.fullData = [];
                  processTableData('rekap');
             }
-        }).getAbsensiList(filter);
+        });
     }
 
     function exportToExcel() {
@@ -6095,21 +6119,36 @@
             kelas: kelas
         };
 
-        google.script.run.withSuccessHandler(result => {
+        // Export client-side menggunakan data yang sudah ada (tidak butuh backend)
+        runAPI('getAbsensiList', [filters], result => {
             btn.disabled = false;
             btn.innerHTML = originalText;
-            if (result.success) {
+            if (result.success && result.data && result.data.length > 0) {
+                const excelRows = result.data.map((d, i) => ({
+                    'No': i + 1,
+                    'Tanggal': d.tanggal || '-',
+                    'Nama': d.nama || '-',
+                    'Kategori': d.tipeUser || 'Siswa',
+                    'Kelas / Jabatan': d.kelas || '-',
+                    'Identitas (NISN/NIP)': d.nisn || d.username || '-',
+                    'Jam Datang': d.jamDatang || '-',
+                    'Jam Pulang': d.jamPulang || '-',
+                    'Keterangan': d.keterangan || '-',
+                    'Status': d.status || 'Hadir'
+                }));
+                const ws = XLSX.utils.json_to_sheet(excelRows);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Laporan_Absensi');
+                XLSX.writeFile(wb, `Laporan_Absensi_${filters.tanggalMulai}_sd_${filters.tanggalAkhir}.xlsx`);
                 showAlert('success', 'File Excel berhasil diunduh!');
             } else {
-                showAlert('error', result.message);
+                showAlert('error', 'Tidak ada data untuk diekspor pada periode ini.');
             }
-        })
-        .withFailureHandler(err => {
+        }, err => {
             btn.disabled = false;
             btn.innerHTML = originalText;
             showAlert('error', 'Terjadi kesalahan: ' + err);
-        })
-        .generateExcel('laporan_absensi', filters);
+        });
     }
 
     function renderRekapRows(data, startIdx) {
@@ -6188,7 +6227,7 @@
             document.getElementById('tbody-monitoring').innerHTML = '<tr><td colspan="7" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data live monitoring...</td></tr>';
         }
         
-        google.script.run.withSuccessHandler(result => {
+        runAPI('getMonitoringRealtime', [myClass], result => {
             if (result && result.success) {
                 tableState.monitoring.fullData = result.data || [];
                 window.cachedAttendanceMonitoringData = result.data || [];
@@ -6196,20 +6235,20 @@
             } else if (!silent) {
                 document.getElementById('tbody-monitoring').innerHTML = '<tr><td colspan="7" class="p-12 text-center text-gray-400 italic bg-white">Data presensi tidak ditemukan.</td></tr>';
             }
-        }).getMonitoringRealtime(myClass);
+        });
 
         // Auto live refresh while user is on the monitoring page
         if (liveMonitoringInterval) clearInterval(liveMonitoringInterval);
         liveMonitoringInterval = setInterval(() => {
             const currentView = document.getElementById('view-monitoring');
             if (currentView && currentView.classList.contains('active')) {
-                google.script.run.withSuccessHandler(result => {
+                runAPI('getMonitoringRealtime', [myClass], result => {
                     if (result && result.success) {
                         tableState.monitoring.fullData = result.data || [];
                         window.cachedAttendanceMonitoringData = result.data || [];
                         processTableData('monitoring');
                     }
-                }).getMonitoringRealtime(myClass);
+                });
             } else {
                 clearInterval(liveMonitoringInterval);
                 liveMonitoringInterval = null;
@@ -6228,24 +6267,31 @@
         const myClass = (currentUser && currentUser.role === 'guru') ? currentUser.kelas : null;
         const filters = { kelas: myClass };
 
-        google.script.run.withSuccessHandler(result => {
-            btn.disabled = false;
-            btn.classList.remove('cursor-not-allowed', 'opacity-75');
-            btn.innerHTML = originalContent;
-
-            if (result.success) {
-                showAlert('success', 'Data monitoring berhasil di-export ke Excel!');
-            } else {
-                showAlert('error', result.message);
-            }
-        })
-        .withFailureHandler(err => {
-            btn.disabled = false;
-            btn.classList.remove('cursor-not-allowed', 'opacity-75');
-            btn.innerHTML = originalContent;
-            showAlert('error', 'Gagal: ' + err);
-        })
-        .generateExcel('monitoring', filters);
+        // Export monitoring client-side menggunakan data cache
+        const monData = tableState.monitoring.filteredData || tableState.monitoring.fullData || [];
+        btn.disabled = false;
+        btn.classList.remove('cursor-not-allowed', 'opacity-75');
+        btn.innerHTML = originalContent;
+        if (monData.length > 0) {
+            const excelRows = monData.map((d, i) => ({
+                'No': i + 1,
+                'Nama': d.nama || '-',
+                'NISN': d.nisn || '-',
+                'Kelas': d.kelas || '-',
+                'Jam Datang': d.jamDatang || '-',
+                'Jam Pulang': d.jamPulang || '-',
+                'Keterangan': d.keterangan || '-',
+                'Status': d.status || 'Belum Absen'
+            }));
+            const ws = XLSX.utils.json_to_sheet(excelRows);
+            const wb = XLSX.utils.book_new();
+            const todayStr = new Date().toISOString().split('T')[0];
+            XLSX.utils.book_append_sheet(wb, ws, 'Monitoring_Presensi');
+            XLSX.writeFile(wb, `Monitoring_Presensi_${todayStr}.xlsx`);
+            showAlert('success', 'Data monitoring berhasil di-export ke Excel!');
+        } else {
+            showAlert('warning', 'Tidak ada data monitoring untuk diekspor.');
+        }
     }
     
     function renderMonitoringRows(data, startIdx) {
@@ -6317,30 +6363,31 @@
         selectElement.style.opacity = '0.5';
         const token = currentUser ? currentUser.token : null;
 
-        google.script.run.withSuccessHandler(res => {
-            selectElement.disabled = false;
-            selectElement.style.opacity = '1';
+        runAPI('updateAbsensiStatus', [token, nisn, nama, kelas, newStatus],
+            res => {
+                selectElement.disabled = false;
+                selectElement.style.opacity = '1';
 
-            if (res.success) {
-                let newColor = 'bg-gray-100 text-gray-600';
-                if(newStatus === 'Hadir') newColor = 'bg-emerald-100 text-emerald-700';
-                else if(newStatus === 'Izin') newColor = 'bg-blue-100 text-blue-700';
-                else if(newStatus === 'Sakit') newColor = 'bg-amber-100 text-amber-700';
-                else if(newStatus === 'Alpa') newColor = 'bg-rose-100 text-rose-700';
-                
-                selectElement.className = `text-xs font-bold py-1.5 px-3 rounded-xl border-0 focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center w-36 cursor-pointer ${newColor}`;
-                showAlert('success', `Status ${nama} diubah jadi ${newStatus}`);
-            } else {
-                showAlert('error', res.message);
-                loadMonitoringAbsensi();
+                if (res.success) {
+                    let newColor = 'bg-gray-100 text-gray-600';
+                    if(newStatus === 'Hadir') newColor = 'bg-emerald-100 text-emerald-700';
+                    else if(newStatus === 'Izin') newColor = 'bg-blue-100 text-blue-700';
+                    else if(newStatus === 'Sakit') newColor = 'bg-amber-100 text-amber-700';
+                    else if(newStatus === 'Alpa') newColor = 'bg-rose-100 text-rose-700';
+                    
+                    selectElement.className = `text-xs font-bold py-1.5 px-3 rounded-xl border-0 focus:ring-2 focus:ring-indigo-500 shadow-sm appearance-none text-center w-36 cursor-pointer ${newColor}`;
+                    showAlert('success', `Status ${nama} diubah jadi ${newStatus}`);
+                } else {
+                    showAlert('error', res.message);
+                    loadMonitoringAbsensi();
+                }
+            },
+            error => {
+                selectElement.disabled = false;
+                selectElement.style.opacity = '1';
+                showAlert('error', 'Error koneksi: ' + error);
             }
-        })
-        .withFailureHandler(error => {
-            selectElement.disabled = false;
-            selectElement.style.opacity = '1';
-            showAlert('error', 'Error koneksi: ' + error);
-        })
-        .updateAbsensiStatus(token, nisn, nama, kelas, newStatus);
+        );
     }
 
     function switchCardSide(side) {
@@ -7221,7 +7268,7 @@
         const myKelas = currentUser ? currentUser.kelas : '';
         const scannerId = currentUser ? (currentUser.nip || currentUser.nisn || currentUser.username || '') : '';
 
-        google.script.run.withSuccessHandler(result => {
+        runAPI('scanAbsensi', [decodedText, myRole, myKelas, null, null, scannerId], result => {
             if (result.success) {
                 playScanSound(true);
                 const isDatang = result.type === 'datang';
@@ -7260,7 +7307,7 @@
                     </div>`;
                 setTimeout(() => { isScanning = false; }, 3500);
             }
-        }).scanAbsensi(decodedText, myRole, myKelas, null, null, scannerId);
+        });
     }
 
     function stopAndBack(redirect = true) {
@@ -7372,7 +7419,7 @@
                         </div>
                         <div>
                             <label class="${labelClass}">NISN</label>
-                            <input type="number" name="nisn" value="${s?.nisn || ''}" required ${isEdit ? 'readonly class="' + inputClass + ' opacity-60 cursor-not-allowed"' : `class="${inputClass}"`} placeholder="Nomor Induk Siswa Nasional">
+                            <input type="number" name="nisn" value="${s?.nisn || ''}" required class="${inputClass}" placeholder="Nomor Induk Siswa Nasional">
                         </div>
                         
                         <div class="relative group">
@@ -8081,7 +8128,7 @@
             document.getElementById('tendikProfileNip').textContent = currentUser.nip || '-';
             document.getElementById('tendikProfileNoHp').textContent = currentUser.noHp || '-';
 
-            google.script.run.withSuccessHandler(res => {
+            runAPI('getAbsensiToday', [(currentUser.nip && currentUser.nip !== '-') ? currentUser.nip : currentUser.username], res => {
                 const elMasuk = document.getElementById('tendikJamDatang');
                 const elPulang = document.getElementById('tendikJamPulang');
                 const elBadge = document.getElementById('tendikStatusBadge');
@@ -8131,7 +8178,7 @@
                         elKetContainer.classList.remove('flex');
                     }
                 }
-            }).getAbsensiToday((currentUser.nip && currentUser.nip !== '-') ? currentUser.nip : currentUser.username);
+            });
         }
     }
 
@@ -8142,8 +8189,8 @@
         showLoading();
         try {
             const gps = await getCurrentGPSPosition();
-            google.script.run
-                .withSuccessHandler(res => {
+            runAPI('scanAbsensi', [targetId, currentUser.role, currentUser.kelas, gps.lat, gps.lng],
+                res => {
                     hideLoading();
                     if (res.success) {
                         showAlert('success', res.message);
@@ -8151,12 +8198,12 @@
                     } else {
                         showAlert('error', res.message);
                     }
-                })
-                .withFailureHandler(err => {
+                },
+                err => {
                     hideLoading();
                     showAlert('error', 'Gagal presensi: ' + err);
-                })
-                .scanAbsensi(targetId, currentUser.role, currentUser.kelas, gps.lat, gps.lng);
+                }
+            );
         } catch (gpsError) {
             hideLoading();
             showAlert('error', gpsError.message || 'Wajib menyalakan dan mengizinkan GPS untuk melakukan presensi.');
@@ -8205,8 +8252,8 @@
                 const resizedBase64 = canvas.toDataURL('image/jpeg', 0.88);
 
                 const userId = currentUser.username || currentUser.nisn || currentUser.nip;
-                google.script.run
-                    .withSuccessHandler(res => {
+                runAPI('updateUserProfilePhoto', [currentUser.token, userId, resizedBase64],
+                    res => {
                         hideLoading();
                         if (res.success) {
                             currentUser.foto = resizedBase64;
@@ -8242,12 +8289,12 @@
                         } else {
                             showAlert('error', res.message || 'Gagal menyimpan foto.');
                         }
-                    })
-                    .withFailureHandler(err => {
+                    },
+                    err => {
                         hideLoading();
                         showAlert('error', 'Error upload foto: ' + err);
-                    })
-                    .updateUserProfilePhoto(currentUser.token, userId, resizedBase64);
+                    }
+                );
             };
             img.src = e.target.result;
         };
