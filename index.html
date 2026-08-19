@@ -206,7 +206,7 @@
             </div>
             
             <div class="relative">
-                <input type="password" id="loginPassword" 
+                <input type="password" id="loginPassword" required minlength="1"
                        class="w-full pl-4 pr-11 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition shadow-sm" 
                        placeholder="Password">
                 <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 transition focus:outline-none">
@@ -2166,6 +2166,10 @@
           return { success: false, message: 'Masukkan NISN, NIP, atau Username Anda.' };
         }
 
+        if (!inputPass) {
+          return { success: false, message: 'Password wajib diisi. Silakan masukkan password akun Anda.' };
+        }
+
         const sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
         const device = deviceInfo || (typeof getDeviceInformation === 'function' ? getDeviceInformation() : { os: 'Perangkat', browser: 'Browser', type: 'Desktop', icon: 'fa-laptop' });
         let userResult = null;
@@ -3801,12 +3805,27 @@
 
     function handleUnifiedLogin(event) {
         if (event) event.preventDefault();
-        showLoading();
         
-        const username = document.getElementById('loginUsername') ? document.getElementById('loginUsername').value : '';
-        const password = document.getElementById('loginPassword') ? document.getElementById('loginPassword').value : '';
-        const deviceInfo = getDeviceInformation();
+        const username = document.getElementById('loginUsername') ? document.getElementById('loginUsername').value.trim() : '';
+        const password = document.getElementById('loginPassword') ? document.getElementById('loginPassword').value.trim() : '';
+        
+        if (!username) {
+            showAlert('error', 'Silakan masukkan Username, NISN, atau NIP!');
+            return;
+        }
 
+        if (!password) {
+            showAlert('error', 'Silakan masukkan Password akun Anda!');
+            const errorDiv = document.getElementById('loginError');
+            if (errorDiv) {
+                document.getElementById('errorText').textContent = 'Password tidak boleh kosong. Silakan masukkan password!';
+                errorDiv.classList.remove('hidden');
+            }
+            return;
+        }
+
+        showLoading();
+        const deviceInfo = getDeviceInformation();
         runAPI('login', [username, password, username, deviceInfo], onLoginSuccess, onLoginFailure);
     }
 
