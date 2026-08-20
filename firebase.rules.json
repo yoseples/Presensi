@@ -1,0 +1,45 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    
+    "siswa": {
+      ".indexOn": ["nisn", "kelas", "nama"],
+      ".validate": "newData.hasChildren() || newData.val() == false"
+    },
+    
+    "guru": {
+      ".indexOn": ["username", "nip", "role", "kelas"],
+      ".validate": "newData.hasChildren() || newData.val() == false"
+    },
+    
+    "tendik": {
+      ".indexOn": ["username", "nip", "role"],
+      ".validate": "newData.hasChildren() || newData.val() == false"
+    },
+    
+    "config": {
+      ".validate": "newData.hasChildren(['jam_masuk_mulai', 'jam_masuk_akhir', 'jam_pulang_mulai', 'jam_pulang_akhir'])"
+    },
+    
+    "libur": {
+      ".indexOn": ["tanggal"],
+      ".validate": "newData.hasChildren() || newData.val() == false"
+    },
+    
+    "absensi": {
+      ".indexOn": ["tanggal", "nisn", "username", "kelas", "status"],
+      ".validate": "newData.hasChildren() || newData.val() == false"
+    },
+    
+    "login_logs": {
+      ".indexOn": ["id", "userId", "username", "status", "timestamp"],
+      ".validate": "newData.hasChildren() || newData.val() == false"
+    },
+    
+    "perizinan": {
+      ".indexOn": ["tanggal", "nisn", "kelas", "statusPersetujuan"],
+      ".validate": "newData.hasChildren() || newData.val() == false"
+    }
+  }
+}

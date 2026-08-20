@@ -1258,6 +1258,10 @@
                               <i class="fas fa-sync-alt"></i>
                           </button>
                           
+                          <button onclick="promptDeleteAllData('siswa')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5" title="Hapus Massal / Kosongkan Data Siswa">
+                              <i class="fas fa-trash-alt text-rose-600"></i> Hapus Massal
+                          </button>
+
                           <button onclick="showAddSiswaModal()" class="bg-indigo-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:bg-indigo-700 transition">
                               <i class="fas fa-plus mr-1"></i> Tambah Siswa
                           </button>
@@ -1305,10 +1309,31 @@
                         </div>
                     </div>
 
+                    <!-- Bulk Action Bar Siswa -->
+                    <div id="bulk-bar-siswa" class="hidden mx-4 my-2 p-3 bg-indigo-50 border border-indigo-200 rounded-xl flex flex-wrap items-center justify-between gap-3 animate-fade-in shadow-xs">
+                        <div class="flex items-center gap-2.5 text-xs font-bold text-indigo-900">
+                            <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs shadow-xs">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <span id="bulk-count-siswa">0 siswa dipilih</span>
+                            <span class="text-gray-300">|</span>
+                            <button type="button" onclick="selectAllFiltered('siswa')" class="text-[11px] text-indigo-600 hover:text-indigo-800 underline font-semibold transition">Pilih Semua Data Tersaring</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="clearBulkSelection('siswa')" class="px-3 py-1.5 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-bold transition shadow-2xs">Batal</button>
+                            <button type="button" onclick="confirmBulkDelete('siswa')" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center gap-1.5">
+                                <i class="fas fa-trash-alt text-[11px]"></i> Hapus Terpilih
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
                             <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-semibold">
                                 <tr>
+                                    <th class="p-3 text-center w-10">
+                                        <input type="checkbox" id="check-all-siswa" onchange="toggleSelectAll('siswa', this.checked)" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer" title="Pilih Semua di Halaman Ini">
+                                    </th>
                                     <th class="p-3 text-center w-10">No</th>
                                     <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('siswa', 'nama')" data-sort-type="siswa" data-sort-col="nama">
                                         <div class="flex items-center gap-1">
@@ -1359,6 +1384,10 @@
                               <i class="fas fa-sync-alt"></i>
                           </button>
                           
+                          <button onclick="promptDeleteAllData('guru')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5" title="Hapus Massal / Kosongkan Data Guru">
+                              <i class="fas fa-trash-alt text-rose-600"></i> Hapus Massal
+                          </button>
+
                           <button onclick="showAddGuruModal()" class="bg-purple-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:bg-purple-700 transition">
                               <i class="fas fa-plus mr-1"></i> Tambah Guru
                           </button>
@@ -1406,10 +1435,31 @@
                         </div>
                     </div>
 
+                    <!-- Bulk Action Bar Guru -->
+                    <div id="bulk-bar-guru" class="hidden mx-4 my-2 p-3 bg-purple-50 border border-purple-200 rounded-xl flex flex-wrap items-center justify-between gap-3 animate-fade-in shadow-xs">
+                        <div class="flex items-center gap-2.5 text-xs font-bold text-purple-900">
+                            <span class="w-6 h-6 rounded-lg bg-purple-600 text-white flex items-center justify-center text-xs shadow-xs">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <span id="bulk-count-guru">0 guru dipilih</span>
+                            <span class="text-gray-300">|</span>
+                            <button type="button" onclick="selectAllFiltered('guru')" class="text-[11px] text-purple-600 hover:text-purple-800 underline font-semibold transition">Pilih Semua Data Tersaring</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="clearBulkSelection('guru')" class="px-3 py-1.5 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-bold transition shadow-2xs">Batal</button>
+                            <button type="button" onclick="confirmBulkDelete('guru')" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center gap-1.5">
+                                <i class="fas fa-trash-alt text-[11px]"></i> Hapus Terpilih
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
                           <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-semibold">
                               <tr>
+                                  <th class="p-3 text-center w-10">
+                                      <input type="checkbox" id="check-all-guru" onchange="toggleSelectAll('guru', this.checked)" class="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer" title="Pilih Semua di Halaman Ini">
+                                  </th>
                                   <th class="p-3 text-center w-10">No</th>
                                   <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('guru', 'nip')" data-sort-type="guru" data-sort-col="nip">
                                       <div class="flex items-center gap-1"><span>NIP</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
@@ -1461,6 +1511,10 @@
                               <i class="fas fa-sync-alt"></i>
                           </button>
                           
+                          <button onclick="promptDeleteAllData('tendik')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm transition flex items-center gap-1.5" title="Hapus Massal / Kosongkan Data Tendik">
+                              <i class="fas fa-trash-alt text-rose-600"></i> Hapus Massal
+                          </button>
+
                           <button onclick="showAddTendikModal()" class="bg-amber-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-bold shadow-sm hover:bg-amber-700 transition">
                               <i class="fas fa-plus mr-1"></i> Tambah Tendik
                           </button>
@@ -1500,10 +1554,31 @@
                         </div>
                     </div>
 
+                    <!-- Bulk Action Bar Tendik -->
+                    <div id="bulk-bar-tendik" class="hidden mx-4 my-2 p-3 bg-amber-50 border border-amber-200 rounded-xl flex flex-wrap items-center justify-between gap-3 animate-fade-in shadow-xs">
+                        <div class="flex items-center gap-2.5 text-xs font-bold text-amber-900">
+                            <span class="w-6 h-6 rounded-lg bg-amber-600 text-white flex items-center justify-center text-xs shadow-xs">
+                                <i class="fas fa-check"></i>
+                            </span>
+                            <span id="bulk-count-tendik">0 tendik dipilih</span>
+                            <span class="text-gray-300">|</span>
+                            <button type="button" onclick="selectAllFiltered('tendik')" class="text-[11px] text-amber-600 hover:text-amber-800 underline font-semibold transition">Pilih Semua Data Tersaring</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="clearBulkSelection('tendik')" class="px-3 py-1.5 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 rounded-lg text-xs font-bold transition shadow-2xs">Batal</button>
+                            <button type="button" onclick="confirmBulkDelete('tendik')" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-md hover:shadow-lg transition transform active:scale-95 flex items-center gap-1.5">
+                                <i class="fas fa-trash-alt text-[11px]"></i> Hapus Terpilih
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
                           <thead class="bg-gray-50 text-gray-500 text-[10px] uppercase font-semibold">
                               <tr>
+                                  <th class="p-3 text-center w-10">
+                                      <input type="checkbox" id="check-all-tendik" onchange="toggleSelectAll('tendik', this.checked)" class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500 cursor-pointer" title="Pilih Semua di Halaman Ini">
+                                  </th>
                                   <th class="p-3 text-center w-10">No</th>
                                   <th class="p-3 cursor-pointer hover:bg-gray-100 select-none transition" onclick="handleTableSort('tendik', 'nip')" data-sort-type="tendik" data-sort-col="nip">
                                       <div class="flex items-center gap-1"><span>NIP / NIK</span><i class="sort-icon fas fa-sort text-gray-300 ml-1 text-[10px]"></i></div>
@@ -2142,6 +2217,234 @@
     }
 
     // ============================================================================
+    // CRYPTOGRAPHIC & AUTHENTICATION SECURITY ENGINE
+    // ============================================================================
+    const AuthSecurity = {
+      LOCKOUT_KEY: 'absensi_auth_locks',
+      MAX_ATTEMPTS: 5,
+      LOCKOUT_MS: 15 * 60 * 1000, // 15 menit
+      SESSION_TTL_MS: 24 * 60 * 60 * 1000, // 24 jam
+      IDLE_TIMEOUT_MS: 2 * 60 * 60 * 1000, // 2 jam
+
+      // Web Crypto API SHA-256 Digest dengan Pure JS Fallback
+      digestHex: async (message) => {
+        try {
+          if (window.crypto && window.crypto.subtle) {
+            const msgUint8 = new TextEncoder().encode(message);
+            const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgUint8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+          }
+        } catch(e) {
+          console.warn('WebCrypto subtle fallback:', e);
+        }
+        return AuthSecurity.pureJsSha256(message);
+      },
+
+      pureJsSha256: (ascii) => {
+        function rightRotate(value, amount) { return (value>>>amount) | (value<<(32 - amount)); }
+        var mathPow = Math.pow;
+        var maxWord = mathPow(2, 32);
+        var lengthProperty = 'length';
+        var i, j;
+        var result = '';
+        var words = [];
+        var asciiBitLength = ascii[lengthProperty]*8;
+        var hash = [], k = [];
+        var primeCounter = 0;
+        var isComposite = {};
+        for (var candidate = 2; primeCounter < 64; candidate++) {
+          if (!isComposite[candidate]) {
+            for (i = 0; i < 313; i += candidate) { isComposite[i] = candidate; }
+            hash[primeCounter] = (mathPow(candidate, .5)*maxWord)|0;
+            k[primeCounter++] = (mathPow(candidate, 1/3)*maxWord)|0;
+          }
+        }
+        ascii += '\x80';
+        while (ascii[lengthProperty]%64 - 56) ascii += '\x00';
+        for (i = 0; i < ascii[lengthProperty]; i++) {
+          j = ascii.charCodeAt(i);
+          if (j>>8) return;
+          words[i>>2] |= j << ((3 - i)%4)*8;
+        }
+        words[words[lengthProperty]] = ((asciiBitLength/maxWord)|0);
+        words[words[lengthProperty]] = (asciiBitLength);
+        for (j = 0; j < words[lengthProperty];) {
+          var w = words.slice(j, j += 16);
+          var oldHash = hash;
+          hash = hash.slice(0, 8);
+          for (i = 0; i < 64; i++) {
+            var i2 = i + j;
+            var w15 = w[i - 15], w2 = w[i - 2];
+            var a = hash[0], e = hash[4];
+            var temp1 = hash[7]
+              + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25))
+              + ((e&hash[5])^((~e)&hash[6]))
+              + k[i]
+              + (w[i] = (i < 16) ? w[i] : (
+                  w[i - 16]
+                  + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15>>>3))
+                  + w[i - 7]
+                  + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2>>>10))
+                )|0
+              );
+            var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22))
+              + ((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+            hash = [(temp1 + temp2)|0].concat(hash);
+            hash[4] = (hash[4] + temp1)|0;
+          }
+          for (i = 0; i < 8; i++) { hash[i] = (hash[i] + oldHash[i])|0; }
+        }
+        for (i = 0; i < 8; i++) {
+          for (j = 3; j >= 0; j--) {
+            var b = (hash[i]>>(j*8))&255;
+            result += ((b < 16) ? 0 : '') + b.toString(16);
+          }
+        }
+        return result;
+      },
+
+      generateCSPRNGHex: (bytesLen = 16) => {
+        const arr = new Uint8Array(bytesLen);
+        if (window.crypto && window.crypto.getRandomValues) {
+          window.crypto.getRandomValues(arr);
+        } else {
+          for (let i = 0; i < bytesLen; i++) arr[i] = Math.floor(Math.random() * 256);
+        }
+        return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+      },
+
+      hashPassword: async (plainPassword, salt) => {
+        const s = salt || AuthSecurity.generateCSPRNGHex(8);
+        const digest = await AuthSecurity.digestHex(String(plainPassword) + s);
+        return `sha256$${s}$${digest}`;
+      },
+
+      verifyPassword: async (inputPassword, storedPasswordOrHash) => {
+        const stored = String(storedPasswordOrHash || '').trim();
+        const input = String(inputPassword || '').trim();
+        if (!stored) return { valid: false, needsRehash: false };
+
+        if (stored.startsWith('sha256$')) {
+          const parts = stored.split('$');
+          if (parts.length === 3) {
+            const salt = parts[1];
+            const expectedDigest = parts[2];
+            const computedDigest = await AuthSecurity.digestHex(input + salt);
+            return { valid: computedDigest === expectedDigest, needsRehash: false };
+          }
+        }
+
+        // Legacy plaintext comparison & flag for auto-migration
+        const isMatch = (input === stored);
+        return { valid: isMatch, needsRehash: isMatch };
+      },
+
+      getLocks: () => {
+        try {
+          return JSON.parse(localStorage.getItem(AuthSecurity.LOCKOUT_KEY) || '{}');
+        } catch(e) {
+          return {};
+        }
+      },
+
+      saveLocks: (locks) => {
+        try {
+          localStorage.setItem(AuthSecurity.LOCKOUT_KEY, JSON.stringify(locks));
+        } catch(e) {}
+      },
+
+      checkLockout: (identifier) => {
+        const key = String(identifier || '').trim().toLowerCase();
+        if (!key) return { isLocked: false };
+        const locks = AuthSecurity.getLocks();
+        const record = locks[key];
+        if (record && record.lockedUntil && record.lockedUntil > Date.now()) {
+          const remainingMinutes = Math.ceil((record.lockedUntil - Date.now()) / 60000);
+          return { isLocked: true, remainingMinutes };
+        }
+        if (record && record.lockedUntil && record.lockedUntil <= Date.now()) {
+          delete locks[key];
+          AuthSecurity.saveLocks(locks);
+        }
+        return { isLocked: false };
+      },
+
+      recordFailedAttempt: async (identifier) => {
+        const key = String(identifier || '').trim().toLowerCase();
+        if (!key) return;
+        const locks = AuthSecurity.getLocks();
+        const record = locks[key] || { attempts: 0, lockedUntil: 0 };
+        record.attempts = (record.attempts || 0) + 1;
+        record.lastFailed = Date.now();
+        if (record.attempts >= AuthSecurity.MAX_ATTEMPTS) {
+          record.lockedUntil = Date.now() + AuthSecurity.LOCKOUT_MS;
+        }
+        locks[key] = record;
+        AuthSecurity.saveLocks(locks);
+
+        // Exponential backoff delay
+        const delayMs = Math.min(400 * Math.pow(1.4, record.attempts), 2000);
+        await new Promise(r => setTimeout(r, delayMs));
+      },
+
+      clearLockout: (identifier) => {
+        const key = String(identifier || '').trim().toLowerCase();
+        if (!key) return;
+        const locks = AuthSecurity.getLocks();
+        if (locks[key]) {
+          delete locks[key];
+          AuthSecurity.saveLocks(locks);
+        }
+      },
+
+      createSessionPayload: (user) => {
+        const now = Date.now();
+        const sessionId = 'sess_' + AuthSecurity.generateCSPRNGHex(12);
+        const token = 'tok_' + AuthSecurity.generateCSPRNGHex(24);
+        return {
+          ...user,
+          sessionId: sessionId,
+          token: token,
+          loginTime: now,
+          lastActive: now,
+          expiresAt: now + AuthSecurity.SESSION_TTL_MS,
+          idleTimeoutMs: AuthSecurity.IDLE_TIMEOUT_MS
+        };
+      },
+
+      // RBAC Authorizer Gate for BackendAPI
+      authorize: (allowedRoles = [], callerToken) => {
+        const sessionStr = localStorage.getItem('absensiAppSession');
+        let session = null;
+        if (sessionStr) {
+          try { session = JSON.parse(sessionStr); } catch(e) {}
+        }
+        const activeUser = currentUser || session;
+        if (!activeUser || !activeUser.token) {
+          throw new Error('401 Unauthorized: Sesi tidak ditemukan. Silakan login kembali.');
+        }
+
+        // Token consistency check
+        if (callerToken && callerToken !== activeUser.token && activeUser.role !== 'admin') {
+          throw new Error('403 Forbidden: Token tidak valid.');
+        }
+
+        // Expiration check
+        if (activeUser.expiresAt && Date.now() > activeUser.expiresAt) {
+          throw new Error('401 Unauthorized: Sesi telah kedaluwarsa. Silakan login kembali.');
+        }
+
+        // Role check
+        if (allowedRoles.length > 0 && !allowedRoles.includes(activeUser.role)) {
+          throw new Error(`403 Forbidden: Akses ditolak. Role "${activeUser.role}" tidak memiliki wewenang untuk tindakan ini.`);
+        }
+
+        return activeUser;
+      }
+    };
+
+    // ============================================================================
     // runAPI — Firebase/BackendAPI Router (Full Firebase Mode)
     // Seluruh operasi CRUD menggunakan BackendAPI (Firebase/localStorage).
     // ============================================================================
@@ -2162,24 +2465,36 @@
         const inputUser = String(username || nisn || '').trim();
         const inputPass = String(password || '').trim();
 
-        if (!inputUser) {
-          return { success: false, message: 'Masukkan NISN, NIP, atau Username Anda.' };
+        if (!inputUser || !inputPass) {
+          return { success: false, message: 'Masukkan NISN/Username dan Password akun Anda.' };
         }
 
-        if (!inputPass) {
-          return { success: false, message: 'Password wajib diisi. Silakan masukkan password akun Anda.' };
+        // 1. Cek Brute Force Lockout
+        const lockStatus = AuthSecurity.checkLockout(inputUser);
+        if (lockStatus.isLocked) {
+          return {
+            success: false,
+            message: `Akun/perangkat dikunci sementara selama ${lockStatus.remainingMinutes} menit karena terlalu banyak percobaan login gagal.`
+          };
         }
 
-        const sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
         const device = deviceInfo || (typeof getDeviceInformation === 'function' ? getDeviceInformation() : { os: 'Perangkat', browser: 'Browser', type: 'Desktop', icon: 'fa-laptop' });
         let userResult = null;
 
-        // 1. Cek Apakah Siswa (berdasarkan NISN)
+        // 2. Cek Akun Siswa (berdasarkan NISN)
         const siswaList = await getDB('siswa');
-        const siswa = siswaList.find(x => String(x.nisn || '').replace(/^'+/, '').trim() === inputUser);
-        if (siswa) {
-          const expectedPassword = String(siswa.password || siswa.nisn || '').replace(/^'+/, '').trim();
-          if (inputPass === expectedPassword) {
+        const sIdx = siswaList.findIndex(x => String(x.nisn || '').replace(/^'+/, '').trim() === inputUser);
+        if (sIdx !== -1) {
+          const siswa = siswaList[sIdx];
+          const storedPass = String(siswa.password || siswa.nisn || '').replace(/^'+/, '').trim();
+          const verify = await AuthSecurity.verifyPassword(inputPass, storedPass);
+          if (verify.valid) {
+            // Auto-migrasi ke SHA-256 Hash
+            if (verify.needsRehash) {
+              siswa.password = await AuthSecurity.hashPassword(inputPass);
+              siswaList[sIdx] = siswa;
+              await setDB('siswa', siswaList);
+            }
             userResult = {
               success: true,
               role: 'siswa',
@@ -2189,46 +2504,56 @@
               foto: siswa.foto || '',
               jenisKelamin: siswa.jenisKelamin || '',
               tanggalLahir: siswa.tanggalLahir || '',
-              alamat: siswa.alamat || '',
-              token: 'tok_' + String(siswa.nisn || '').replace(/^'+/, '').trim(),
-              sessionId: sessionId
+              alamat: siswa.alamat || ''
             };
-          } else {
-            return { success: false, message: 'Password salah untuk NISN ' + siswa.nisn };
           }
         }
 
-        // 2. Cek Apakah Guru / Admin (berdasarkan Username atau NIP)
+        // 3. Cek Akun Guru / Admin (berdasarkan Username atau NIP)
         if (!userResult) {
           const guruList = await getDB('guru');
-          const guru = guruList.find(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
-          if (guru) {
-            if (guru.password === inputPass) {
+          const gIdx = guruList.findIndex(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
+          if (gIdx !== -1) {
+            const guru = guruList[gIdx];
+            const storedPass = String(guru.password || '12345').trim();
+            const verify = await AuthSecurity.verifyPassword(inputPass, storedPass);
+            if (verify.valid) {
+              // Auto-migrasi ke SHA-256 Hash
+              if (verify.needsRehash) {
+                guru.password = await AuthSecurity.hashPassword(inputPass);
+                guruList[gIdx] = guru;
+                await setDB('guru', guruList);
+              }
               userResult = {
                 success: true,
-                role: guru.role,
+                role: guru.role || 'guru',
                 username: guru.username,
                 nama: guru.nama || guru.username,
                 nip: guru.nip || '-',
                 jabatan: guru.jabatan || (guru.kelas ? 'Wali Kelas ' + guru.kelas : 'Guru Mata Pelajaran'),
                 noHp: guru.noHp || '-',
                 kelas: guru.kelas || '',
-                foto: guru.foto || '',
-                token: 'tok_' + guru.username,
-                sessionId: sessionId
+                foto: guru.foto || ''
               };
-            } else {
-              return { success: false, message: 'Password salah untuk akun ' + guru.username };
             }
           }
         }
 
-        // 3. Cek Apakah Tendik (berdasarkan Username atau NIP)
+        // 4. Cek Akun Tendik (berdasarkan Username atau NIP)
         if (!userResult) {
           const tendikList = await getDB('tendik');
-          const tendik = tendikList.find(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
-          if (tendik) {
-            if (tendik.password === inputPass) {
+          const tIdx = tendikList.findIndex(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
+          if (tIdx !== -1) {
+            const tendik = tendikList[tIdx];
+            const storedPass = String(tendik.password || 'tendik123').trim();
+            const verify = await AuthSecurity.verifyPassword(inputPass, storedPass);
+            if (verify.valid) {
+              // Auto-migrasi ke SHA-256 Hash
+              if (verify.needsRehash) {
+                tendik.password = await AuthSecurity.hashPassword(inputPass);
+                tendikList[tIdx] = tendik;
+                await setDB('tendik', tendikList);
+              }
               userResult = {
                 success: true,
                 role: 'tendik',
@@ -2238,17 +2563,13 @@
                 jabatan: tendik.jabatan || 'Staf Kependidikan',
                 noHp: tendik.noHp || '-',
                 kelas: tendik.jabatan || 'Tendik SMANSA',
-                foto: tendik.foto || '',
-                token: 'tok_' + tendik.username,
-                sessionId: sessionId
+                foto: tendik.foto || ''
               };
-            } else {
-              return { success: false, message: 'Password salah untuk akun ' + tendik.username };
             }
           }
         }
 
-        // 4. Default Superadmin Fallback jika database masih baru / belum ada akun admin
+        // 5. Default Superadmin Fallback jika database belum berisi admin
         if (!userResult && inputUser.toLowerCase() === 'admin' && inputPass === 'admin123') {
           userResult = {
             success: true,
@@ -2259,15 +2580,19 @@
             jabatan: 'Administrator Sistem',
             noHp: '081234567890',
             kelas: 'Admin',
-            foto: '',
-            token: 'tok_admin',
-            sessionId: sessionId
+            foto: ''
           };
         }
 
+        // 6. Jika Otentikasi Gagal
         if (!userResult) {
-          return { success: false, message: 'NISN / Username "' + inputUser + '" tidak ditemukan.' };
+          await AuthSecurity.recordFailedAttempt(inputUser);
+          return { success: false, message: 'NISN, Username, atau Password tidak valid.' };
         }
+
+        // 7. Berhasil Otentikasi: Reset Lockout & Buat Secure Session
+        AuthSecurity.clearLockout(inputUser);
+        const sessionPayload = AuthSecurity.createSessionPayload(userResult);
 
         // Catat Log Sesi & Perangkat ke Firebase Database
         try {
@@ -2275,13 +2600,13 @@
           if (!Array.isArray(logs)) logs = [];
           const now = new Date();
           const logEntry = {
-            id: sessionId,
-            userId: userResult.nip || userResult.nisn || userResult.username,
-            username: userResult.username || userResult.nisn,
-            nama: userResult.nama,
-            role: userResult.role,
-            jabatanOrKelas: userResult.jabatan || (userResult.kelas ? 'Kelas ' + userResult.kelas : '-'),
-            foto: userResult.foto || '',
+            id: sessionPayload.sessionId,
+            userId: sessionPayload.nip || sessionPayload.nisn || sessionPayload.username,
+            username: sessionPayload.username || sessionPayload.nisn,
+            nama: sessionPayload.nama,
+            role: sessionPayload.role,
+            jabatanOrKelas: sessionPayload.jabatan || (sessionPayload.kelas ? 'Kelas ' + sessionPayload.kelas : '-'),
+            foto: sessionPayload.foto || '',
             device: device,
             tanggal: getTodayString(),
             jam: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
@@ -2295,10 +2620,11 @@
           console.warn('Gagal mencatat login log:', e);
         }
 
-        return userResult;
+        return sessionPayload;
       },
 
       getLoginLogs: async () => {
+        AuthSecurity.authorize(['admin']);
         let logs = await getDB('login_logs');
         if (!Array.isArray(logs)) logs = [];
         return { success: true, data: logs };
@@ -2319,6 +2645,7 @@
       },
 
       terminateUserSession: async (sessionId) => {
+        AuthSecurity.authorize(['admin']);
         let logs = await getDB('login_logs');
         if (Array.isArray(logs)) {
           const item = logs.find(l => l.id === sessionId);
@@ -2333,6 +2660,7 @@
       },
 
       clearLoginLogs: async () => {
+        AuthSecurity.authorize(['admin']);
         await setDB('login_logs', []);
         return { success: true, message: 'Semua riwayat sesi login berhasil dibersihkan.' };
       },
@@ -2343,25 +2671,40 @@
         return { success: true, data: Array.from(set).sort() };
       },
 
-      getSiswaList: async () => {
-        const list = await getDB('siswa');
-        return { success: true, data: list.map(s => ({ ...s, password: s.password || s.nisn })) };
+      getSiswaList: async (token) => {
+        const caller = AuthSecurity.authorize(['admin', 'guru'], token);
+        let list = await getDB('siswa');
+        if (caller.role === 'guru' && caller.kelas) {
+          list = list.filter(s => s.kelas === caller.kelas);
+        }
+        // Sanitasi: Jangan kirimkan password asli ke antarmuka klien
+        const sanitized = list.map(s => {
+          const copy = { ...s };
+          delete copy.password;
+          return copy;
+        });
+        return { success: true, data: sanitized };
       },
 
       addSiswa: async (token, siswaData) => {
+        AuthSecurity.authorize(['admin'], token);
         const list = await getDB('siswa');
         const cleanNisn = String(siswaData.nisn).replace(/^'/, '');
         if (list.some(x => String(x.nisn) === cleanNisn)) {
           return { success: false, message: 'NISN sudah terdaftar!' };
         }
         siswaData.nisn = cleanNisn;
-        siswaData.noHp = String(siswaData.noHp).replace(/^'/, '');
+        siswaData.noHp = String(siswaData.noHp || '').replace(/^'/, '');
+        // Hash password siswa dengan SHA-256
+        const initialPass = String(siswaData.password || cleanNisn).trim();
+        siswaData.password = await AuthSecurity.hashPassword(initialPass);
         list.push(siswaData);
         await setDB('siswa', list);
         return { success: true, message: 'Siswa berhasil ditambahkan' };
       },
 
       updateSiswa: async (token, oldNisn, siswaData) => {
+        AuthSecurity.authorize(['admin'], token);
         let list = await getDB('siswa');
         if (!Array.isArray(list)) list = Object.values(list || {});
         
@@ -2372,7 +2715,6 @@
           return { success: false, message: 'NISN tidak valid!' };
         }
 
-        // Cari berdasarkan oldNisn atau cleanNew
         const targetSearch = cleanOld || cleanNew;
         const idx = list.findIndex(x => {
           const itemNisn = String(x.nisn || '').replace(/^'+/, '').trim();
@@ -2383,15 +2725,19 @@
           siswaData.nisn = cleanNew;
           siswaData.noHp = String(siswaData.noHp || '').replace(/^'+/, '').trim();
 
-          // Cek jika NISN baru duplikat dengan siswa lain
           if (cleanNew !== cleanOld && list.some((x, i) => i !== idx && String(x.nisn || '').replace(/^'+/, '').trim() === cleanNew)) {
             return { success: false, message: 'NISN ' + cleanNew + ' sudah digunakan oleh siswa lain!' };
           }
 
-          // Gabungkan dengan data lama agar field lain (misal password, foto) tidak hilang
+          let finalPass = list[idx].password;
+          if (siswaData.password && !siswaData.password.startsWith('sha256$')) {
+            finalPass = await AuthSecurity.hashPassword(siswaData.password);
+          }
+
           list[idx] = {
             ...list[idx],
-            ...siswaData
+            ...siswaData,
+            password: finalPass
           };
 
           await setDB('siswa', list);
@@ -2435,6 +2781,7 @@
       },
 
       deleteSiswa: async (token, nisn) => {
+        AuthSecurity.authorize(['admin'], token);
         let list = await getDB('siswa');
         const clean = String(nisn).replace(/^'/, '');
         list = list.filter(x => String(x.nisn) !== clean);
@@ -2442,21 +2789,44 @@
         return { success: true, message: 'Siswa berhasil dihapus' };
       },
 
+      deleteMultipleSiswa: async (token, nisnList) => {
+        AuthSecurity.authorize(['admin'], token);
+        if (!Array.isArray(nisnList) || nisnList.length === 0) {
+          return { success: false, message: 'Tidak ada siswa yang dipilih' };
+        }
+        const cleanSet = new Set(nisnList.map(n => String(n).replace(/^'+/, '').trim()));
+        let list = await getDB('siswa');
+        const initialLen = list.length;
+        list = list.filter(x => !cleanSet.has(String(x.nisn).replace(/^'+/, '').trim()));
+        const count = initialLen - list.length;
+        await setDB('siswa', list);
+        return { success: true, count: count, message: `${count} data siswa berhasil dihapus` };
+      },
+
       getGuruList: async (token) => {
+        AuthSecurity.authorize(['admin', 'guru', 'tendik'], token);
         const list = await getDB('guru');
         const onlyGuru = list.filter(g => String(g.role || '').toLowerCase() !== 'admin' && String(g.username || '').toLowerCase() !== 'admin');
-        return { success: true, data: onlyGuru };
+        const sanitized = onlyGuru.map(g => {
+          const copy = { ...g };
+          delete copy.password;
+          return copy;
+        });
+        return { success: true, data: sanitized };
       },
 
       addGuru: async (token, guruData) => {
+        AuthSecurity.authorize(['admin'], token);
         const list = await getDB('guru');
         const cleanU = String(guruData.username).replace(/^'/, '');
         if (list.some(x => x.username.toLowerCase() === cleanU.toLowerCase())) {
           return { success: false, message: 'Username sudah digunakan!' };
         }
+        const initialPass = String(guruData.password || '12345').trim();
+        const hashedPass = await AuthSecurity.hashPassword(initialPass);
         list.push({
           username: cleanU,
-          password: String(guruData.password).replace(/^'/, ''),
+          password: hashedPass,
           role: 'guru',
           nama: guruData.nama || cleanU,
           nip: String(guruData.nip || '-').replace(/^'/, ''),
@@ -2469,13 +2839,18 @@
       },
 
       updateGuru: async (token, oldUsername, guruData) => {
+        AuthSecurity.authorize(['admin'], token);
         let list = await getDB('guru');
         const cleanOld = String(oldUsername).replace(/^'/, '');
         const idx = list.findIndex(x => x.username.toLowerCase() === cleanOld.toLowerCase());
         if (idx !== -1) {
+          let finalPass = list[idx].password;
+          if (guruData.password && !guruData.password.startsWith('sha256$')) {
+            finalPass = await AuthSecurity.hashPassword(guruData.password);
+          }
           list[idx] = {
             username: String(guruData.username).replace(/^'/, ''),
-            password: String(guruData.password).replace(/^'/, ''),
+            password: finalPass,
             role: list[idx].role || 'guru',
             nama: guruData.nama || guruData.username,
             nip: String(guruData.nip || '-').replace(/^'/, ''),
@@ -2490,6 +2865,7 @@
       },
 
       deleteGuru: async (token, username) => {
+        AuthSecurity.authorize(['admin'], token);
         let list = await getDB('guru');
         const clean = String(username).replace(/^'/, '');
         list = list.filter(x => x.username.toLowerCase() !== clean.toLowerCase());
@@ -2497,20 +2873,48 @@
         return { success: true, message: 'Guru berhasil dihapus' };
       },
 
+      deleteMultipleGuru: async (token, usernameList) => {
+        AuthSecurity.authorize(['admin'], token);
+        if (!Array.isArray(usernameList) || usernameList.length === 0) {
+          return { success: false, message: 'Tidak ada guru yang dipilih' };
+        }
+        const cleanSet = new Set(usernameList.map(u => String(u).replace(/^'+/, '').trim().toLowerCase()));
+        let list = await getDB('guru');
+        const initialLen = list.length;
+        list = list.filter(x => {
+          const u = String(x.username || '').replace(/^'+/, '').trim().toLowerCase();
+          const isAdm = String(x.role || '').toLowerCase() === 'admin' || u === 'admin' || u === 'mukhlis';
+          if (isAdm) return true;
+          return !cleanSet.has(u);
+        });
+        const count = initialLen - list.length;
+        await setDB('guru', list);
+        return { success: true, count: count, message: `${count} akun guru berhasil dihapus` };
+      },
+
       getTendikList: async (token) => {
+        AuthSecurity.authorize(['admin', 'guru', 'tendik'], token);
         const list = await getDB('tendik');
-        return { success: true, data: list };
+        const sanitized = list.map(t => {
+          const copy = { ...t };
+          delete copy.password;
+          return copy;
+        });
+        return { success: true, data: sanitized };
       },
 
       addTendik: async (token, username, password, nip, nama, jabatan, noHp) => {
+        AuthSecurity.authorize(['admin'], token);
         const list = await getDB('tendik');
         const cleanU = String(username).replace(/^'/, '');
         if (list.some(x => x.username.toLowerCase() === cleanU.toLowerCase())) {
           return { success: false, message: 'Username sudah terdaftar!' };
         }
+        const initialPass = String(password || 'tendik123').trim();
+        const hashedPass = await AuthSecurity.hashPassword(initialPass);
         list.push({
           username: cleanU,
-          password: String(password).replace(/^'/, ''),
+          password: hashedPass,
           role: 'tendik',
           nip: String(nip || '-').replace(/^'/, ''),
           nama: nama || cleanU,
@@ -2522,13 +2926,18 @@
       },
 
       updateTendik: async (token, oldUsername, username, password, nip, nama, jabatan, noHp) => {
+        AuthSecurity.authorize(['admin'], token);
         let list = await getDB('tendik');
         const cleanOld = String(oldUsername).replace(/^'/, '');
         const idx = list.findIndex(x => x.username.toLowerCase() === cleanOld.toLowerCase());
         if (idx !== -1) {
+          let finalPass = list[idx].password;
+          if (password && !password.startsWith('sha256$')) {
+            finalPass = await AuthSecurity.hashPassword(password);
+          }
           list[idx] = {
             username: String(username).replace(/^'/, ''),
-            password: String(password).replace(/^'/, ''),
+            password: finalPass,
             role: 'tendik',
             nip: String(nip || '-').replace(/^'/, ''),
             nama: nama || username,
@@ -2542,11 +2951,26 @@
       },
 
       deleteTendik: async (token, username) => {
+        AuthSecurity.authorize(['admin'], token);
         let list = await getDB('tendik');
         const clean = String(username).replace(/^'/, '');
         list = list.filter(x => x.username.toLowerCase() !== clean.toLowerCase());
         await setDB('tendik', list);
         return { success: true, message: 'Data Tendik berhasil dihapus' };
+      },
+
+      deleteMultipleTendik: async (token, usernameList) => {
+        AuthSecurity.authorize(['admin'], token);
+        if (!Array.isArray(usernameList) || usernameList.length === 0) {
+          return { success: false, message: 'Tidak ada tendik yang dipilih' };
+        }
+        const cleanSet = new Set(usernameList.map(u => String(u).replace(/^'+/, '').trim().toLowerCase()));
+        let list = await getDB('tendik');
+        const initialLen = list.length;
+        list = list.filter(x => !cleanSet.has(String(x.username || '').replace(/^'+/, '').trim().toLowerCase()));
+        const count = initialLen - list.length;
+        await setDB('tendik', list);
+        return { success: true, count: count, message: `${count} data tendik berhasil dihapus` };
       },
 
       getAppConfig: async () => {
@@ -2555,6 +2979,7 @@
       },
 
       saveAppConfig: async (newConfig) => {
+        AuthSecurity.authorize(['admin']);
         await setDB('config', newConfig);
         return { success: true, message: 'Pengaturan waktu berhasil disimpan' };
       },
@@ -2564,21 +2989,31 @@
       },
 
       changeCredentials: async (token, oldUsername, newUsername, oldPassword, newPassword, newNama) => {
+        const caller = AuthSecurity.authorize(['admin', 'guru', 'tendik', 'siswa'], token);
         const oldU = String(oldUsername || '').replace(/^'+/, '').trim().toLowerCase();
         const newU = String(newUsername || '').replace(/^'+/, '').trim();
         const cleanNama = String(newNama || '').trim();
         const oldP = String(oldPassword || '').trim();
         const newP = String(newPassword || '').trim();
 
+        // Otorisasi IDOR: Pengguna non-admin hanya dapat merubah akun miliknya sendiri
+        if (caller.role !== 'admin') {
+          const myUser = String(caller.username || caller.nisn || '').toLowerCase();
+          if (oldU !== myUser) {
+            return { success: false, message: 'Akses Ditolak: Anda hanya berwenang mengubah akun Anda sendiri.' };
+          }
+        }
+
         // 1. Guru & Admin
         const guruList = await getDB('guru');
         const guru = guruList.find(g => (g.username && g.username.toLowerCase() === oldU) || (g.nip && String(g.nip) === oldU));
         if (guru) {
           if (newP) {
-            if (!oldP || String(guru.password || '12345').trim() !== oldP) {
+            const verify = await AuthSecurity.verifyPassword(oldP, guru.password);
+            if (!oldP || !verify.valid) {
               return { success: false, message: 'Password saat ini salah!' };
             }
-            guru.password = newP;
+            guru.password = await AuthSecurity.hashPassword(newP);
           }
           if (newU) guru.username = newU;
           if (cleanNama) guru.nama = cleanNama;
@@ -2591,10 +3026,11 @@
         const tendik = tendikList.find(t => (t.username && t.username.toLowerCase() === oldU) || (t.nip && String(t.nip) === oldU));
         if (tendik) {
           if (newP) {
-            if (!oldP || String(tendik.password || 'tendik123').trim() !== oldP) {
+            const verify = await AuthSecurity.verifyPassword(oldP, tendik.password);
+            if (!oldP || !verify.valid) {
               return { success: false, message: 'Password saat ini salah!' };
             }
-            tendik.password = newP;
+            tendik.password = await AuthSecurity.hashPassword(newP);
           }
           if (newU) tendik.username = newU;
           if (cleanNama) tendik.nama = cleanNama;
@@ -2607,11 +3043,12 @@
         const siswa = siswaList.find(s => (s.nisn && String(s.nisn).replace(/^'+/, '').toLowerCase() === oldU) || (s.username && s.username.toLowerCase() === oldU));
         if (siswa) {
           if (newP) {
-            const expectedOldPass = String(siswa.password || siswa.nisn || '').replace(/^'+/, '').trim();
-            if (!oldP || expectedOldPass !== oldP) {
+            const storedPass = String(siswa.password || siswa.nisn || '').replace(/^'+/, '').trim();
+            const verify = await AuthSecurity.verifyPassword(oldP, storedPass);
+            if (!oldP || !verify.valid) {
               return { success: false, message: 'Password saat ini salah!' };
             }
-            siswa.password = newP;
+            siswa.password = await AuthSecurity.hashPassword(newP);
           }
           if (cleanNama) siswa.nama = cleanNama;
           await setDB('siswa', siswaList);
@@ -2622,7 +3059,16 @@
       },
 
       updateUserProfilePhoto: async (token, userId, fotoBase64) => {
+        const caller = AuthSecurity.authorize(['admin', 'guru', 'tendik', 'siswa'], token);
         const cleanId = String(userId || '').trim().toLowerCase();
+
+        // Otorisasi IDOR: Non-admin hanya bisa ubah foto sendiri
+        if (caller.role !== 'admin') {
+          const myId = String(caller.nisn || caller.nip || caller.username || '').toLowerCase();
+          if (cleanId !== myId) {
+            return { success: false, message: 'Akses Ditolak: Anda hanya dapat mengubah foto profil sendiri.' };
+          }
+        }
 
         // 1. Siswa
         const siswaList = await getDB('siswa');
@@ -2660,6 +3106,7 @@
       },
 
       addHariLibur: async (tanggal, keterangan) => {
+        AuthSecurity.authorize(['admin']);
         const list = await getDB('libur');
         list.push({ tanggal, keterangan });
         await setDB('libur', list);
@@ -2667,6 +3114,7 @@
       },
 
       updateHariLibur: async (oldDate, newDate, newKeterangan) => {
+        AuthSecurity.authorize(['admin']);
         let list = await getDB('libur');
         const idx = list.findIndex(x => x.tanggal === oldDate);
         if (idx !== -1) {
@@ -2678,6 +3126,7 @@
       },
 
       deleteHariLibur: async (tanggal) => {
+        AuthSecurity.authorize(['admin']);
         let list = await getDB('libur');
         list = list.filter(x => x.tanggal !== tanggal);
         await setDB('libur', list);
@@ -3005,6 +3454,11 @@
       },
 
       updateAbsensiStatus: async (token, nisn, nama, kelas, status) => {
+        const caller = AuthSecurity.authorize(['admin', 'guru'], token);
+        if (caller.role === 'guru' && caller.kelas && kelas && kelas !== caller.kelas) {
+          return { success: false, message: `Akses Ditolak: Anda hanya berwenang mengelola presensi siswa di kelas ${caller.kelas}.` };
+        }
+
         const today = getTodayString();
         let absensiList = await getDB('absensi');
         const sNisn = String(nisn || '').trim().toLowerCase();
@@ -3039,12 +3493,14 @@
       },
 
       submitIzinSakitMandiri: async (token, status, alasan, userInfo) => {
+        const caller = AuthSecurity.authorize(['admin', 'guru', 'tendik', 'siswa'], token);
         const today = getTodayString();
         let absensiList = await getDB('absensi');
         let searchId = userInfo && userInfo.id ? String(userInfo.id).replace(/^'/, '').trim().toLowerCase() : '';
-        let nama = userInfo && userInfo.nama ? userInfo.nama : searchId;
-        let kelasOrJabatan = userInfo && (userInfo.kelas || userInfo.jabatan) ? (userInfo.kelas || userInfo.jabatan) : '-';
-        let tipeUser = userInfo && userInfo.role === 'guru' ? 'Guru' : (userInfo && userInfo.role === 'tendik' ? 'Tendik' : 'Siswa');
+        if (!searchId && caller) searchId = String(caller.nisn || caller.nip || caller.username || '').toLowerCase();
+        let nama = userInfo && userInfo.nama ? userInfo.nama : (caller ? (caller.nama || caller.username) : searchId);
+        let kelasOrJabatan = userInfo && (userInfo.kelas || userInfo.jabatan) ? (userInfo.kelas || userInfo.jabatan) : (caller ? (caller.kelas || caller.jabatan || '-') : '-');
+        let tipeUser = caller.role === 'guru' ? 'Guru' : (caller.role === 'tendik' ? 'Tendik' : 'Siswa');
 
         const idx = absensiList.findIndex(a => a.tanggal === today && (
           String(a.nisn || '').replace(/^'/, '').trim().toLowerCase() === searchId ||
@@ -3060,8 +3516,8 @@
         } else {
           absensiList.push({
             tanggal: today,
-            nisn: userInfo ? (userInfo.id || userInfo.username) : searchId,
-            username: userInfo ? userInfo.username : '',
+            nisn: searchId,
+            username: caller.username || '',
             nama: nama,
             kelas: kelasOrJabatan,
             tipeUser: tipeUser,
@@ -3072,7 +3528,7 @@
           });
         }
         await setDB('absensi', absensiList);
-        return { success: true, message: `Pengajuan ${status} berhasil disimpan.` };
+        return { success: true, message: 'Pengajuan ' + status + ' mandiri berhasil dikirim.' };
       },
 
       getAbsensiList: async (filters) => {
@@ -3218,6 +3674,364 @@
       rekap: { fullData: [], filtered: [], limit: 10, page: 1, search: '', sortColumn: 'tanggal', sortDirection: 'desc' },
       monitoring: { fullData: [], filtered: [], limit: 10, page: 1, search: '', statusFilter: '', sortColumn: 'nama', sortDirection: 'asc' }
     };
+
+    const selectedRows = {
+      siswa: new Set(),
+      guru: new Set(),
+      tendik: new Set()
+    };
+
+    function getEntityKey(type, item) {
+      if (!item) return '';
+      if (type === 'siswa') return String(item.nisn || '').replace(/^'+/, '').trim();
+      return String(item.username || '').replace(/^'+/, '').trim();
+    }
+
+    function toggleSelectAll(type, isChecked) {
+      const state = tableState[type];
+      if (!state) return;
+      const startIdx = (state.page - 1) * state.limit;
+      const endIdx = startIdx + state.limit;
+      const pagedData = (state.filtered || []).slice(startIdx, endIdx);
+
+      pagedData.forEach(item => {
+        const key = getEntityKey(type, item);
+        if (!key) return;
+        if (type === 'guru') {
+          const u = key.toLowerCase();
+          const isAdm = String(item.role || '').toLowerCase() === 'admin' || u === 'admin' || u === 'mukhlis';
+          if (isAdm) return;
+        }
+        if (isChecked) {
+          selectedRows[type].add(key);
+        } else {
+          selectedRows[type].delete(key);
+        }
+      });
+
+      document.querySelectorAll(`.row-check-${type}`).forEach(cb => {
+        const val = cb.value;
+        cb.checked = selectedRows[type].has(val);
+      });
+
+      updateBulkUI(type);
+    }
+
+    function toggleSelectRow(type, id, isChecked) {
+      const cleanId = String(id).replace(/^'+/, '').trim();
+      if (isChecked) {
+        selectedRows[type].add(cleanId);
+      } else {
+        selectedRows[type].delete(cleanId);
+      }
+      updateBulkUI(type);
+    }
+
+    function selectAllFiltered(type) {
+      const state = tableState[type];
+      if (!state || !state.filtered) return;
+      state.filtered.forEach(item => {
+        const key = getEntityKey(type, item);
+        if (!key) return;
+        if (type === 'guru') {
+          const u = key.toLowerCase();
+          const isAdm = String(item.role || '').toLowerCase() === 'admin' || u === 'admin' || u === 'mukhlis';
+          if (isAdm) return;
+        }
+        selectedRows[type].add(key);
+      });
+      document.querySelectorAll(`.row-check-${type}`).forEach(cb => {
+        cb.checked = true;
+      });
+      updateBulkUI(type);
+    }
+
+    function clearBulkSelection(type) {
+      if (selectedRows[type]) selectedRows[type].clear();
+      document.querySelectorAll(`.row-check-${type}`).forEach(cb => {
+        cb.checked = false;
+      });
+      const checkAll = document.getElementById(`check-all-${type}`);
+      if (checkAll) {
+        checkAll.checked = false;
+        checkAll.indeterminate = false;
+      }
+      updateBulkUI(type);
+    }
+
+    function updateBulkUI(type) {
+      if (!selectedRows[type]) return;
+      const count = selectedRows[type].size;
+      const bulkBar = document.getElementById(`bulk-bar-${type}`);
+      const countEl = document.getElementById(`bulk-count-${type}`);
+      const checkAll = document.getElementById(`check-all-${type}`);
+
+      const typeLabel = type === 'siswa' ? 'siswa' : (type === 'guru' ? 'guru' : 'tendik');
+
+      if (bulkBar) {
+        if (count > 0) {
+          bulkBar.classList.remove('hidden');
+          if (countEl) countEl.textContent = `${count} ${typeLabel} dipilih`;
+        } else {
+          bulkBar.classList.add('hidden');
+        }
+      }
+
+      if (checkAll && tableState[type]) {
+        const state = tableState[type];
+        const startIdx = (state.page - 1) * state.limit;
+        const endIdx = startIdx + state.limit;
+        const pagedData = (state.filtered || []).slice(startIdx, endIdx).filter(item => {
+          if (type === 'guru') {
+            const u = String(item.username || '').toLowerCase();
+            return !(String(item.role || '').toLowerCase() === 'admin' || u === 'admin' || u === 'mukhlis');
+          }
+          return true;
+        });
+
+        if (pagedData.length === 0) {
+          checkAll.checked = false;
+          checkAll.indeterminate = false;
+        } else {
+          const selectedOnPage = pagedData.filter(item => selectedRows[type].has(getEntityKey(type, item))).length;
+          if (selectedOnPage === pagedData.length) {
+            checkAll.checked = true;
+            checkAll.indeterminate = false;
+          } else if (selectedOnPage > 0) {
+            checkAll.checked = false;
+            checkAll.indeterminate = true;
+          } else {
+            checkAll.checked = false;
+            checkAll.indeterminate = false;
+          }
+        }
+      }
+    }
+
+    function promptDeleteAllData(type) {
+      const typeLabel = type === 'siswa' ? 'Siswa' : (type === 'guru' ? 'Guru' : 'Tendik');
+      const fullList = tableState[type] && tableState[type].fullData ? tableState[type].fullData : [];
+      const selectedCount = selectedRows[type] ? selectedRows[type].size : 0;
+
+      // Jika pengguna sudah mencentang sebagian data
+      if (selectedCount > 0) {
+        confirmBulkDelete(type);
+        return;
+      }
+
+      // Jika belum ada data yang dicentang, tawarkan opsi Pilih Semua / Kosongkan Data
+      Swal.fire({
+        title: `Hapus Massal Data ${typeLabel}`,
+        html: `
+          <div class="text-sm text-gray-600 mt-2 space-y-3 text-left">
+            <p>Pilih mode penghapusan massal untuk data <b>${typeLabel}</b> (Total saat ini: <b>${fullList.length} data</b>):</p>
+            <div class="space-y-2.5">
+              <button id="btn-opt-select-all" class="w-full text-left p-3.5 rounded-xl border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100 transition flex items-center justify-between cursor-pointer group">
+                <div>
+                  <div class="font-bold text-indigo-900 text-xs flex items-center gap-1.5"><i class="fas fa-check-square text-indigo-600"></i> Pilih Semua Data (${fullList.length} ${typeLabel})</div>
+                  <div class="text-[11px] text-indigo-600 mt-0.5">Centang seluruh data di tabel untuk dipilih & dihapus</div>
+                </div>
+                <i class="fas fa-arrow-right text-indigo-400 group-hover:text-indigo-600 transition"></i>
+              </button>
+              <button id="btn-opt-wipe-all" class="w-full text-left p-3.5 rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-100 transition flex items-center justify-between cursor-pointer group">
+                <div>
+                  <div class="font-bold text-rose-900 text-xs flex items-center gap-1.5"><i class="fas fa-trash-alt text-rose-600"></i> Kosongkan Seluruh Data ${typeLabel}</div>
+                  <div class="text-[11px] text-rose-600 mt-0.5">Hapus bersih seluruh data ${typeLabel.toLowerCase()} dari database cloud & lokal</div>
+                </div>
+                <i class="fas fa-arrow-right text-rose-400 group-hover:text-rose-600 transition"></i>
+              </button>
+            </div>
+            ${type === 'guru' ? '<p class="text-[11px] text-purple-700 bg-purple-50 p-2.5 rounded-xl border border-purple-200 font-medium"><i class="fas fa-shield-alt mr-1"></i> Akun Administrator utama (admin/mukhlis) akan tetap terlindungi secara aman.</p>' : ''}
+          </div>
+        `,
+        showConfirmButton: false,
+        showCancelButton: true,
+        cancelButtonText: 'Tutup',
+        didOpen: () => {
+          document.getElementById('btn-opt-select-all')?.addEventListener('click', () => {
+            Swal.close();
+            selectAllFiltered(type);
+            updateBulkUI(type);
+            showAlert('info', `Seluruh ${fullList.length} data ${typeLabel.toLowerCase()} telah dipilih.`);
+          });
+          document.getElementById('btn-opt-wipe-all')?.addEventListener('click', () => {
+            Swal.close();
+            confirmWipeAllData(type);
+          });
+        }
+      });
+    }
+
+    function confirmWipeAllData(type) {
+      const typeLabel = type === 'siswa' ? 'Siswa' : (type === 'guru' ? 'Guru' : 'Tendik');
+      const fullList = tableState[type] && tableState[type].fullData ? tableState[type].fullData : [];
+      
+      if (fullList.length === 0) {
+        showAlert('info', `Tidak ada data ${typeLabel.toLowerCase()} untuk dihapus.`);
+        return;
+      }
+
+      Swal.fire({
+        title: `Konfirmasi KOSONGKAN Seluruh Data ${typeLabel}?`,
+        html: `
+          <div class="text-sm text-gray-700 mt-2 space-y-3 text-center">
+            <p class="font-bold text-red-600">PERINGATAN: Tindakan ini TIDAK DAPAT DIBATALKAN!</p>
+            <p>Seluruh <b>${fullList.length} data ${typeLabel.toLowerCase()}</b> akan dihapus permanen dari Firebase Realtime Database & LocalStorage.</p>
+            <div class="bg-red-50 text-red-800 p-3.5 rounded-xl border border-red-200 text-xs text-left">
+              <p class="font-bold mb-1.5"><i class="fas fa-exclamation-circle mr-1 text-red-600"></i> Ketik <b>HAPUS SEMUA</b> di bawah untuk mengonfirmasi:</p>
+              <input id="wipe-confirm-input" type="text" class="w-full p-2.5 border border-red-300 rounded-lg text-center font-black tracking-widest text-red-900 bg-white" placeholder="HAPUS SEMUA" autocomplete="off">
+            </div>
+          </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#DC2626',
+        cancelButtonColor: '#6B7280',
+        confirmButtonText: `<i class="fas fa-trash-alt mr-1"></i> Kosongkan Sekarang`,
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+        preConfirm: () => {
+          const input = document.getElementById('wipe-confirm-input');
+          const val = input ? input.value.trim().toUpperCase() : '';
+          if (val !== 'HAPUS SEMUA') {
+            Swal.showValidationMessage('Teks konfirmasi salah. Harap ketik "HAPUS SEMUA" persis.');
+            return false;
+          }
+          return true;
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          executeWipeAll(type);
+        }
+      });
+    }
+
+    async function executeWipeAll(type) {
+      const typeLabel = type === 'siswa' ? 'Siswa' : (type === 'guru' ? 'Guru' : 'Tendik');
+      const token = currentUser ? currentUser.token : null;
+      showLoading();
+
+      try {
+        if (type === 'siswa') {
+          await setDB('siswa', []);
+          tableState.siswa.fullData = [];
+          loadDataSiswa();
+        } else if (type === 'guru') {
+          let list = await getDB('guru');
+          const admins = list.filter(g => {
+            const u = String(g.username || '').toLowerCase();
+            return String(g.role || '').toLowerCase() === 'admin' || u === 'admin' || u === 'mukhlis';
+          });
+          if (admins.length === 0) {
+            admins.push({
+              username: 'admin',
+              password: await AuthSecurity.hashPassword('admin123'),
+              role: 'admin',
+              nama: 'Administrator',
+              nip: '198001012005011001',
+              jabatan: 'Kepala Tata Usaha'
+            });
+          }
+          await setDB('guru', admins);
+          tableState.guru.fullData = [];
+          loadDataGuru();
+        } else if (type === 'tendik') {
+          await setDB('tendik', []);
+          tableState.tendik.fullData = [];
+          fetchTendikData();
+        }
+
+        hideLoading();
+        Swal.fire({
+          title: 'Berhasil Dikosongkan!',
+          text: `Seluruh data ${typeLabel.toLowerCase()} berhasil dihapus dari sistem.`,
+          icon: 'success',
+          confirmButtonColor: '#4F46E5'
+        });
+      } catch(e) {
+        hideLoading();
+        Swal.fire('Error', 'Gagal mengosongkan data: ' + e.message, 'error');
+      }
+    }
+
+    function confirmBulkDelete(type) {
+      const count = selectedRows[type] ? selectedRows[type].size : 0;
+      if (count === 0) {
+        showAlert('warning', 'Pilih minimal satu data terlebih dahulu!');
+        return;
+      }
+
+      const typeLabel = type === 'siswa' ? 'Siswa' : (type === 'guru' ? 'Guru' : 'Tendik');
+
+      Swal.fire({
+        title: `Hapus ${count} Data ${typeLabel}?`,
+        html: `
+          <div class="text-sm text-gray-600 mt-2 space-y-2 text-left sm:text-center">
+            <p>Anda akan menghapus <b class="text-red-600 font-bold">${count} data ${typeLabel.toLowerCase()}</b> yang dipilih secara permanen dari sistem.</p>
+            <p class="text-xs bg-red-50 text-red-700 p-2.5 rounded-xl border border-red-100 font-medium">
+              <i class="fas fa-exclamation-triangle mr-1"></i> Data yang terhapus tidak dapat dikembalikan!
+            </p>
+          </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#6B7280',
+        confirmButtonText: `<i class="fas fa-trash-alt mr-1"></i> Ya, Hapus ${count} Data!`,
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          executeBulkDelete(type);
+        }
+      });
+    }
+
+    function executeBulkDelete(type) {
+      const count = selectedRows[type].size;
+      const items = Array.from(selectedRows[type]);
+      const token = currentUser ? currentUser.token : null;
+      showLoading();
+
+      let apiName = 'deleteMultipleSiswa';
+      if (type === 'guru') apiName = 'deleteMultipleGuru';
+      else if (type === 'tendik') apiName = 'deleteMultipleTendik';
+
+      runAPI(apiName, [token, items],
+        res => {
+          hideLoading();
+          if (res && res.success) {
+            selectedRows[type].clear();
+            updateBulkUI(type);
+            
+            if (type === 'siswa') {
+              tableState.siswa.fullData = [];
+              loadDataSiswa();
+            } else if (type === 'guru') {
+              tableState.guru.fullData = [];
+              loadDataGuru();
+            } else if (type === 'tendik') {
+              tableState.tendik.fullData = [];
+              fetchTendikData();
+            }
+
+            Swal.fire({
+              title: 'Berhasil!',
+              text: res.message || `${count} data berhasil dihapus.`,
+              icon: 'success',
+              confirmButtonColor: '#4F46E5',
+              timer: 2500
+            });
+          } else {
+            Swal.fire('Gagal!', (res && res.message) ? res.message : 'Gagal menghapus data', 'error');
+          }
+        },
+        err => {
+          hideLoading();
+          Swal.fire('Error', 'Terjadi kesalahan koneksi: ' + err, 'error');
+        }
+      );
+    }
 
     function quickFillNISN(val) {
       if (document.getElementById('loginUsername')) document.getElementById('loginUsername').value = val;
@@ -3382,6 +4196,7 @@
 
         updatePaginationUI(type, startIdx, pagedData.length, total, state.page, totalPages);
         updateSortIcons(type);
+        if (type === 'siswa' || type === 'guru' || type === 'tendik') updateBulkUI(type);
     }
 
     function updatePaginationUI(type, startIdx, currentCount, total, currentPage, totalPages) {
@@ -3458,6 +4273,20 @@
             }
         }
 
+        // 1. Validasi Masa Berlaku Sesi (24 Jam Absolute Expiration)
+        if (sessionData && sessionData.expiresAt && Date.now() > sessionData.expiresAt) {
+            localStorage.removeItem('absensiAppSession');
+            sessionData = null;
+            showAlert('warning', 'Sesi login Anda telah berakhir (24 jam). Silakan masuk kembali.');
+        }
+
+        // 2. Validasi Idle Timeout (2 Jam Tanpa Aktivitas)
+        if (sessionData && sessionData.lastActive && (Date.now() - sessionData.lastActive > (sessionData.idleTimeoutMs || (2 * 60 * 60 * 1000)))) {
+            localStorage.removeItem('absensiAppSession');
+            sessionData = null;
+            showAlert('warning', 'Sesi berakhir otomatis karena tidak ada aktivitas selama 2 jam.');
+        }
+
         if (sessionData && sessionData.success && sessionData.role) {
             currentUser = sessionData;
             document.documentElement.classList.add('app-has-session');
@@ -3470,6 +4299,45 @@
             if (window.innerWidth < 768) {
                 const sidebar = document.getElementById('sidebar');
                 if (sidebar) sidebar.classList.add('-translate-x-full');
+            }
+
+            // Pasang Listener Aktivitas Pengguna untuk Idle Timeout
+            if (!window.__activityListenerAttached) {
+                window.__activityListenerAttached = true;
+                const recordActivity = () => {
+                    if (currentUser) {
+                        currentUser.lastActive = Date.now();
+                        localStorage.setItem('absensiAppSession', JSON.stringify(currentUser));
+                    }
+                };
+                ['click', 'keydown', 'touchstart'].forEach(evtName => {
+                    window.addEventListener(evtName, () => {
+                        if (!window.__lastActivityThrottle || Date.now() - window.__lastActivityThrottle > 45000) {
+                            window.__lastActivityThrottle = Date.now();
+                            recordActivity();
+                        }
+                    }, { passive: true });
+                });
+            }
+
+            // Pasang Realtime Heartbeat / Invalidation Watcher
+            if (!window.__invalidationInterval) {
+                window.__invalidationInterval = setInterval(async () => {
+                    if (currentUser && currentUser.sessionId) {
+                        try {
+                            const logs = await getDB('login_logs');
+                            if (Array.isArray(logs)) {
+                                const myLog = logs.find(l => l.id === currentUser.sessionId);
+                                if (myLog && (myLog.status === 'Logout (Diputus Admin)' || myLog.status === 'Logout')) {
+                                    clearInterval(window.__invalidationInterval);
+                                    window.__invalidationInterval = null;
+                                    showAlert('warning', 'Sesi Anda telah diputus oleh Administrator.');
+                                    logout();
+                                }
+                            }
+                        } catch(e) {}
+                    }
+                }, 8000);
             }
             
             // Inisialisasi UI dashboard secara instan dan sinkron
@@ -3492,6 +4360,16 @@
         if (viewId !== 'view-monitoring' && typeof liveMonitoringInterval !== 'undefined' && liveMonitoringInterval) {
             clearInterval(liveMonitoringInterval);
             liveMonitoringInterval = null;
+        }
+
+        // RBAC View Guard: Proteksi tampilan khusus Admin
+        const adminViews = ['view-data-siswa', 'view-data-guru', 'view-data-tendik', 'view-kelola-absen'];
+        if (adminViews.includes(viewId) && currentUser && currentUser.role !== 'admin') {
+            showAlert('error', 'Akses Ditolak: Anda tidak memiliki wewenang untuk membuka menu ini.');
+            if (currentUser.role === 'guru') loadGuruDashboard();
+            else if (currentUser.role === 'tendik') loadTendikDashboard();
+            else loadSiswaDashboard();
+            return;
         }
 
         document.querySelectorAll('.view-section').forEach(el => {
@@ -3854,6 +4732,10 @@
 
     function logout() {
         stopAndBack(false);
+        if (window.__invalidationInterval) {
+            clearInterval(window.__invalidationInterval);
+            window.__invalidationInterval = null;
+        }
         const sessId = currentUser ? currentUser.sessionId : null;
         if (sessId) {
             runAPI('recordLogoutLog', [sessId]);
@@ -3862,6 +4744,16 @@
         window.__PRE_SESSION = null;
         currentUser = null;
         document.documentElement.classList.remove('app-has-session');
+
+        // Bersihkan sisa data sensitif dari memori browser
+        if (typeof tableState !== 'undefined' && tableState) {
+            if (tableState.siswa) tableState.siswa.fullData = [];
+            if (tableState.guru) tableState.guru.fullData = [];
+            if (tableState.tendik) tableState.tendik.fullData = [];
+            if (tableState.monitoring) tableState.monitoring.fullData = [];
+            if (tableState.rekap) tableState.rekap.fullData = [];
+        }
+
         hideLoading();
         
         const dash = document.getElementById('dashboardContainer');
@@ -3995,6 +4887,7 @@
     }
 
     function refreshData(type) {
+        if (selectedRows[type]) clearBulkSelection(type);
         if (type === 'siswa') {
             tableState.siswa.fullData = [];
             loadDataSiswa();       
@@ -4004,6 +4897,11 @@
             tableState.guru.fullData = [];
             loadDataGuru();        
             showAlert('success', 'Data guru diperbarui.');
+        }
+        else if (type === 'tendik') {
+            tableState.tendik.fullData = [];
+            fetchTendikData();
+            showAlert('success', 'Data tendik diperbarui.');
         }
         else if (type === 'dashboard') {
             if (currentUser.role === 'admin') loadAdminDashboard();
@@ -5959,19 +6857,19 @@
         if (tableState.siswa.fullData.length > 0) {
             processTableData('siswa');
         } else {
-            document.getElementById('tbody-siswa').innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data siswa...</td></tr>';
+            document.getElementById('tbody-siswa').innerHTML = '<tr><td colspan="7" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data siswa...</td></tr>';
             runAPI('getSiswaList', [],
                 result => {
                     if (result.success) {
                         tableState.siswa.fullData = result.data;
                         processTableData('siswa');
                     } else {
-                        document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
+                        document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
                         showAlert('error', result.message);
                     }
                 },
                 error => {
-                    document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
+                    document.getElementById('tbody-siswa').innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
                 }
             );
         }
@@ -5980,37 +6878,41 @@
     function renderSiswaRows(data, startIdx) {
         const tbody = document.getElementById('tbody-siswa');
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-400">Data siswa tidak ditemukan.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-gray-400">Data siswa tidak ditemukan.</td></tr>';
             return;
         }
         tbody.innerHTML = data.map((siswa, i) => {
             const passVal = siswa.password || siswa.nisn;
+            const cleanNisn = String(siswa.nisn || '').replace(/^'+/, '').trim();
+            const isChecked = selectedRows.siswa.has(cleanNisn);
             return `
-        <tr class="hover:bg-gray-50 transition border-b border-gray-100 group">
-            <td class="p-4 text-center text-gray-500 text-sm">${startIdx + i + 1}</td>
+        <tr class="hover:bg-gray-50 transition border-b border-gray-100 group ${isChecked ? 'bg-indigo-50/40' : ''}">
+            <td class="p-4 text-center">
+                <input type="checkbox" class="row-check-siswa w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer" value="${cleanNisn}" onchange="toggleSelectRow('siswa', '${cleanNisn.replace(/'/g, "\\'")}', this.checked)" ${isChecked ? 'checked' : ''}>
+            </td>
+            <td class="p-4 text-center text-gray-500 text-sm font-medium">${startIdx + i + 1}</td>
             <td class="p-4">
                 <div class="flex items-center">
-                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold mr-3">
-                        ${siswa.nama.charAt(0)}
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold mr-3 shrink-0">
+                        ${(siswa.nama || 'S').charAt(0)}
                     </div>
                     <div>
                         <div class="font-bold text-sm text-gray-900">${siswa.nama}</div>
-                        <div class="text-xs text-gray-500 md:hidden">${siswa.nisn}</div>
+                        <div class="text-xs text-gray-500 md:hidden font-mono">${siswa.nisn}</div>
                     </div>
                 </div>
             </td>
             <td class="p-4 hidden md:table-cell text-sm text-gray-600 font-mono">${siswa.nisn}</td>
             <td class="p-4 hidden sm:table-cell"><span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-100">${siswa.kelas}</span></td>
             <td class="p-4 text-center">
-                <span id="pass-siswa-${i}" class="font-mono text-xs text-indigo-800 bg-indigo-50/80 px-2.5 py-1 rounded-lg border border-indigo-200 inline-flex items-center gap-1.5 cursor-pointer hover:bg-indigo-100 transition shadow-2xs select-none" onclick="togglePasswordCell('pass-siswa-${i}', '${String(passVal).replace(/'/g, "\\'")}')"
-                    title="Klik untuk intip / sembunyikan kata sandi">
-                    <span class="pass-text font-bold">••••••••</span>
-                    <i class="fas fa-eye text-[11px] text-indigo-500"></i>
+                <span class="font-mono text-xs text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 inline-flex items-center gap-1.5 shadow-2xs select-none" title="Kata sandi terenkripsi aman SHA-256">
+                    <i class="fas fa-shield-alt text-[11px] text-emerald-600"></i>
+                    <span class="font-bold text-emerald-700">Terenkripsi</span>
                 </span>
             </td>
             <td class="p-4 text-center">
                 <div class="flex justify-center space-x-1.5 opacity-80 group-hover:opacity-100">
-                    <button onclick="viewSiswa('${String(siswa.nisn).replace(/'/g, "\\'")}')" class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition" title="Lihat Detail & Sandi">
+                    <button onclick="viewSiswa('${String(siswa.nisn).replace(/'/g, "\\'")}')" class="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition" title="Lihat Detail Siswa">
                         <i class="fas fa-eye"></i>
                     </button>
                     <button onclick="editSiswa('${String(siswa.nisn).replace(/'/g, "\\'")}')" class="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition" title="Edit"><i class="fas fa-edit"></i></button>
@@ -6041,7 +6943,7 @@
         if (tableState.guru.fullData.length > 0) {
             processTableData('guru');
         } else {
-            document.getElementById('tbody-guru').innerHTML = '<tr><td colspan="9" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data guru...</td></tr>';
+            document.getElementById('tbody-guru').innerHTML = '<tr><td colspan="10" class="p-8 text-center text-gray-500"><i class="fas fa-circle-notch fa-spin mr-2"></i>Memuat data guru...</td></tr>';
             const token = currentUser ? currentUser.token : '';
 
             runAPI('getGuruList', [token],
@@ -6050,12 +6952,12 @@
                         tableState.guru.fullData = (result.data || []).filter(g => String(g.role || '').toLowerCase() !== 'admin' && String(g.username || '').toLowerCase() !== 'admin');
                         processTableData('guru');
                     } else {
-                        document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
+                        document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="10" class="p-8 text-center text-red-500 font-bold">${result.message}</td></tr>`;
                         showAlert('error', result.message);
                     }
                 },
                 error => {
-                    document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
+                    document.getElementById('tbody-guru').innerHTML = `<tr><td colspan="10" class="p-8 text-center text-red-500">Gagal koneksi: ${error}</td></tr>`;
                 }
             );
         }
@@ -6064,30 +6966,35 @@
     function renderGuruRows(data, startIdx) {
         const tbody = document.getElementById('tbody-guru');
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-gray-400">Data guru tidak ditemukan.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-gray-400">Data guru tidak ditemukan.</td></tr>';
             return;
         }
         tbody.innerHTML = data.map((guru, i) => {
             const initial = (guru.nama || guru.username || 'G').charAt(0).toUpperCase();
             const avatarHtml = guru.foto ? `<img src="${guru.foto}" class="w-8 h-8 rounded-xl object-cover border border-purple-200 shrink-0">` : `<div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 font-extrabold flex items-center justify-center text-xs shrink-0">${initial}</div>`;
+            const cleanU = String(guru.username || '').replace(/^'+/, '').trim();
+            const isChecked = selectedRows.guru.has(cleanU);
             return `
-            <tr class="hover:bg-gray-50 transition border-b border-gray-100 group">
-                <td class="p-4 text-center text-gray-500 text-sm">${startIdx + i + 1}</td>
+            <tr class="hover:bg-gray-50 transition border-b border-gray-100 group ${isChecked ? 'bg-purple-50/40' : ''}">
+                <td class="p-4 text-center">
+                    <input type="checkbox" class="row-check-guru w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500 cursor-pointer" value="${cleanU}" onchange="toggleSelectRow('guru', '${cleanU.replace(/'/g, "\\'")}', this.checked)" ${isChecked ? 'checked' : ''}>
+                </td>
+                <td class="p-4 text-center text-gray-500 text-sm font-medium">${startIdx + i + 1}</td>
                 <td class="p-4 text-sm text-gray-600 font-mono">${guru.nip || '-'}</td>
                 <td class="p-4 text-sm font-bold text-gray-800 flex items-center gap-2.5">
                     ${avatarHtml}
                     <span>${guru.nama || guru.username}</span>
                 </td>
-                <td class="p-4 text-sm text-gray-600">${guru.username}</td>
+                <td class="p-4 text-sm text-gray-600 font-mono">${guru.username}</td>
                 <td class="p-4 text-sm text-gray-600">${guru.jabatan || '-'}</td>
                 <td class="p-4 text-sm text-gray-600">
                     ${guru.kelas ? `<span class="bg-purple-100 text-purple-700 px-2.5 py-1 rounded-lg text-xs font-bold">${guru.kelas}</span>` : '<span class="text-gray-400 italic text-xs">-</span>'}
                 </td>
                 <td class="p-4 text-sm text-gray-600">${guru.noHp || '-'}</td>
                 <td class="p-4 text-center">
-                    <span id="pass-guru-${i}" class="font-mono text-xs text-purple-800 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200 inline-flex items-center gap-1.5 cursor-pointer hover:bg-purple-100 transition shadow-2xs select-none" onclick="togglePasswordCell('pass-guru-${i}', '${guru.password || '12345'}')" title="Klik untuk intip / sembunyikan kata sandi">
-                        <span class="pass-text font-bold">••••••••</span>
-                        <i class="fas fa-eye text-[11px] text-purple-500"></i>
+                    <span class="font-mono text-xs text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 inline-flex items-center gap-1.5 shadow-2xs select-none" title="Kata sandi terenkripsi aman SHA-256">
+                        <i class="fas fa-shield-alt text-[11px] text-emerald-600"></i>
+                        <span class="font-bold text-emerald-700">Terenkripsi</span>
                     </span>
                 </td>
                 <td class="p-4 text-center">
@@ -7619,10 +8526,6 @@
         </div>`;
     }
 
-    function viewSiswa(s) {
-        showModal(createViewSiswaModal(s));
-    }
-
     function createViewSiswaModal(s) {
         const item = (label, value, icon) => `
             <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
@@ -7639,13 +8542,13 @@
             <div class="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white flex justify-between items-start">
                 <div class="flex gap-4 items-center">
                     <div class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-2xl font-bold border-2 border-white/30 shadow-inner">
-                        ${s.nama.charAt(0)}
+                        ${s.nama ? s.nama.charAt(0) : 'S'}
                     </div>
                     <div>
-                        <h3 class="text-xl font-bold tracking-tight">${s.nama}</h3>
+                        <h3 class="text-xl font-bold tracking-tight">${s.nama || '-'}</h3>
                         <p class="opacity-90 text-xs flex items-center gap-2 mt-0.5">
-                            <i class="far fa-id-card"></i> ${s.nisn}
-                            <span class="bg-white/20 px-2 py-0.5 rounded-md text-[11px] font-bold ml-1">${s.kelas}</span>
+                            <i class="far fa-id-card"></i> ${s.nisn || '-'}
+                            <span class="bg-white/20 px-2 py-0.5 rounded-md text-[11px] font-bold ml-1">${s.kelas || '-'}</span>
                         </p>
                     </div>
                 </div>
@@ -7689,25 +8592,25 @@
                     </div>
                 </div>
 
-                <!-- Informasi Akun & Password Siswa (Bisa Dilihat & Disalin Admin) -->
+                <!-- Status Keamanan Akun Siswa -->
                 <div>
                     <h4 class="text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2.5 flex items-center gap-2">
-                        <i class="fas fa-key"></i> Informasi Akun & Kata Sandi
+                        <i class="fas fa-shield-alt"></i> Keamanan Akun
                     </h4>
                     <div class="bg-indigo-50/70 p-4 rounded-2xl border border-indigo-100 flex items-center justify-between gap-3 shadow-xs">
                         <div>
-                            <p class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">Kata Sandi Akun Siswa</p>
-                            <p class="text-sm font-mono font-black text-indigo-950 mt-0.5">${s.password || s.nisn}</p>
+                            <p class="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">Status Kata Sandi</p>
+                            <p class="text-xs font-mono font-bold text-indigo-950 mt-0.5 flex items-center gap-1.5"><i class="fas fa-lock text-emerald-600"></i> Terenkripsi Aman (SHA-256)</p>
                         </div>
-                        <button onclick="copyTextToClipboard('${s.password || s.nisn}', 'Kata sandi siswa ${s.nama}')" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
-                            <i class="fas fa-copy"></i> Salin Sandi
+                        <button onclick="editSiswa('${String(s.nisn || '').replace(/'/g, "\\'")}')" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                            <i class="fas fa-key"></i> Reset Sandi
                         </button>
                     </div>
                 </div>
             </div>
 
             <div class="p-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-2">
-                <button onclick="editSiswa('${String(s.nisn).replace(/'/g, "\\'")}')" class="px-4 py-2 bg-amber-100 text-amber-700 rounded-xl font-bold text-xs hover:bg-amber-200 transition flex items-center gap-1.5">
+                <button onclick="editSiswa('${String(s.nisn || '').replace(/'/g, "\\'")}')" class="px-4 py-2 bg-amber-100 text-amber-700 rounded-xl font-bold text-xs hover:bg-amber-200 transition flex items-center gap-1.5">
                     <i class="fas fa-edit"></i> Edit Data
                 </button>
                 <button onclick="closeModal()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl font-bold text-xs hover:bg-gray-300 transition">
@@ -8022,13 +8925,13 @@
                     tableState.tendik.fullData = result.data || [];
                     processTableData('tendik');
                 } else {
-                    document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-500 font-bold">${result ? result.message : 'Gagal memuat data'}</td></tr>`;
+                    document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500 font-bold">${result ? result.message : 'Gagal memuat data'}</td></tr>`;
                     showAlert('error', (result ? result.message : 'Gagal memuat data tendik'));
                 }
             },
             err => {
                 hideLoading();
-                document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-500">Gagal koneksi: ${err}</td></tr>`;
+                document.getElementById('tbody-tendik').innerHTML = `<tr><td colspan="9" class="p-8 text-center text-red-500">Gagal koneksi: ${err}</td></tr>`;
                 showAlert('error', 'Gagal memuat data tendik: ' + err);
             }
         );
@@ -8039,16 +8942,21 @@
         if (!tbody) return;
 
         if (data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 font-bold">Data tendik/staf tidak ditemukan.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400 font-bold">Data tendik/staf tidak ditemukan.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = data.map((item, idx) => {
             const initial = (item.nama || item.username || 'T').charAt(0).toUpperCase();
             const avatarHtml = item.foto ? `<img src="${item.foto}" class="w-8 h-8 rounded-xl object-cover border border-amber-200 shrink-0">` : `<div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 font-extrabold flex items-center justify-center text-xs shrink-0">${initial}</div>`;
+            const cleanU = String(item.username || '').replace(/^'+/, '').trim();
+            const isChecked = selectedRows.tendik.has(cleanU);
             return `
-            <tr class="hover:bg-amber-50/50 transition border-b border-gray-100 group">
-                <td class="p-4 text-center font-bold text-slate-500 text-sm">${startIdx + idx + 1}</td>
+            <tr class="hover:bg-amber-50/50 transition border-b border-gray-100 group ${isChecked ? 'bg-amber-50/60' : ''}">
+                <td class="p-4 text-center">
+                    <input type="checkbox" class="row-check-tendik w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500 cursor-pointer" value="${cleanU}" onchange="toggleSelectRow('tendik', '${cleanU.replace(/'/g, "\\'")}', this.checked)" ${isChecked ? 'checked' : ''}>
+                </td>
+                <td class="p-4 text-center font-bold text-slate-500 text-sm font-medium">${startIdx + idx + 1}</td>
                 <td class="p-4 font-mono font-bold text-amber-700 text-sm">${item.nip || '-'}</td>
                 <td class="p-4 font-bold text-slate-800 text-sm flex items-center gap-2.5">
                     ${avatarHtml}
@@ -8058,9 +8966,9 @@
                 <td class="p-4 text-slate-600 text-sm">${item.noHp || '-'}</td>
                 <td class="p-4 text-slate-500 font-mono text-sm">${item.username}</td>
                 <td class="p-4 text-center">
-                    <span id="pass-tendik-${idx}" class="font-mono text-xs text-amber-900 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 inline-flex items-center gap-1.5 cursor-pointer hover:bg-amber-100 transition shadow-2xs select-none" onclick="togglePasswordCell('pass-tendik-${idx}', '${item.password || '12345'}')" title="Klik untuk intip / sembunyikan kata sandi">
-                        <span class="pass-text font-bold">••••••••</span>
-                        <i class="fas fa-eye text-[11px] text-amber-600"></i>
+                    <span class="font-mono text-xs text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 inline-flex items-center gap-1.5 shadow-2xs select-none" title="Kata sandi terenkripsi aman SHA-256">
+                        <i class="fas fa-shield-alt text-[11px] text-emerald-600"></i>
+                        <span class="font-bold text-emerald-700">Terenkripsi</span>
                     </span>
                 </td>
                 <td class="p-4 text-center">
