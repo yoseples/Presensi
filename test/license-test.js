@@ -46,9 +46,13 @@ async function runAllTests() {
   const BASE_URL = `http://127.0.0.1:${PORT}`;
 
   async function apiCall(endpoint, method = 'POST', body = null) {
+    const headers = {
+      'Content-Type': 'application/json',
+      'x-admin-key': 'adm_sec_smansa_master_2026_superkey'
+    };
     const res = await fetch(`${BASE_URL}${endpoint}`, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: body ? JSON.stringify(body) : null
     });
     const json = await res.json();
@@ -229,7 +233,7 @@ async function runAllTests() {
       token: forgedToken,
       domain: 'hacked.com'
     });
-    assert(verifyTampered.status === 403 && verifyTampered.data.valid === false, 'Cryptographically tampered token is rejected by verifier');
+    assert((verifyTampered.status === 401 || verifyTampered.status === 403) && verifyTampered.data.valid === false, 'Cryptographically tampered token is rejected by verifier');
 
     // ------------------------------------------------------------------------
     // SCENARIO 14: Expired License Detection

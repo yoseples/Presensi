@@ -3267,6 +3267,16 @@
       MASTER_SALT: 'KANGYOS_SMANSA_MASTER_LICENSE_KEY_2026',
       DEFAULT_API_URL: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3001' : '',
 
+      PUBLIC_KEY_PEM: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3/xJQA+Ac3fgH70msXBd
+KmIpAw2NestLOOxgd4YqInugyUCcabBvG6AYyNrJh3MpyEsFDNlEoyj0kPRmvyTi
+Riv9Ubf0V8z0mqdobsx+7x/TcBKGlzTwRmwp++HkRHdC3d34nv7HRyXvyBUL0VJx
+9XVIvcHo+oRnkzSod+H9w9zYUX8mv5Ge0r4zth8CMtFrjcawQ2Soq1p45seJD/kq
+Em8mHoFY+wgy0B2zifYhbRuqDYWhGEbw6VSnsuWhVKeImLDi2VN8yyI1i+goeXd/
+s/vXpMtnQWako1grdG0VFpeDVdG2KCB1ICc0xsRJMZuPQdLfqnuJydd73PQjq/At
+zQIDAQAB
+-----END PUBLIC KEY-----`,
+
       getCurrentDomain: () => {
         let hostname = 'localhost';
         try {
@@ -3320,6 +3330,81 @@
         return `SMANSA-${p1}-${p2}-${p3}-${p4}`;
       },
 
+      verifyTokenClient: async (token, expectedDomain) => {
+        if (!token || typeof token !== 'string') return { valid: false, reason: 'Token missing' };
+        const parts = token.split('.');
+        if (parts.length !== 3) return { valid: false, reason: 'Invalid token structure' };
+
+        try {
+          const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
+          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+          if (header.alg !== 'RS256') return { valid: false, reason: 'Unsupported algorithm' };
+          if (payload.product !== LicenseEngine.PRODUCT) return { valid: false, reason: 'Product mismatch' };
+
+          const cleanCur = LicenseEngine.cleanDomain(expectedDomain || LicenseEngine.getCurrentDomain());
+          const cleanTok = LicenseEngine.cleanDomain(payload.domain);
+          if (cleanTok && cleanTok !== cleanCur && cleanCur !== 'localhost' && cleanCur !== '127.0.0.1') {
+            return { valid: false, reason: 'Domain mismatch' };
+          }
+
+          if (payload.expires_at && Date.now() > new Date(payload.expires_at).getTime()) {
+            return { valid: false, reason: 'Token expired' };
+          }
+
+          if (payload.status && ['revoked', 'suspended', 'expired'].includes(payload.status.toLowerCase())) {
+            return { valid: false, reason: 'Status ' + payload.status };
+          }
+
+          // RSASSA-PKCS1-v1_5 SHA-256 verification
+          if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
+            try {
+              const pemHeader = '-----BEGIN PUBLIC KEY-----';
+              const pemFooter = '-----END PUBLIC KEY-----';
+              const pemContents = LicenseEngine.PUBLIC_KEY_PEM
+                .replace(pemHeader, '')
+                .replace(pemFooter, '')
+                .replace(/\s+/g, '');
+              const binaryDerString = atob(pemContents);
+              const binaryDer = new Uint8Array(binaryDerString.length);
+              for (let i = 0; i < binaryDerString.length; i++) {
+                binaryDer[i] = binaryDerString.charCodeAt(i);
+              }
+
+              const cryptoKey = await window.crypto.subtle.importKey(
+                'spki',
+                binaryDer.buffer,
+                { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+                false,
+                ['verify']
+              );
+
+              const dataToVerify = new TextEncoder().encode(`${parts[0]}.${parts[1]}`);
+              const sigStr = atob(parts[2].replace(/-/g, '+').replace(/_/g, '/'));
+              const sigBytes = new Uint8Array(sigStr.length);
+              for (let i = 0; i < sigStr.length; i++) sigBytes[i] = sigStr.charCodeAt(i);
+
+              const isSigValid = await window.crypto.subtle.verify(
+                'RSASSA-PKCS1-v1_5',
+                cryptoKey,
+                sigBytes,
+                dataToVerify
+              );
+
+              if (!isSigValid) {
+                return { valid: false, reason: 'Cryptographic signature invalid or token tampered' };
+              }
+            } catch(e) {
+              return { valid: false, reason: 'Signature verification error: ' + e.message };
+            }
+          }
+
+          return { valid: true, payload: payload };
+        } catch(err) {
+          return { valid: false, reason: 'Malformed token JSON: ' + err.message };
+        }
+      },
+
       getSavedLicense: async () => {
         let fbLic = null;
         try {
@@ -3341,48 +3426,53 @@
       checkFullVersionStatus: async () => {
         const currentDomain = LicenseEngine.getCurrentDomain();
         const saved = await LicenseEngine.getSavedLicense();
-        if (!saved || !saved.key) return { isFull: false, domain: currentDomain, licenseData: null };
+        if (!saved || (!saved.key && !saved.token)) return { isFull: false, domain: currentDomain, licenseData: null };
 
-        // Expiration check
+        // 1. Cryptographic RSA Token Verification if token exists
+        if (saved.token) {
+          const tokCheck = await LicenseEngine.verifyTokenClient(saved.token, currentDomain);
+          if (!tokCheck.valid) {
+            return { isFull: false, domain: currentDomain, licenseData: null, reason: tokCheck.reason };
+          }
+        }
+
+        // 2. Expiration check
         if (saved.expires_at) {
           if (Date.now() > new Date(saved.expires_at).getTime()) {
             return { isFull: false, domain: currentDomain, licenseData: null, reason: 'License expired' };
           }
         }
 
-        // Domain matching check
+        // 3. Domain matching check
         const cleanCurrent = LicenseEngine.cleanDomain(currentDomain);
         const cleanBound = LicenseEngine.cleanDomain(saved.domain);
         if (cleanBound && cleanBound !== cleanCurrent && cleanBound !== 'localhost' && cleanBound !== '127.0.0.1') {
           return { isFull: false, domain: currentDomain, licenseData: null, reason: 'Domain mismatch' };
         }
 
-        // Check if status is revoked or suspended in central DB
+        // 4. Check if status is revoked or suspended in central DB
         if (saved.status && ['revoked', 'suspended', 'expired'].includes(saved.status.toLowerCase())) {
           return { isFull: false, domain: currentDomain, licenseData: null, reason: 'License ' + saved.status };
         }
 
-        // Cryptographic check (Domain Signature or Registered Key Match)
-        const isDomainSigMatch = (saved.key === await LicenseEngine.computeSignature(currentDomain));
-        let isRegistryMatch = false;
-
+        // 5. Cross-check against database registry
         try {
           const allLicenses = await getDB('licenses');
           if (Array.isArray(allLicenses)) {
-            const found = allLicenses.find(l => l.license_key === saved.key || l.id === saved.id);
+            const found = allLicenses.find(l => (saved.key && l.license_key === saved.key) || (saved.id && l.id === saved.id));
             if (found) {
               if (['revoked', 'suspended', 'expired'].includes(found.status.toLowerCase())) {
                 return { isFull: false, domain: currentDomain, licenseData: null, reason: 'License ' + found.status };
               }
-              if (found.domain && LicenseEngine.cleanDomain(found.domain) !== cleanCurrent) {
+              if (found.domain && LicenseEngine.cleanDomain(found.domain) !== cleanCurrent && cleanCurrent !== 'localhost') {
                 return { isFull: false, domain: currentDomain, licenseData: null, reason: 'Domain mismatch' };
               }
-              isRegistryMatch = true;
             }
           }
         } catch(e) {}
 
-        const isValid = isDomainSigMatch || isRegistryMatch || (saved.status === 'FULL_VERSION' || saved.status === 'active');
+        const isDomainSigMatch = saved.key && (saved.key === await LicenseEngine.computeSignature(currentDomain));
+        const isValid = saved.token || isDomainSigMatch || (saved.status === 'FULL_VERSION' || saved.status === 'active');
 
         return {
           isFull: Boolean(isValid),

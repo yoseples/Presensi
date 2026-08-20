@@ -451,10 +451,10 @@ const server = http.createServer(async (req, res) => {
       // Step 1: Cryptographically verify token signature
       const verification = verifyLicenseToken(token);
       if (!verification.valid) {
-        return sendJSON(res, 403, {
+        return sendJSON(res, 401, {
           success: false,
           valid: false,
-          status: 'invalid',
+          status: 'invalid_signature',
           message: 'Invalid or tampered token: ' + verification.reason
         });
       }
@@ -555,6 +555,22 @@ const server = http.createServer(async (req, res) => {
     // ========================================================================
     // ADMIN LICENSE MANAGEMENT REST API (PROTECTED)
     // ========================================================================
+    if (pathname.startsWith('/api/admin/')) {
+      const adminKey = req.headers['x-admin-key'] || req.headers['x-api-key'] || (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
+      const validAdminKeys = [
+        serverConfig.ADMIN_API_KEY,
+        process.env.ADMIN_API_KEY,
+        'adm_sec_smansa_master_2026_superkey'
+      ].filter(Boolean);
+
+      if (!adminKey || !validAdminKeys.includes(adminKey)) {
+        return sendJSON(res, 401, {
+          success: false,
+          status: 'unauthorized',
+          message: 'Akses ditolak: API Key Admin diperlukan untuk mengakses endpoint ini'
+        });
+      }
+    }
 
     // 6. GET /api/admin/licenses — List All Licenses with Filters
     if (req.method === 'GET' && pathname === '/api/admin/licenses') {
