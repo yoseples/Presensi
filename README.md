@@ -33,5 +33,6 @@ Aplikasi web presensi siswa dan manajemen kehadiran sekolah modern, responsif, d
 
 ---
 
-## 🌐 Tautan Live
-👉 **[https://yoseples.github.io/Presensi/](https://yoseples.github.io/Presensi/)**
+## 🌐 Tautan Live Produksi
+👉 **[https://yoseples.github.io/smansalhoksukon/](https://yoseples.github.io/smansalhoksukon/)**
+*(Demo: [https://yoseples.github.io/Presensi/](https://yoseples.github.io/Presensi/))*
