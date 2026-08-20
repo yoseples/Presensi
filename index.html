@@ -27,28 +27,11 @@
   <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png">
 
   <script>
-    let deferredPrompt = null;
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js?v=2').catch(() => {});
       });
     }
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const btn = document.getElementById('btnDownloadApk');
-      if (btn) {
-        btn.innerHTML = '<i class="fab fa-android text-emerald-600 text-base"></i><span>Install Aplikasi Android</span>';
-        btn.onclick = async (ev) => {
-          if (deferredPrompt) {
-            ev.preventDefault();
-            deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
-            deferredPrompt = null;
-          }
-        };
-      }
-    });
   </script>
 
   <!-- Google Fonts -->
@@ -227,14 +210,6 @@
             <div>
                 <p id="errorText" class="text-xs font-medium text-rose-700">Username atau password tidak sesuai.</p>
             </div>
-        </div>
-
-        <!-- Download APK & PWA Banner -->
-        <div class="mt-4 pt-3 border-t border-slate-100">
-            <a id="btnDownloadApk" href="https://github.com/yoseples/Presensi/releases" target="_blank" class="w-full py-2.5 px-4 bg-slate-50 hover:bg-slate-100 active:scale-[0.98] border border-slate-200 text-slate-700 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 transition shadow-xs">
-                <i class="fab fa-android text-emerald-600 text-base"></i>
-                <span>Download APK Android</span>
-            </a>
         </div>
 
         <!-- Footer Text (Sesuai Permintaan: SMANSA LHOKSUKON) -->
