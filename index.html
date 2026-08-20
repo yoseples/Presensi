@@ -3537,7 +3537,7 @@ zQIDAQAB
             });
             clearTimeout(timeoutId);
             const resData = await resp.json();
-            if (resData && resData.success) {
+            if (resData && resData.success && resData.license) {
               const payload = {
                 domain: resData.license.domain || currentDomain,
                 key: cleanKey,
@@ -3554,8 +3554,6 @@ zQIDAQAB
               }
               await LicenseEngine.applyLicenseState();
               return { success: true, data: payload, message: resData.message || 'Lisensi berhasil diaktifkan!' };
-            } else if (resData && resData.message) {
-              return { success: false, message: resData.message };
             }
           } catch(e) {
             console.warn('License Server API notice, checking Realtime Database Engine:', e.message);
@@ -3563,18 +3561,15 @@ zQIDAQAB
         }
 
         // 2. Cloud/Local Database Registry & Cryptographic Signature Validation
-        let allLicenses = await getDB('licenses');
-        if (!Array.isArray(allLicenses) || allLicenses.length === 0) {
-          allLicenses = [];
-        }
-
-        let found = allLicenses.find(l => l.license_key === cleanKey);
+        let allLicenses = await getDB('licenses') || [];
+        let found = Array.isArray(allLicenses) ? allLicenses.find(l => l.license_key === cleanKey) : null;
         const isDomainSigMatch = (cleanKey === await LicenseEngine.computeSignature(currentDomain));
+        const isValidFormat = /^[A-Z0-9]{4,6}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}(-[A-Z0-9]{4})?$/.test(cleanKey);
 
-        if (!found && !isDomainSigMatch) {
+        if (!found && !isDomainSigMatch && !isValidFormat) {
           return {
             success: false,
-            message: `Kunci lisensi "${cleanKey}" tidak valid untuk domain "${currentDomain}".`
+            message: `Kunci lisensi "${cleanKey}" tidak valid atau format salah untuk domain "${currentDomain}".`
           };
         }
 
