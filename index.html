@@ -2992,12 +2992,16 @@
       if (fbDb) {
         try {
           const keys = ['developers', 'siswa', 'guru', 'tendik', 'config', 'libur', 'absensi', 'login_logs'];
-          for (const k of keys) {
-            const snap = await withTimeout(fbDb.ref(k).once('value'), 2000);
-            if (!snap.exists()) {
-              await withTimeout(fbDb.ref(k).set(SEED_DATA[k]), 2000);
-            }
-          }
+          
+          // Non-blocking parallel background check
+          Promise.all(keys.map(async (k) => {
+            try {
+              const snap = await withTimeout(fbDb.ref(k).once('value'), 1500);
+              if (!snap.exists()) {
+                await withTimeout(fbDb.ref(k).set(SEED_DATA[k]), 1500);
+              }
+            } catch(e) {}
+          })).catch(() => {});
 
           // Realtime Listener untuk sinkronisasi otomatis Pengaturan & Branding (Logo, Nama, Favicon)
           fbDb.ref('config').on('value', snap => {
@@ -3288,7 +3292,13 @@
     const LicenseEngine = {
       PRODUCT: 'presensi-smansa-pro',
       MASTER_SALT: 'KANGYOS_SMANSA_MASTER_LICENSE_KEY_2026',
-      DEFAULT_API_URL: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3001' : '',
+      DEFAULT_API_URL: (() => {
+        if (typeof window === 'undefined') return '';
+        const host = (window.location.hostname || '').toLowerCase();
+        if (host === 'localhost' || host === '127.0.0.1') return 'http://localhost:3001';
+        if (host.includes('kangyos.com')) return 'https://absen.kangyos.com';
+        return '';
+      })(),
 
       PUBLIC_KEY_PEM: `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3/xJQA+Ac3fgH70msXBd
@@ -3316,6 +3326,7 @@ zQIDAQAB
           .replace(/^https?:\/\//, '')
           .replace(/\/.*$/, '')
           .replace(/:\d+$/, '')
+          .replace(/^www\./, '')
           .trim();
       },
 
@@ -3368,26 +3379,22 @@ zQIDAQAB
           const cleanCur = LicenseEngine.cleanDomain(expectedDomain || LicenseEngine.getCurrentDomain());
           const cleanTok = LicenseEngine.cleanDomain(payload.domain);
           if (cleanTok && cleanTok !== cleanCur && cleanCur !== 'localhost' && cleanCur !== '127.0.0.1') {
-            return { valid: false, reason: 'Domain mismatch' };
+            return { valid: false, reason: `Token bound to domain ${payload.domain}, but current domain is ${expectedDomain}` };
           }
 
-          if (payload.expires_at && Date.now() > new Date(payload.expires_at).getTime()) {
+          if (payload.exp && Date.now() > payload.exp) {
             return { valid: false, reason: 'Token expired' };
           }
 
-          if (payload.status && ['revoked', 'suspended', 'expired'].includes(payload.status.toLowerCase())) {
-            return { valid: false, reason: 'Status ' + payload.status };
-          }
-
-          // RSASSA-PKCS1-v1_5 SHA-256 verification
-          if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
+          // Cryptographic RSASSA-PKCS1-v1_5 SHA-256 verification using subtle crypto
+          if (window.crypto && window.crypto.subtle && LicenseEngine.PUBLIC_KEY_PEM) {
             try {
               const pemHeader = '-----BEGIN PUBLIC KEY-----';
               const pemFooter = '-----END PUBLIC KEY-----';
               const pemContents = LicenseEngine.PUBLIC_KEY_PEM
                 .replace(pemHeader, '')
                 .replace(pemFooter, '')
-                .replace(/\s+/g, '');
+                .replace(/\s/g, '');
               const binaryDerString = atob(pemContents);
               const binaryDer = new Uint8Array(binaryDerString.length);
               for (let i = 0; i < binaryDerString.length; i++) {
@@ -3513,18 +3520,22 @@ zQIDAQAB
           return { success: false, message: 'Kunci lisensi tidak boleh kosong.' };
         }
 
-        // Try Remote License Server API first if configured
+        // 1. Try Remote License Server API with timeout
         if (LicenseEngine.DEFAULT_API_URL) {
           try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
             const resp = await fetch(`${LicenseEngine.DEFAULT_API_URL}/api/license/activate`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
               body: JSON.stringify({
                 license_key: cleanKey,
                 domain: currentDomain,
                 product: LicenseEngine.PRODUCT
               })
             });
+            clearTimeout(timeoutId);
             const resData = await resp.json();
             if (resData && resData.success) {
               const payload = {
@@ -3539,7 +3550,7 @@ zQIDAQAB
               };
               localStorage.setItem('absensi_app_license', JSON.stringify(payload));
               if (fbDb) {
-                try { await withTimeout(fbDb.ref('license').set(payload), 3000); } catch(e) {}
+                try { await withTimeout(fbDb.ref('license').set(payload), 2000); } catch(e) {}
               }
               await LicenseEngine.applyLicenseState();
               return { success: true, data: payload, message: resData.message || 'Lisensi berhasil diaktifkan!' };
@@ -3547,30 +3558,14 @@ zQIDAQAB
               return { success: false, message: resData.message };
             }
           } catch(e) {
-            console.warn('License Server API unreachable, falling back to Realtime Database Engine:', e);
+            console.warn('License Server API notice, checking Realtime Database Engine:', e.message);
           }
         }
 
-        // Fallback to Cloud/Local Database Registry
+        // 2. Cloud/Local Database Registry & Cryptographic Signature Validation
         let allLicenses = await getDB('licenses');
         if (!Array.isArray(allLicenses) || allLicenses.length === 0) {
-          allLicenses = [
-            {
-              id: 'lic_default_smansa',
-              license_key: 'JRAK-7F4K-9X2M-Q8VP-3N6T',
-              product: 'presensi-smansa-pro',
-              customer_name: 'SMA Negeri 1 Lhoksukon',
-              customer_email: 'smansalhoksukon@sch.id',
-              domain: 'yoseples.github.io',
-              status: 'active',
-              license_type: 'Lifetime',
-              max_activation: 1,
-              activation_count: 1,
-              activated_at: new Date().toISOString(),
-              expires_at: null,
-              created_at: new Date().toISOString()
-            }
-          ];
+          allLicenses = [];
         }
 
         let found = allLicenses.find(l => l.license_key === cleanKey);
@@ -3579,7 +3574,7 @@ zQIDAQAB
         if (!found && !isDomainSigMatch) {
           return {
             success: false,
-            message: `Kunci lisensi "${cleanKey}" tidak valid atau tidak ditemukan dalam database lisensi.`
+            message: `Kunci lisensi "${cleanKey}" tidak valid untuk domain "${currentDomain}".`
           };
         }
 
@@ -3615,8 +3610,8 @@ zQIDAQAB
         const payload = {
           domain: currentDomain,
           key: cleanKey,
-          customer_name: found ? found.customer_name : 'Pelanggan Terverifikasi',
-          license_type: found ? found.license_type : 'Lifetime',
+          customer_name: found ? found.customer_name : ('Sekolah ' + currentDomain),
+          license_type: found ? (found.license_type || found.plan || 'ENTERPRISE') : 'Lifetime',
           expires_at: found ? found.expires_at : null,
           status: 'FULL_VERSION',
           activatedAt: new Date().toISOString()
@@ -3624,7 +3619,7 @@ zQIDAQAB
 
         localStorage.setItem('absensi_app_license', JSON.stringify(payload));
         if (fbDb) {
-          try { await withTimeout(fbDb.ref('license').set(payload), 3000); } catch(e) {}
+          try { await withTimeout(fbDb.ref('license').set(payload), 2000); } catch(e) {}
         }
 
         await LicenseEngine.applyLicenseState();
@@ -3638,7 +3633,7 @@ zQIDAQAB
       deactivateLicense: async () => {
         localStorage.removeItem('absensi_app_license');
         if (fbDb) {
-          try { await withTimeout(fbDb.ref('license').set(false), 3000); } catch(e) {}
+          try { await withTimeout(fbDb.ref('license').set(false), 2000); } catch(e) {}
         }
         await LicenseEngine.applyLicenseState();
         return {
@@ -3707,6 +3702,38 @@ zQIDAQAB
         }
       }
     };
+
+    async function submitLicenseActivation() {
+      const input = document.getElementById('inputLicenseKey');
+      if (!input || !input.value.trim()) {
+        showAlert('warning', 'Silakan masukkan kunci lisensi terlebih dahulu.');
+        return;
+      }
+      const key = input.value.trim();
+      showLoading();
+      try {
+        const res = await LicenseEngine.activateLicense(key);
+        hideLoading();
+        if (res.success) {
+          showAlert('success', res.message || 'Lisensi berhasil diaktifkan!');
+          input.value = '';
+        } else {
+          showAlert('error', res.message || 'Gagal mengaktifkan lisensi.');
+        }
+      } catch(e) {
+        hideLoading();
+        showAlert('error', 'Terjadi kesalahan saat aktivasi: ' + e.message);
+      }
+    }
+
+    async function promptDeactivateLicense() {
+      if (confirm('Apakah Anda yakin ingin mencopot lisensi resmi dari WebApp ini? Sistem akan kembali ke Mode Demo.')) {
+        showLoading();
+        await LicenseEngine.deactivateLicense();
+        hideLoading();
+        showAlert('info', 'Lisensi berhasil dicopot. Sistem kembali ke Mode Demo.');
+      }
+    }
 
     // ============================================================================
     // runAPI — Firebase/BackendAPI Router (Full Firebase Mode)
