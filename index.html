@@ -5261,8 +5261,7 @@
         };
 
         if (currentUser.role === 'developer') {
-            menuHTML += createItem('Manajemen User', 'fa-users-cog text-amber-400', 'loadUserManagement()', true);
-            menuHTML += createItem('Dashboard Admin', 'fa-home', 'loadAdminDashboard()');
+            menuHTML += createItem('Dashboard', 'fa-home', 'loadAdminDashboard()', true);
             menuHTML += createItem('Data Siswa', 'fa-user-graduate', 'loadDataSiswa()');
             menuHTML += createItem('Data Guru', 'fa-chalkboard-teacher', 'loadDataGuru()');
             menuHTML += createItem('Data Tendik', 'fa-user-tie', 'loadDataTendik()');
@@ -5271,7 +5270,8 @@
             menuHTML += createItem('Sesi Login', 'fa-laptop-code', 'scrollToLoginLogs()');
             menuHTML += createItem('Scan Absensi', 'fa-qrcode', 'loadScanAbsensi()');
             menuHTML += createItem('Profil & Akun', 'fa-user-cog', 'showUserProfileAndSecurityModal()');
-            loadUserManagement();
+            menuHTML += createItem('Manajemen User', 'fa-users-cog text-amber-400', 'loadUserManagement()');
+            loadAdminDashboard();
         }
         else if (currentUser.role === 'admin') {
             menuHTML += createItem('Dashboard', 'fa-home', 'loadAdminDashboard()', true);
