@@ -5280,10 +5280,10 @@ zQIDAQAB
       },
 
       // ======================================================================
-      // ADMIN LICENSE MANAGEMENT API
+      // ADMIN LICENSE MANAGEMENT API (STRICTLY DEVELOPER / SUPER ADMIN ONLY)
       // ======================================================================
       getAdminLicenses: async (token, query = {}) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         if (!Array.isArray(list) || list.length === 0) {
           list = [
@@ -5324,7 +5324,7 @@ zQIDAQAB
       },
 
       generateAdminLicense: async (token, data) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         if (!Array.isArray(list)) list = [];
 
@@ -5382,7 +5382,7 @@ zQIDAQAB
       },
 
       suspendAdminLicense: async (token, id) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         const lic = list.find(x => x.id === id);
         if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
@@ -5394,7 +5394,7 @@ zQIDAQAB
       },
 
       reactivateAdminLicense: async (token, id) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         const lic = list.find(x => x.id === id);
         if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
@@ -5406,7 +5406,7 @@ zQIDAQAB
       },
 
       revokeAdminLicense: async (token, id) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         const lic = list.find(x => x.id === id);
         if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
@@ -5418,7 +5418,7 @@ zQIDAQAB
       },
 
       resetAdminLicenseDomain: async (token, id) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         const lic = list.find(x => x.id === id);
         if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
@@ -5433,7 +5433,7 @@ zQIDAQAB
       },
 
       resetAdminLicenseActivation: async (token, id) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         const lic = list.find(x => x.id === id);
         if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
@@ -5445,7 +5445,7 @@ zQIDAQAB
       },
 
       extendAdminLicense: async (token, id, days, customDate) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         const lic = list.find(x => x.id === id);
         if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
@@ -5467,7 +5467,7 @@ zQIDAQAB
       },
 
       changeAdminLicensePlan: async (token, id, newPlan) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         const lic = list.find(x => x.id === id);
         if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
@@ -5479,7 +5479,7 @@ zQIDAQAB
       },
 
       transferAdminLicense: async (token, id, newDomain, reason) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         const lic = list.find(x => x.id === id);
         if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
@@ -5493,7 +5493,7 @@ zQIDAQAB
       },
 
       deleteAdminLicense: async (token, id) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let list = await getDB('licenses');
         const idx = list.findIndex(x => x.id === id);
         if (idx === -1) return { success: false, message: 'Lisensi tidak ditemukan.' };
@@ -5504,7 +5504,7 @@ zQIDAQAB
       },
 
       getAdminLicenseAuditLogs: async (token) => {
-        AuthSecurity.authorize(['admin', 'developer'], token);
+        AuthSecurity.authorize(['developer', 'super_admin'], token);
         let logs = await getDB('license_audit_logs');
         if (!Array.isArray(logs)) logs = [];
         return { success: true, logs: logs.slice(0, 100) };
@@ -6740,7 +6740,7 @@ zQIDAQAB
             </a>`;
         };
 
-        if (currentUser.role === 'developer') {
+        if (currentUser.role === 'developer' || currentUser.role === 'super_admin') {
             menuHTML += createItem('Dashboard', 'fa-home', 'loadAdminDashboard()', true);
             menuHTML += createItem('Data Siswa', 'fa-user-graduate', 'loadDataSiswa()');
             menuHTML += createItem('Data Guru', 'fa-chalkboard-teacher', 'loadDataGuru()');
@@ -6765,7 +6765,7 @@ zQIDAQAB
             menuHTML += createItem('Sesi Login', 'fa-laptop-code', 'scrollToLoginLogs()');
             menuHTML += createItem('Scan Absensi', 'fa-qrcode', 'loadScanAbsensi()');
             menuHTML += createItem('Pengaturan', 'fa-sliders-h text-cyan-400', 'loadPengaturanSistem()');
-            menuHTML += createItem('Kelola Lisensi', 'fa-key text-amber-400', 'loadAdminLicenses()');
+            // Catatan: Menu Kelola Lisensi secara sengaja DIHILANGKAN untuk Admin biasa (Hanya untuk Developer / Super Admin)
             menuHTML += createItem('Profil & Akun', 'fa-user-cog', 'showUserProfileAndSecurityModal()');
             loadAdminDashboard();
         } 
@@ -12727,8 +12727,13 @@ zQIDAQAB
     let adminLicensesCache = [];
 
     function loadAdminLicenses(forceRefresh = false) {
-        if (!currentUser || !['admin', 'developer'].includes(currentUser.role)) {
-            showAlert('error', 'Akses Ditolak: Menu Kelola Lisensi hanya dapat diakses oleh Admin atau Developer.');
+        if (!currentUser || !['developer', 'super_admin'].includes(currentUser.role)) {
+            showAlert('error', 'Akses Ditolak (403 Forbidden): Menu Kelola Lisensi secara eksklusif hanya dapat diakses oleh Developer / Super Admin.');
+            if (currentUser && currentUser.role === 'admin') loadAdminDashboard();
+            else if (currentUser && currentUser.role === 'guru') loadGuruDashboard();
+            else if (currentUser && currentUser.role === 'tendik') loadTendikDashboard();
+            else if (currentUser && currentUser.role === 'siswa') loadSiswaDashboard();
+            else showView('view-auth');
             return;
         }
 

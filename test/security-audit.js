@@ -311,9 +311,9 @@ async function runFullSecurityAudit() {
     const unauthRes = await makeRequest('GET', '/api/admin/licenses');
     const wrongKeyRes = await makeRequest('GET', '/api/admin/licenses', null, { 'x-admin-key': 'bad_key' });
 
-    const isAuthPass = unauthRes.statusCode === 401 && wrongKeyRes.statusCode === 401;
+    const isAuthPass = (unauthRes.statusCode === 401 || unauthRes.statusCode === 403) && (wrongKeyRes.statusCode === 401 || wrongKeyRes.statusCode === 403);
     if (isAuthPass) {
-      logAudit('Admin Authorization', 'PASS', 'Unauthorized requests to Admin API blocked with 401 Unauthorized');
+      logAudit('Admin Authorization', 'PASS', 'Unauthorized requests to Admin API blocked with 401/403 (Developer/Super Admin strictly required)');
     } else {
       logAudit('Admin Authorization', 'FAIL', 'Unauthenticated access allowed to Admin API');
     }

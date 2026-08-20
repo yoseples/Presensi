@@ -874,7 +874,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ========================================================================
-    // ADMIN LICENSE MANAGEMENT REST API (PROTECTED)
+    // ADMIN LICENSE MANAGEMENT REST API (PROTECTED: DEVELOPER / SUPER ADMIN ONLY)
     // ========================================================================
     if (pathname.startsWith('/api/admin/')) {
       const adminKey = req.headers['x-admin-key'] || req.headers['x-api-key'] || (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
@@ -884,11 +884,29 @@ const server = http.createServer(async (req, res) => {
         'adm_sec_smansa_master_2026_superkey'
       ].filter(Boolean);
 
-      if (!adminKey || !validAdminKeys.includes(adminKey)) {
+      if (!adminKey) {
+        createAuditLog(null, 'UNAUTHORIZED_LICENSE_ACCESS_ATTEMPT', 'unknown', req, {
+          path: pathname,
+          reason: 'Unauthenticated access attempt'
+        });
         return sendJSON(res, 401, {
           success: false,
+          error: 'UNAUTHORIZED',
           status: 'unauthorized',
-          message: 'Akses ditolak: API Key Admin diperlukan untuk mengakses endpoint ini'
+          message: 'Authentication required. Missing Admin credentials.'
+        });
+      }
+
+      if (!validAdminKeys.includes(adminKey)) {
+        createAuditLog(null, 'UNAUTHORIZED_LICENSE_ACCESS_ATTEMPT', 'unknown', req, {
+          path: pathname,
+          reason: 'Forbidden role or invalid API key'
+        });
+        return sendJSON(res, 403, {
+          success: false,
+          error: 'FORBIDDEN',
+          status: 'forbidden',
+          message: 'You do not have permission to access License Management.'
         });
       }
     }

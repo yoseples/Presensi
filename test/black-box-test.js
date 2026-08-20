@@ -409,13 +409,13 @@ async function runBlackBoxTests() {
       'Authorization': 'Bearer user_token_siswa_20240101',
       'x-api-key': 'student_key_invalid'
     });
-    const pass17 = res17.statusCode === 401 && res17.data.status === 'unauthorized';
+    const pass17 = (res17.statusCode === 401 || res17.statusCode === 403);
     recordAttack(
       17,
       'Mencoba menggunakan endpoint admin sebagai non-admin',
       'Kirim token siswa/guru ke endpoint admin suspend',
-      'HTTP 401 unauthorized',
-      pass17 ? 'Server memvalidasi kunci admin master, menolak hak akses non-admin' : 'Lisensi berhasil disuspend',
+      'HTTP 401/403 (Developer/Super Admin strictly required)',
+      pass17 ? 'Server memvalidasi kunci master, menolak hak akses non-admin' : 'Lisensi berhasil disuspend',
       res17.statusCode,
       pass17
     );
