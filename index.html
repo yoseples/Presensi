@@ -2047,22 +2047,23 @@
   <script>
     /**
      * FIREBASE REALTIME DATABASE ADAPTER (cPanel & GitHub Pages Ready)
+     * Masukkan konfigurasi project Firebase baru Anda di bawah ini:
      */
     const firebaseConfig = {
-      apiKey: "AIzaSyDbJlN5zeMt0QEoVdecaoddVEbwdYDSMS4",
-      authDomain: "absensi-digital-pusat.firebaseapp.com",
-      databaseURL: "https://absensi-digital-pusat-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "absensi-digital-pusat",
-      storageBucket: "absensi-digital-pusat.firebasestorage.app",
-      messagingSenderId: "521775834196",
-      appId: "1:521775834196:web:c01b8089244f859a61b9c1",
-      measurementId: "G-XYDHLRM620"
+      apiKey: "",
+      authDomain: "",
+      databaseURL: "",
+      projectId: "",
+      storageBucket: "",
+      messagingSenderId: "",
+      appId: "",
+      measurementId: ""
     };
 
     let fbApp = null;
     let fbDb = null;
     try {
-      if (typeof firebase !== 'undefined') {
+      if (typeof firebase !== 'undefined' && firebaseConfig.apiKey && firebaseConfig.databaseURL) {
         fbApp = firebase.initializeApp(firebaseConfig);
         fbDb = firebase.database();
       }
