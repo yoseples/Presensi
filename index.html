@@ -2583,15 +2583,28 @@
       initLocalStorage();
       if (fbDb) {
         try {
-          const keys = ['siswa', 'guru', 'tendik', 'config', 'libur', 'absensi', 'login_logs'];
+          const keys = ['developers', 'siswa', 'guru', 'tendik', 'config', 'libur', 'absensi', 'login_logs'];
           for (const k of keys) {
             const snap = await withTimeout(fbDb.ref(k).once('value'), 2000);
             if (!snap.exists()) {
               await withTimeout(fbDb.ref(k).set(SEED_DATA[k]), 2000);
             }
           }
+
+          // Realtime Listener untuk sinkronisasi otomatis Pengaturan & Branding (Logo, Nama, Favicon)
+          fbDb.ref('config').on('value', snap => {
+            if (snap.exists()) {
+              const remoteConf = snap.val();
+              if (remoteConf && typeof remoteConf === 'object') {
+                localStorage.setItem(DB_KEYS.CONFIG, JSON.stringify(remoteConf));
+                if (typeof applyGlobalBranding === 'function') {
+                  applyGlobalBranding(remoteConf);
+                }
+              }
+            }
+          });
         } catch (err) {
-          console.warn('Firebase seeding notice:', err);
+          console.warn('Firebase seeding/sync notice:', err);
         }
       }
     }
