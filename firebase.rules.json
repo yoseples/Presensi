@@ -24,7 +24,7 @@
     },
     
     "config": {
-      ".validate": "newData.hasChildren(['jam_masuk_mulai', 'jam_masuk_akhir', 'jam_pulang_mulai', 'jam_pulang_akhir'])"
+      ".validate": "newData.hasChildren() || newData.val() == false"
     },
     
     "libur": {

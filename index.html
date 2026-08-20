@@ -20,11 +20,11 @@
   <meta name="apple-mobile-web-app-title" content="Presensi SMANSA">
 
   <!-- Open Graph / Facebook / WhatsApp -->
-  <!-- Favicon SMANSA Lhoksukon (GitHub Hosted) -->
-  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.ico">
-  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png">
-  <link rel="shortcut icon" type="image/png" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png">
-  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png">
+  <!-- Favicon SMANSA Lhoksukon (GitHub Hosted & Dynamic Config) -->
+  <link id="appFaviconIco" rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.ico">
+  <link id="appFaviconPng" rel="icon" type="image/png" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png">
+  <link id="appFaviconShortcut" rel="shortcut icon" type="image/png" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png">
+  <link id="appAppleTouchIcon" rel="apple-touch-icon" href="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png">
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -152,12 +152,12 @@
             <div class="w-24 h-24 flex items-center justify-center mb-3">
                 <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" 
                      onerror="this.src='https://yoseples.github.io/Presensi/logo.png'" 
-                     alt="Logo SMANSA Lhoksukon" 
-                     class="w-full h-full object-contain filter drop-shadow-sm">
+                     alt="Logo Sekolah" 
+                     class="app-brand-logo w-full h-full object-contain filter drop-shadow-sm">
             </div>
             
-            <h1 class="text-2xl font-black text-slate-800 tracking-wider uppercase">PRESENSI</h1>
-            <p class="text-sm text-slate-600 font-semibold mt-1">SMA Negeri 1 Lhoksukon</p>
+            <h1 class="app-brand-title text-2xl font-black text-slate-800 tracking-wider uppercase">PRESENSI</h1>
+            <p class="app-school-name text-sm text-slate-600 font-semibold mt-1">SMA Negeri 1 Lhoksukon</p>
         </div>
 
         <!-- Info Badges / Instruction Pills -->
@@ -212,10 +212,10 @@
             </div>
         </div>
 
-        <!-- Footer Text (Sesuai Permintaan: SMANSA LHOKSUKON) -->
+        <!-- Footer Text -->
         <div class="mt-5 text-center">
-            <h4 class="text-xs font-bold text-slate-800 tracking-wide">SMA Negeri 1 Lhoksukon</h4>
-            <p class="text-[9px] text-slate-400 mt-1 leading-relaxed max-w-[290px] mx-auto">
+            <h4 class="app-school-name text-xs font-bold text-slate-800 tracking-wide">SMA Negeri 1 Lhoksukon</h4>
+            <p class="app-brand-desc text-[9px] text-slate-400 mt-1 leading-relaxed max-w-[290px] mx-auto">
                 Sistem Presensi Digital dengan QR Code dan GPS SMA Negeri 1 Lhoksukon.
             </p>
         </div>
@@ -234,11 +234,11 @@
           <div id="sidebarHeader" class="h-16 flex items-center justify-start px-5 border-b border-slate-800 overflow-hidden relative transition-all duration-300">
               <div class="flex items-center space-x-3 relative z-10 w-full">
                   <div class="w-10 h-10 flex items-center justify-center shrink-0">
-                      <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" onerror="this.src='https://yoseples.github.io/Presensi/logo.png'" alt="Logo SMANSA" class="w-full h-full object-contain">
+                      <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" onerror="this.src='https://yoseples.github.io/Presensi/logo.png'" alt="Logo Sekolah" class="app-brand-logo w-full h-full object-contain">
                   </div>
                   <div class="sidebar-label transition-opacity duration-300 whitespace-nowrap overflow-hidden">
-                      <h1 class="font-bold text-sm tracking-wide text-white truncate">SMANSA LHOKSUKON</h1>
-                      <p class="text-[9px] text-indigo-300 uppercase tracking-wider font-semibold truncate">SMA Negeri 1 Lhoksukon</p>
+                      <h1 class="app-school-short font-bold text-sm tracking-wide text-white truncate">SMANSA LHOKSUKON</h1>
+                      <p class="app-school-name text-[9px] text-indigo-300 uppercase tracking-wider font-semibold truncate">SMA Negeri 1 Lhoksukon</p>
                   </div>
               </div>
           </div>
@@ -2117,6 +2117,291 @@
                   </div>
               </div>
 
+              <!-- 11. PENGATURAN SISTEM, IDENTITAS SEKOLAH & BRANDING WEBAPP -->
+              <div id="view-pengaturan-sistem" class="view-section animate-fade-in">
+                <!-- Header Title -->
+                <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-700 border border-indigo-200">
+                                <i class="fas fa-sliders-h mr-1"></i> System Customization
+                            </span>
+                            <span class="text-xs text-slate-400 font-medium">Admin & Developer Control</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Pengaturan & Branding WebApp</h2>
+                        <p class="text-xs text-slate-500 mt-1">Kustomisasi nama sekolah, upload logo, favicon kustom, titel webapp, jam absensi, dan titik koordinat GPS.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="resetBrandingToDefault()" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+                            <i class="fas fa-undo text-slate-400"></i> Reset Default
+                        </button>
+                        <button type="button" onclick="document.getElementById('formGlobalSettings').requestSubmit()" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-xl text-xs font-bold transition shadow-md shadow-indigo-600/20 flex items-center gap-2 cursor-pointer">
+                            <i class="fas fa-save"></i> Simpan Semua Pengaturan
+                        </button>
+                    </div>
+                </div>
+
+                <form id="formGlobalSettings" onsubmit="saveFullAppSettings(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <!-- KOLOM KIRI (2 Kolom): Formulir Pengaturan -->
+                        <div class="lg:col-span-2 space-y-6">
+                            
+                            <!-- KARTU 1: IDENTITAS SEKOLAH & TITEL WEBAPP -->
+                            <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+                                <div class="p-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm font-bold shadow-inner">
+                                            <i class="fas fa-school"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800 text-sm">Identitas Sekolah & Judul WebApp</h3>
+                                            <p class="text-[11px] text-slate-400">Pengaturan nama instansi dan judul halaman web</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">Live Updating</span>
+                                </div>
+                                <div class="p-5 space-y-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Lengkap Sekolah / Instansi</label>
+                                        <input type="text" id="setting_nama_sekolah" name="nama_sekolah" oninput="previewLiveBranding()" required placeholder="Contoh: SMA Negeri 1 Lhoksukon" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                                        <p class="text-[10px] text-slate-400 mt-1">Ditampilkan di panel login, kartu digital siswa/guru, dan header laporan.</p>
+                                    </div>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Singkatan / Nama Header Sidebar</label>
+                                            <input type="text" id="setting_singkatan_sekolah" name="singkatan_sekolah" oninput="previewLiveBranding()" required placeholder="Contoh: SMANSA LHOKSUKON" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Titel WebApp (Browser Tab Title)</label>
+                                            <input type="text" id="setting_titel_webapp" name="titel_webapp" oninput="previewLiveBranding()" required placeholder="Contoh: Presensi SMANSA - Sistem Absensi Digital" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Slogan / Deskripsi WebApp</label>
+                                        <input type="text" id="setting_deskripsi_webapp" name="deskripsi_webapp" oninput="previewLiveBranding()" placeholder="Contoh: Sistem Presensi Digital dengan QR Code dan GPS" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Alamat Sekolah / Instansi</label>
+                                        <input type="text" id="setting_alamat_sekolah" name="alamat_sekolah" placeholder="Contoh: Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- KARTU 2: UPLOAD LOGO & FAVICON -->
+                            <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+                                <div class="p-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm font-bold shadow-inner">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800 text-sm">Upload Logo & Favicon WebApp</h3>
+                                            <p class="text-[11px] text-slate-400">Kustomisasi grafis visual aplikasi web secara instan</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">Auto Compress (Max 512px)</span>
+                                </div>
+                                <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    
+                                    <!-- Upload Logo -->
+                                    <div class="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-2">
+                                                <label class="block text-xs font-bold text-slate-800">Logo Utama Sekolah / WebApp</label>
+                                                <span class="text-[9px] text-slate-400 font-mono">PNG/JPG/SVG/WebP</span>
+                                            </div>
+                                            <p class="text-[10px] text-slate-500 mb-3">Ukuran ideal: 512x512 px dengan latar belakang transparan.</p>
+                                            
+                                            <!-- Preview Box Logo -->
+                                            <div class="flex items-center gap-3 mb-3 p-3 bg-white rounded-xl border border-slate-200">
+                                                <div class="w-16 h-16 rounded-xl bg-slate-900 flex items-center justify-center p-1 shadow-inner relative group cursor-pointer overflow-hidden" onclick="document.getElementById('inputUploadLogo').click()" title="Klik untuk ganti logo">
+                                                    <img id="previewLogoImgDark" src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" class="w-full h-full object-contain">
+                                                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-[10px] font-bold">Ubah</div>
+                                                </div>
+                                                <div class="w-16 h-16 rounded-xl bg-slate-100 flex items-center justify-center p-1 border border-slate-200 relative group cursor-pointer overflow-hidden" onclick="document.getElementById('inputUploadLogo').click()" title="Klik untuk ganti logo">
+                                                    <img id="previewLogoImgLight" src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" class="w-full h-full object-contain">
+                                                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-[10px] font-bold">Ubah</div>
+                                                </div>
+                                                <div class="text-[11px] text-slate-500">
+                                                    <span class="font-bold text-slate-700 block">Preview Logo</span>
+                                                    <span class="text-[9px] text-slate-400">Tampilan Gelap & Terang</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center gap-2 pt-2 border-t border-slate-200/50">
+                                            <input type="file" id="inputUploadLogo" accept="image/png, image/jpeg, image/webp, image/svg+xml" class="hidden" onchange="handleLogoUpload(event)">
+                                            <button type="button" onclick="document.getElementById('inputUploadLogo').click()" class="flex-1 py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                                <i class="fas fa-upload"></i> Unggah Logo
+                                            </button>
+                                            <button type="button" onclick="resetLogoToDefault()" class="p-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer" title="Gunakan Logo Bawaan">
+                                                <i class="fas fa-rotate-left"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload Favicon -->
+                                    <div class="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/60 flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between mb-2">
+                                                <label class="block text-xs font-bold text-slate-800">Favicon Browser WebApp</label>
+                                                <span class="text-[9px] text-slate-400 font-mono">ICO/PNG/SVG</span>
+                                            </div>
+                                            <p class="text-[10px] text-slate-500 mb-3">Ikon tab browser di smartphone dan komputer desktop.</p>
+                                            
+                                            <!-- Preview Box Favicon -->
+                                            <div class="flex items-center gap-3 mb-3 p-3 bg-white rounded-xl border border-slate-200">
+                                                <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center p-2 shadow-inner relative group cursor-pointer" onclick="document.getElementById('inputUploadFavicon').click()" title="Klik untuk ganti favicon">
+                                                    <img id="previewFaviconImg" src="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png" class="w-8 h-8 object-contain">
+                                                    <div class="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition text-white text-[9px] font-bold">Ubah</div>
+                                                </div>
+                                                <div class="text-[11px] text-slate-500 flex-1">
+                                                    <span class="font-bold text-slate-700 block">Ikon Tab Web</span>
+                                                    <!-- Simulasi browser tab pill -->
+                                                    <div class="inline-flex items-center gap-1.5 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 text-[10px] text-slate-600 mt-0.5">
+                                                        <img id="miniFaviconPreview" src="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png" class="w-3.5 h-3.5 object-contain">
+                                                        <span id="tabTitleMiniPreview" class="truncate max-w-[100px] font-medium">Presensi...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center gap-2 pt-2 border-t border-slate-200/50">
+                                            <input type="file" id="inputUploadFavicon" accept="image/x-icon, image/png, image/svg+xml, image/jpeg" class="hidden" onchange="handleFaviconUpload(event)">
+                                            <button type="button" onclick="document.getElementById('inputUploadFavicon').click()" class="flex-1 py-2 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                                <i class="fas fa-upload"></i> Unggah Favicon
+                                            </button>
+                                            <button type="button" onclick="resetFaviconToDefault()" class="p-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer" title="Gunakan Favicon Bawaan">
+                                                <i class="fas fa-rotate-left"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- KARTU 3: PENGATURAN WAKTU & GPS SEKOLAH -->
+                            <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+                                <div class="p-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-bold shadow-inner">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800 text-sm">Jam Operasional & Geofencing GPS</h3>
+                                            <p class="text-[11px] text-slate-400">Jadwal absensi dan batas radius lokasi sekolah</p>
+                                        </div>
+                                    </div>
+                                    <button type="button" onclick="detectCurrentCoordinates()" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-[10px] font-bold transition border border-indigo-200 flex items-center gap-1 cursor-pointer">
+                                        <i class="fas fa-crosshairs"></i> Deteksi GPS Saya
+                                    </button>
+                                </div>
+                                <div class="p-5 space-y-4">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                                            <p class="text-[10px] uppercase font-bold text-indigo-600 mb-2">Absen Datang</p>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-700 mb-1">Mulai Buka</label>
+                                                    <input type="time" id="setting_jam_masuk_mulai" name="jam_masuk_mulai" required class="w-full border-slate-200 rounded-lg text-xs p-2">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-700 mb-1">Batas Terlambat</label>
+                                                    <input type="time" id="setting_jam_masuk_akhir" name="jam_masuk_akhir" required class="w-full border-slate-200 rounded-lg text-xs p-2">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                                            <p class="text-[10px] uppercase font-bold text-indigo-600 mb-2">Absen Pulang</p>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-700 mb-1">Mulai Buka</label>
+                                                    <input type="time" id="setting_jam_pulang_mulai" name="jam_pulang_mulai" required class="w-full border-slate-200 rounded-lg text-xs p-2">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs font-bold text-slate-700 mb-1">Tutup Absen</label>
+                                                    <input type="time" id="setting_jam_pulang_akhir" name="jam_pulang_akhir" required class="w-full border-slate-200 rounded-lg text-xs p-2">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-indigo-50/60 p-3.5 rounded-xl border border-indigo-100">
+                                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                            <div>
+                                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Latitude Lokasi</label>
+                                                <input type="text" id="setting_lokasi_lat" name="lokasi_lat" value="5.0505556" required class="w-full border-slate-200 rounded-lg text-xs p-2">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Longitude Lokasi</label>
+                                                <input type="text" id="setting_lokasi_lng" name="lokasi_lng" value="97.3358611" required class="w-full border-slate-200 rounded-lg text-xs p-2">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Radius Max (Meter)</label>
+                                                <input type="number" id="setting_radius_meter" name="radius_meter" value="200" min="10" max="5000" required class="w-full border-slate-200 rounded-lg text-xs p-2 font-bold text-indigo-700">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- KOLOM KANAN (1 Kolom): LIVE MOCKUP PREVIEW -->
+                        <div class="lg:col-span-1 space-y-6">
+                            
+                            <!-- PREVIEW PANEL LOGIN -->
+                            <div class="bg-gradient-to-b from-[#021B79] to-[#01145A] p-5 rounded-3xl shadow-xl text-white">
+                                <div class="text-center mb-4">
+                                    <span class="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 bg-white/10 rounded-full text-blue-200 border border-white/10">Live Preview Panel Login</span>
+                                </div>
+                                
+                                <div class="bg-white rounded-2xl p-5 text-slate-800 text-center shadow-lg">
+                                    <div class="w-16 h-16 mx-auto mb-2 flex items-center justify-center">
+                                        <img id="mockupLoginLogo" src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" class="w-full h-full object-contain">
+                                    </div>
+                                    <h4 id="mockupLoginTitle" class="font-black text-sm uppercase tracking-wider text-slate-800">PRESENSI</h4>
+                                    <p id="mockupLoginSchool" class="text-[11px] font-semibold text-slate-600">SMA Negeri 1 Lhoksukon</p>
+                                    <div class="mt-3 py-1.5 px-3 bg-slate-50 border border-slate-200 rounded-lg text-[9px] text-slate-400 font-mono">Form Login Pengguna</div>
+                                </div>
+                            </div>
+
+                            <!-- PREVIEW HEADER SIDEBAR -->
+                            <div class="bg-[#0F172A] p-4 rounded-2xl shadow-md text-white border border-slate-800">
+                                <span class="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 bg-white/10 rounded-full text-indigo-300 border border-white/10 block w-fit mb-3">Live Preview Sidebar</span>
+                                <div class="flex items-center space-x-3 p-2 bg-slate-800/60 rounded-xl border border-slate-700/50">
+                                    <div class="w-9 h-9 flex items-center justify-center shrink-0">
+                                        <img id="mockupSidebarLogo" src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" class="w-full h-full object-contain">
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <h5 id="mockupSidebarShort" class="font-bold text-xs text-white truncate">SMANSA LHOKSUKON</h5>
+                                        <p id="mockupSidebarSchool" class="text-[9px] text-indigo-300 truncate">SMA Negeri 1 Lhoksukon</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PREVIEW BROWSER TAB -->
+                            <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-200">
+                                <span class="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 bg-slate-100 rounded-full text-slate-500 border border-slate-200 block w-fit mb-3">Live Preview Tab Browser</span>
+                                <div class="bg-slate-100 p-2 rounded-xl border border-slate-200 flex items-center gap-2">
+                                    <div class="w-5 h-5 rounded flex items-center justify-center shrink-0 bg-white p-0.5 shadow-2xs">
+                                        <img id="mockupTabFavicon" src="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png" class="w-full h-full object-contain">
+                                    </div>
+                                    <div class="truncate text-[11px] font-medium text-slate-700" id="mockupTabTitle">Presensi - Sistem Absensi SMA Negeri 1 Lhoksukon</div>
+                                </div>
+                            </div>
+
+                            <!-- TOMBOL SIMPAN DI SAMPING -->
+                            <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:opacity-95 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/20 text-xs transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+                                <i class="fas fa-save text-sm"></i> Simpan Semua Pengaturan
+                            </button>
+
+                        </div>
+                    </div>
+                </form>
+              </div>
+
           </div>
       </main>
   </div>
@@ -2200,6 +2485,13 @@
       ],
       tendik: [],
       config: {
+        nama_sekolah: 'SMA Negeri 1 Lhoksukon',
+        singkatan_sekolah: 'SMANSA LHOKSUKON',
+        titel_webapp: 'Presensi - Sistem Absensi SMA Negeri 1 Lhoksukon',
+        deskripsi_webapp: 'Sistem Presensi Digital dengan QR Code dan GPS SMA Negeri 1 Lhoksukon.',
+        alamat_sekolah: 'Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara',
+        logo_url: '',
+        favicon_url: '',
         jam_masuk_mulai: '06:30',
         jam_masuk_akhir: '07:15',
         jam_pulang_mulai: '15:00',
@@ -3142,9 +3434,12 @@
       },
 
       saveAppConfig: async (newConfig) => {
-        AuthSecurity.authorize(['admin']);
-        await setDB('config', newConfig);
-        return { success: true, message: 'Pengaturan waktu berhasil disimpan' };
+        AuthSecurity.authorize(['admin', 'developer']);
+        let currentConfig = await getDB('config');
+        if (!currentConfig || typeof currentConfig !== 'object') currentConfig = {};
+        const merged = { ...currentConfig, ...newConfig };
+        await setDB('config', merged);
+        return { success: true, data: merged, message: 'Pengaturan sistem & branding berhasil disimpan!' };
       },
 
       changePassword: async (token, username, oldPassword, newPassword) => {
@@ -4822,7 +5117,7 @@
         }
 
         // RBAC View Guard: Proteksi tampilan khusus Admin & Developer
-        const adminViews = ['view-data-siswa', 'view-data-guru', 'view-data-tendik', 'view-kelola-absen'];
+        const adminViews = ['view-data-siswa', 'view-data-guru', 'view-data-tendik', 'view-kelola-absen', 'view-pengaturan-sistem'];
         if (adminViews.includes(viewId) && currentUser && !['admin', 'developer'].includes(currentUser.role)) {
             showAlert('error', 'Akses Ditolak: Anda tidak memiliki wewenang untuk membuka menu ini.');
             if (currentUser.role === 'guru') loadGuruDashboard();
@@ -4845,6 +5140,7 @@
 
         let title = "Dashboard";
         switch (viewId) {
+            case 'view-pengaturan-sistem': title = "Pengaturan & Branding WebApp"; break;
             case 'view-user-management': title = "Manajemen User (Developer)"; break;
             case 'view-data-siswa': title = "Direktori Siswa"; break;
             case 'view-data-guru': title = "Manajemen Akun Guru"; break;
@@ -5269,6 +5565,7 @@
             menuHTML += createItem('Kelola Absen', 'fa-calendar-times', 'loadKelolaAbsen()');
             menuHTML += createItem('Sesi Login', 'fa-laptop-code', 'scrollToLoginLogs()');
             menuHTML += createItem('Scan Absensi', 'fa-qrcode', 'loadScanAbsensi()');
+            menuHTML += createItem('Pengaturan', 'fa-sliders-h text-cyan-400', 'loadPengaturanSistem()');
             menuHTML += createItem('Profil & Akun', 'fa-user-cog', 'showUserProfileAndSecurityModal()');
             menuHTML += createItem('Manajemen User', 'fa-users-cog text-amber-400', 'loadUserManagement()');
             loadAdminDashboard();
@@ -5282,6 +5579,7 @@
             menuHTML += createItem('Kelola Absen', 'fa-calendar-times', 'loadKelolaAbsen()');
             menuHTML += createItem('Sesi Login', 'fa-laptop-code', 'scrollToLoginLogs()');
             menuHTML += createItem('Scan Absensi', 'fa-qrcode', 'loadScanAbsensi()');
+            menuHTML += createItem('Pengaturan', 'fa-sliders-h text-cyan-400', 'loadPengaturanSistem()');
             menuHTML += createItem('Profil & Akun', 'fa-user-cog', 'showUserProfileAndSecurityModal()');
             loadAdminDashboard();
         } 
@@ -10789,6 +11087,351 @@
         XLSX.utils.book_append_sheet(wb, ws, 'Audit_User_Sistem');
         XLSX.writeFile(wb, `Audit_User_SMANSA_${getTodayString()}.xlsx`);
         showAlert('success', 'File audit user sistem berhasil diunduh.');
+    }
+
+    // ============================================================================
+    // PENGATURAN SISTEM & BRANDING WEBAPP (NAMA SEKOLAH, LOGO, FAVICON, TITEL)
+    // ============================================================================
+    const DEFAULT_APP_BRANDING = {
+        nama_sekolah: 'SMA Negeri 1 Lhoksukon',
+        singkatan_sekolah: 'SMANSA LHOKSUKON',
+        titel_webapp: 'Presensi - Sistem Absensi SMA Negeri 1 Lhoksukon',
+        deskripsi_webapp: 'Sistem Presensi Digital dengan QR Code dan GPS SMA Negeri 1 Lhoksukon.',
+        alamat_sekolah: 'Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara',
+        logo_url: 'https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png',
+        favicon_url: 'https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png'
+    };
+
+    let activeAppConfig = { ...DEFAULT_APP_BRANDING };
+
+    function applyGlobalBranding(conf) {
+        if (!conf || typeof conf !== 'object') conf = {};
+        activeAppConfig = { ...DEFAULT_APP_BRANDING, ...conf };
+
+        // 1. Update Title & Meta Tags
+        const appTitle = activeAppConfig.titel_webapp || DEFAULT_APP_BRANDING.titel_webapp;
+        document.title = appTitle;
+        const metaTitle = document.querySelector('meta[name="title"]');
+        if (metaTitle) metaTitle.setAttribute('content', appTitle);
+        const metaAppTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+        if (metaAppTitle) metaAppTitle.setAttribute('content', activeAppConfig.singkatan_sekolah || 'Presensi');
+
+        // 2. Update Favicon dynamically
+        const favUrl = activeAppConfig.favicon_url || DEFAULT_APP_BRANDING.favicon_url;
+        const favPng = document.getElementById('appFaviconPng');
+        if (favPng) favPng.href = favUrl;
+        const favIco = document.getElementById('appFaviconIco');
+        if (favIco) favIco.href = favUrl;
+        const favShortcut = document.getElementById('appFaviconShortcut');
+        if (favShortcut) favShortcut.href = favUrl;
+
+        // 3. Update Logo dynamically across DOM
+        const logoUrl = activeAppConfig.logo_url || DEFAULT_APP_BRANDING.logo_url;
+        document.querySelectorAll('.app-brand-logo').forEach(img => {
+            img.src = logoUrl;
+            img.onerror = () => { img.src = DEFAULT_APP_BRANDING.logo_url; };
+        });
+
+        // 4. Update School Name & Short Name dynamically across DOM
+        const schoolName = activeAppConfig.nama_sekolah || DEFAULT_APP_BRANDING.nama_sekolah;
+        document.querySelectorAll('.app-school-name').forEach(el => {
+            el.textContent = schoolName;
+        });
+
+        const shortName = activeAppConfig.singkatan_sekolah || DEFAULT_APP_BRANDING.singkatan_sekolah;
+        document.querySelectorAll('.app-school-short').forEach(el => {
+            el.textContent = shortName;
+        });
+
+        const appDesc = activeAppConfig.deskripsi_webapp || DEFAULT_APP_BRANDING.deskripsi_webapp;
+        document.querySelectorAll('.app-brand-desc').forEach(el => {
+            el.textContent = appDesc;
+        });
+    }
+
+    // Auto load branding on startup
+    (function initBrandingOnLoad() {
+        try {
+            const stored = localStorage.getItem(DB_KEYS.CONFIG);
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                applyGlobalBranding(parsed);
+            }
+        } catch(e) {}
+        
+        // Also fetch freshest config from database
+        if (typeof runAPI === 'function') {
+            runAPI('getAppConfig', [], res => {
+                if (res && res.success && res.data) {
+                    applyGlobalBranding(res.data);
+                }
+            });
+        }
+    })();
+
+    function loadPengaturanSistem() {
+        if (!currentUser || !['admin', 'developer'].includes(currentUser.role)) {
+            showAlert('error', 'Akses ditolak: Menu Pengaturan hanya dapat diakses oleh Admin atau Developer.');
+            if (currentUser && currentUser.role === 'guru') loadGuruDashboard();
+            else if (currentUser && currentUser.role === 'tendik') loadTendikDashboard();
+            else loadSiswaDashboard();
+            return;
+        }
+
+        showView('view-pengaturan-sistem');
+        setActiveMenu('Pengaturan');
+        showLoading();
+
+        runAPI('getAppConfig', [],
+            res => {
+                hideLoading();
+                if (res.success && res.data) {
+                    const c = res.data;
+                    activeAppConfig = { ...DEFAULT_APP_BRANDING, ...c };
+
+                    document.getElementById('setting_nama_sekolah').value = c.nama_sekolah || DEFAULT_APP_BRANDING.nama_sekolah;
+                    document.getElementById('setting_singkatan_sekolah').value = c.singkatan_sekolah || DEFAULT_APP_BRANDING.singkatan_sekolah;
+                    document.getElementById('setting_titel_webapp').value = c.titel_webapp || DEFAULT_APP_BRANDING.titel_webapp;
+                    document.getElementById('setting_deskripsi_webapp').value = c.deskripsi_webapp || DEFAULT_APP_BRANDING.deskripsi_webapp;
+                    document.getElementById('setting_alamat_sekolah').value = c.alamat_sekolah || DEFAULT_APP_BRANDING.alamat_sekolah;
+
+                    document.getElementById('setting_jam_masuk_mulai').value = c.jam_masuk_mulai || '06:30';
+                    document.getElementById('setting_jam_masuk_akhir').value = c.jam_masuk_akhir || '07:15';
+                    document.getElementById('setting_jam_pulang_mulai').value = c.jam_pulang_mulai || '15:00';
+                    document.getElementById('setting_jam_pulang_akhir').value = c.jam_pulang_akhir || '17:00';
+
+                    document.getElementById('setting_lokasi_lat').value = c.lokasi_lat || '5.0505556';
+                    document.getElementById('setting_lokasi_lng').value = c.lokasi_lng || '97.3358611';
+                    document.getElementById('setting_radius_meter').value = c.radius_meter || '200';
+
+                    // Update Image Previews
+                    const curLogo = c.logo_url || DEFAULT_APP_BRANDING.logo_url;
+                    document.getElementById('previewLogoImgDark').src = curLogo;
+                    document.getElementById('previewLogoImgLight').src = curLogo;
+                    document.getElementById('mockupLoginLogo').src = curLogo;
+                    document.getElementById('mockupSidebarLogo').src = curLogo;
+
+                    const curFav = c.favicon_url || DEFAULT_APP_BRANDING.favicon_url;
+                    document.getElementById('previewFaviconImg').src = curFav;
+                    document.getElementById('miniFaviconPreview').src = curFav;
+                    document.getElementById('mockupTabFavicon').src = curFav;
+
+                    previewLiveBranding();
+                } else {
+                    showAlert('error', res.message || 'Gagal memuat pengaturan.');
+                }
+            },
+            err => {
+                hideLoading();
+                showAlert('error', 'Gagal memuat konfigurasi: ' + err);
+            }
+        );
+    }
+
+    function previewLiveBranding() {
+        const namaSekolah = document.getElementById('setting_nama_sekolah')?.value.trim() || DEFAULT_APP_BRANDING.nama_sekolah;
+        const singkatan = document.getElementById('setting_singkatan_sekolah')?.value.trim() || DEFAULT_APP_BRANDING.singkatan_sekolah;
+        const titelWeb = document.getElementById('setting_titel_webapp')?.value.trim() || DEFAULT_APP_BRANDING.titel_webapp;
+
+        const mockLoginSchool = document.getElementById('mockupLoginSchool');
+        if (mockLoginSchool) mockLoginSchool.textContent = namaSekolah;
+
+        const mockSidebarShort = document.getElementById('mockupSidebarShort');
+        if (mockSidebarShort) mockSidebarShort.textContent = singkatan;
+
+        const mockSidebarSchool = document.getElementById('mockupSidebarSchool');
+        if (mockSidebarSchool) mockSidebarSchool.textContent = namaSekolah;
+
+        const mockTabTitle = document.getElementById('mockupTabTitle');
+        if (mockTabTitle) mockTabTitle.textContent = titelWeb;
+
+        const miniPreview = document.getElementById('tabTitleMiniPreview');
+        if (miniPreview) miniPreview.textContent = titelWeb;
+    }
+
+    function handleLogoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            showAlert('error', 'File yang dipilih harus berupa gambar (PNG, JPG, SVG, WebP).');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const maxDim = 512;
+                let w = img.width;
+                let h = img.height;
+
+                if (w > maxDim || h > maxDim) {
+                    if (w > h) {
+                        h = Math.round((h * maxDim) / w);
+                        w = maxDim;
+                    } else {
+                        w = Math.round((w * maxDim) / h);
+                        h = maxDim;
+                    }
+                }
+
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+
+                const compressedBase64 = canvas.toDataURL('image/png', 0.9);
+                activeAppConfig.logo_url = compressedBase64;
+
+                document.getElementById('previewLogoImgDark').src = compressedBase64;
+                document.getElementById('previewLogoImgLight').src = compressedBase64;
+                document.getElementById('mockupLoginLogo').src = compressedBase64;
+                document.getElementById('mockupSidebarLogo').src = compressedBase64;
+
+                showAlert('info', 'Logo berhasil dimuat dalam preview. Klik "Simpan Semua Pengaturan" untuk menerapkan permanen.');
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handleFaviconUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const dim = 64;
+                canvas.width = dim;
+                canvas.height = dim;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, dim, dim);
+
+                const faviconBase64 = canvas.toDataURL('image/png');
+                activeAppConfig.favicon_url = faviconBase64;
+
+                document.getElementById('previewFaviconImg').src = faviconBase64;
+                document.getElementById('miniFaviconPreview').src = faviconBase64;
+                document.getElementById('mockupTabFavicon').src = faviconBase64;
+
+                showAlert('info', 'Favicon berhasil dimuat dalam preview. Klik "Simpan Semua Pengaturan" untuk menerapkan permanen.');
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function resetLogoToDefault() {
+        activeAppConfig.logo_url = '';
+        const defLogo = DEFAULT_APP_BRANDING.logo_url;
+        document.getElementById('previewLogoImgDark').src = defLogo;
+        document.getElementById('previewLogoImgLight').src = defLogo;
+        document.getElementById('mockupLoginLogo').src = defLogo;
+        document.getElementById('mockupSidebarLogo').src = defLogo;
+        showAlert('info', 'Logo di-reset ke logo bawaan (klik Simpan untuk menerapkan).');
+    }
+
+    function resetFaviconToDefault() {
+        activeAppConfig.favicon_url = '';
+        const defFav = DEFAULT_APP_BRANDING.favicon_url;
+        document.getElementById('previewFaviconImg').src = defFav;
+        document.getElementById('miniFaviconPreview').src = defFav;
+        document.getElementById('mockupTabFavicon').src = defFav;
+        showAlert('info', 'Favicon di-reset ke favicon bawaan (klik Simpan untuk menerapkan).');
+    }
+
+    function resetBrandingToDefault() {
+        Swal.fire({
+            title: 'Reset Pengaturan ke Default?',
+            text: 'Nama sekolah, logo, favicon, dan titel webapp akan dikembalikan ke setelan awal SMANSA Lhoksukon.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4F46E5',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Ya, Reset Form',
+            cancelButtonText: 'Batal'
+        }).then(result => {
+            if (result.isConfirmed) {
+                document.getElementById('setting_nama_sekolah').value = DEFAULT_APP_BRANDING.nama_sekolah;
+                document.getElementById('setting_singkatan_sekolah').value = DEFAULT_APP_BRANDING.singkatan_sekolah;
+                document.getElementById('setting_titel_webapp').value = DEFAULT_APP_BRANDING.titel_webapp;
+                document.getElementById('setting_deskripsi_webapp').value = DEFAULT_APP_BRANDING.deskripsi_webapp;
+                document.getElementById('setting_alamat_sekolah').value = DEFAULT_APP_BRANDING.alamat_sekolah;
+                resetLogoToDefault();
+                resetFaviconToDefault();
+                previewLiveBranding();
+                showAlert('success', 'Formulir berhasil di-reset. Klik "Simpan Semua Pengaturan" jika ingin menyimpan ke database.');
+            }
+        });
+    }
+
+    function detectCurrentCoordinates() {
+        if (!navigator.geolocation) {
+            showAlert('error', 'Browser perangkat tidak mendukung Geolocation GPS.');
+            return;
+        }
+
+        showLoading();
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                hideLoading();
+                const lat = pos.coords.latitude.toFixed(7);
+                const lng = pos.coords.longitude.toFixed(7);
+                document.getElementById('setting_lokasi_lat').value = lat;
+                document.getElementById('setting_lokasi_lng').value = lng;
+                showAlert('success', `Koordinat GPS berhasil dideteksi: Latitude ${lat}, Longitude ${lng}`);
+            },
+            err => {
+                hideLoading();
+                showAlert('error', 'Gagal mendeteksi lokasi GPS: ' + err.message);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+
+    function saveFullAppSettings(e) {
+        if (e) e.preventDefault();
+        const form = document.getElementById('formGlobalSettings');
+        const formData = new FormData(form);
+
+        const newConfig = {
+            nama_sekolah: formData.get('nama_sekolah') || DEFAULT_APP_BRANDING.nama_sekolah,
+            singkatan_sekolah: formData.get('singkatan_sekolah') || DEFAULT_APP_BRANDING.singkatan_sekolah,
+            titel_webapp: formData.get('titel_webapp') || DEFAULT_APP_BRANDING.titel_webapp,
+            deskripsi_webapp: formData.get('deskripsi_webapp') || DEFAULT_APP_BRANDING.deskripsi_webapp,
+            alamat_sekolah: formData.get('alamat_sekolah') || DEFAULT_APP_BRANDING.alamat_sekolah,
+            logo_url: activeAppConfig.logo_url || '',
+            favicon_url: activeAppConfig.favicon_url || '',
+            jam_masuk_mulai: formData.get('jam_masuk_mulai') || '06:30',
+            jam_masuk_akhir: formData.get('jam_masuk_akhir') || '07:15',
+            jam_pulang_mulai: formData.get('jam_pulang_mulai') || '15:00',
+            jam_pulang_akhir: formData.get('jam_pulang_akhir') || '17:00',
+            lokasi_lat: formData.get('lokasi_lat') || '5.0505556',
+            lokasi_lng: formData.get('lokasi_lng') || '97.3358611',
+            radius_meter: formData.get('radius_meter') || '200'
+        };
+
+        showLoading();
+        runAPI('saveAppConfig', [newConfig],
+            res => {
+                hideLoading();
+                if (res.success) {
+                    applyGlobalBranding(newConfig);
+                    showAlert('success', 'Pengaturan identitas sekolah, logo, favicon, titel webapp, dan jam absensi berhasil disimpan!');
+                } else {
+                    showAlert('error', res.message);
+                }
+            },
+            err => {
+                hideLoading();
+                showAlert('error', 'Gagal menyimpan pengaturan: ' + err);
+            }
+        );
     }
 
     checkSession();
