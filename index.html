@@ -2047,23 +2047,20 @@
   <script>
     /**
      * FIREBASE REALTIME DATABASE ADAPTER (cPanel & GitHub Pages Ready)
-     * Masukkan konfigurasi project Firebase baru Anda di bawah ini:
+     * Project: presensi-kangyos
      */
     const firebaseConfig = {
       apiKey: "",
-      authDomain: "",
-      databaseURL: "",
-      projectId: "",
-      storageBucket: "",
-      messagingSenderId: "",
-      appId: "",
-      measurementId: ""
+      authDomain: "presensi-kangyos.firebaseapp.com",
+      databaseURL: "https://presensi-kangyos-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "presensi-kangyos",
+      storageBucket: "presensi-kangyos.firebasestorage.app"
     };
 
     let fbApp = null;
     let fbDb = null;
     try {
-      if (typeof firebase !== 'undefined' && firebaseConfig.apiKey && firebaseConfig.databaseURL) {
+      if (typeof firebase !== 'undefined' && firebaseConfig.databaseURL) {
         fbApp = firebase.initializeApp(firebaseConfig);
         fbDb = firebase.database();
       }
