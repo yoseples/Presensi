@@ -1,0 +1,7 @@
+{
+  "PORT": 3001,
+  "PRODUCT_NAME": "presensi-smansa-pro",
+  "GRACE_PERIOD_DAYS": 3,
+  "FIREBASE_DB_URL": "https://presensi-kangyos-default-rtdb.asia-southeast1.firebasedatabase.app",
+  "ADMIN_API_KEY": "adm_sec_9063a95a7da897d6628eb72946ca6fb4"
+}

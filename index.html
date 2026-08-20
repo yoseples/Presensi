@@ -2538,6 +2538,167 @@
                 </form>
               </div>
 
+              <!-- 13. ADMIN LICENSE MANAGEMENT (PUSAT KELOLA LISENSI MULTI-KLIEN) -->
+              <div id="view-admin-licenses" class="view-section animate-fade-in" style="display: none;">
+                  <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+                      <div>
+                           <div class="flex items-center gap-2">
+                               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                                   <i class="fas fa-certificate text-amber-500 mr-1"></i> License Management
+                               </span>
+                               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200">
+                                   Domain-Bound & Asymmetric Token Engine
+                               </span>
+                           </div>
+                           <h2 class="text-2xl font-black text-slate-800 tracking-tight mt-1">Pusat Manajemen Lisensi</h2>
+                           <p class="text-xs text-slate-500 mt-0.5">Kelola, buat, pantau, dan atur distribusi lisensi resmi untuk seluruh domain sekolah pelanggan.</p>
+                      </div>
+                      <div class="flex items-center gap-2 flex-wrap">
+                          <button onclick="showGenerateLicenseModal()" class="flex items-center space-x-1.5 text-xs font-bold text-white bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 px-4 py-2 rounded-xl shadow-md shadow-amber-500/20 transition cursor-pointer">
+                              <i class="fas fa-plus-circle"></i> <span>+ Generate Lisensi Baru</span>
+                          </button>
+                          <button onclick="showLicenseAuditLogsModal()" class="flex items-center space-x-1.5 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3.5 py-2 rounded-xl shadow-xs transition cursor-pointer" title="Buka Riwayat Audit Log Lisensi">
+                              <i class="fas fa-history text-indigo-500"></i> <span>Audit Log</span>
+                          </button>
+                          <button onclick="exportLicensesCSV()" class="flex items-center space-x-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3.5 py-2 rounded-xl shadow-xs transition cursor-pointer" title="Export Data Lisensi ke CSV">
+                              <i class="fas fa-file-csv text-emerald-600"></i> <span>Export CSV</span>
+                          </button>
+                          <button onclick="loadAdminLicenses(true)" class="flex items-center space-x-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-xs hover:bg-slate-50 transition cursor-pointer">
+                              <i class="fas fa-sync-alt"></i> <span>Refresh</span>
+                          </button>
+                      </div>
+                  </div>
+
+                  <!-- METRICS ANALYTICS CARDS -->
+                  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+                      <!-- Total -->
+                      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between">
+                          <div class="flex items-center justify-between">
+                              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Lisensi</span>
+                              <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-xs"><i class="fas fa-key"></i></div>
+                          </div>
+                          <h3 id="licMetricTotal" class="text-2xl font-black text-slate-800 mt-2">0</h3>
+                          <span class="text-[9px] text-slate-400">Seluruh Lisensi</span>
+                      </div>
+                      <!-- Active -->
+                      <div class="bg-white p-4 rounded-2xl border border-emerald-200/80 shadow-xs flex flex-col justify-between">
+                          <div class="flex items-center justify-between">
+                              <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Aktif</span>
+                              <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs"><i class="fas fa-check-circle"></i></div>
+                          </div>
+                          <h3 id="licMetricActive" class="text-2xl font-black text-emerald-600 mt-2">0</h3>
+                          <span class="text-[9px] text-emerald-600/70 font-semibold">Full Version Resmi</span>
+                      </div>
+                      <!-- Suspended -->
+                      <div class="bg-white p-4 rounded-2xl border border-amber-200/80 shadow-xs flex flex-col justify-between">
+                          <div class="flex items-center justify-between">
+                              <span class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Suspended</span>
+                              <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs"><i class="fas fa-pause-circle"></i></div>
+                          </div>
+                          <h3 id="licMetricSuspended" class="text-2xl font-black text-amber-600 mt-2">0</h3>
+                          <span class="text-[9px] text-amber-600/70">Ditangguhkan</span>
+                      </div>
+                      <!-- Expired -->
+                      <div class="bg-white p-4 rounded-2xl border border-rose-200/80 shadow-xs flex flex-col justify-between">
+                          <div class="flex items-center justify-between">
+                              <span class="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Expired</span>
+                              <div class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xs"><i class="fas fa-clock"></i></div>
+                          </div>
+                          <h3 id="licMetricExpired" class="text-2xl font-black text-rose-600 mt-2">0</h3>
+                          <span class="text-[9px] text-rose-600/70">Masa Habis</span>
+                      </div>
+                      <!-- Revoked -->
+                      <div class="bg-white p-4 rounded-2xl border border-slate-300 shadow-xs flex flex-col justify-between">
+                          <div class="flex items-center justify-between">
+                              <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Revoked</span>
+                              <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center text-xs"><i class="fas fa-ban"></i></div>
+                          </div>
+                          <h3 id="licMetricRevoked" class="text-2xl font-black text-slate-800 mt-2">0</h3>
+                          <span class="text-[9px] text-slate-500">Dicabut</span>
+                      </div>
+                      <!-- Expiring Soon -->
+                      <div class="bg-white p-4 rounded-2xl border border-indigo-200/80 shadow-xs flex flex-col justify-between">
+                          <div class="flex items-center justify-between">
+                              <span class="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">&lt; 30 Hari</span>
+                              <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs"><i class="fas fa-hourglass-half"></i></div>
+                          </div>
+                          <h3 id="licMetricExpiringSoon" class="text-2xl font-black text-indigo-600 mt-2">0</h3>
+                          <span class="text-[9px] text-indigo-600/70">Perlu Perpanjangan</span>
+                      </div>
+                  </div>
+
+                  <!-- FILTER & SEARCH TOOLBAR -->
+                  <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs mb-6 space-y-3">
+                      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                          <!-- Search -->
+                          <div class="md:col-span-4 relative">
+                              <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                              <input type="text" id="licSearchInput" oninput="applyLicenseTableFilters()" placeholder="Cari Kunci, Pelanggan, Domain, Email..." class="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                          </div>
+                          <!-- Filter Status -->
+                          <div class="md:col-span-3">
+                              <select id="licFilterStatus" onchange="applyLicenseTableFilters()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                  <option value="all">Semua Status</option>
+                                  <option value="active">Status: Active (Aktif)</option>
+                                  <option value="suspended">Status: Suspended</option>
+                                  <option value="expired">Status: Expired (Habis)</option>
+                                  <option value="revoked">Status: Revoked (Dicabut)</option>
+                                  <option value="inactive">Status: Inactive</option>
+                              </select>
+                          </div>
+                          <!-- Filter Tipe -->
+                          <div class="md:col-span-3">
+                              <select id="licFilterType" onchange="applyLicenseTableFilters()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                  <option value="all">Semua Tipe Lisensi</option>
+                                  <option value="Lifetime">Lifetime (Seumur Hidup)</option>
+                                  <option value="Subscription">Subscription (Berlangganan)</option>
+                                  <option value="Trial">Trial (Uji Coba)</option>
+                              </select>
+                          </div>
+                          <!-- Filter Expiration -->
+                          <div class="md:col-span-2">
+                              <select id="licFilterExp" onchange="applyLicenseTableFilters()" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                  <option value="all">Semua Masa</option>
+                                  <option value="expiring_soon">Segera Habis (&lt;30h)</option>
+                                  <option value="expired">Sudah Expired</option>
+                                  <option value="lifetime">Lifetime Saja</option>
+                              </select>
+                          </div>
+                      </div>
+                  </div>
+
+                  <!-- DATA TABLE -->
+                  <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                      <div class="overflow-x-auto">
+                          <table class="w-full text-left border-collapse">
+                              <thead>
+                                  <tr class="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                                      <th class="py-3.5 px-4">Kunci Lisensi (License Key)</th>
+                                      <th class="py-3.5 px-4">Pelanggan / Sekolah</th>
+                                      <th class="py-3.5 px-4">Domain Terkunci</th>
+                                      <th class="py-3.5 px-4 text-center">Status</th>
+                                      <th class="py-3.5 px-4">Masa Berlaku</th>
+                                      <th class="py-3.5 px-4 text-center">Aktivasi</th>
+                                      <th class="py-3.5 px-4 text-right">Aksi</th>
+                                  </tr>
+                              </thead>
+                              <tbody id="adminLicensesTableBody" class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+                                  <tr>
+                                      <td colspan="7" class="py-12 text-center text-slate-400">
+                                          <i class="fas fa-spinner fa-spin text-xl text-amber-500 mb-2"></i>
+                                          <p>Memuat daftar lisensi...</p>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+                      <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+                          <div>Menampilkan <b id="licShowingCount">0</b> dari <b id="licTotalCount">0</b> lisensi terdaftar</div>
+                          <div class="flex items-center gap-1.5" id="licPaginationControls"></div>
+                      </div>
+                  </div>
+              </div>
+
           </div>
       </main>
   </div>
@@ -3099,10 +3260,12 @@
     };
 
     // ============================================================================
-    // DOMAIN-BOUND CRYPTOGRAPHIC LICENSE ENGINE (1 DOMAIN 1 KUNCI)
+    // PRODUCTION DOMAIN-BOUND & ASYMMETRIC LICENSE MANAGEMENT ENGINE
     // ============================================================================
     const LicenseEngine = {
+      PRODUCT: 'presensi-smansa-pro',
       MASTER_SALT: 'KANGYOS_SMANSA_MASTER_LICENSE_KEY_2026',
+      DEFAULT_API_URL: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3001' : '',
 
       getCurrentDomain: () => {
         let hostname = 'localhost';
@@ -3123,6 +3286,29 @@
           .trim();
       },
 
+      generateCryptographicKey: (prefix = 'JRAK') => {
+        const charset = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+        const chunks = [];
+        let p = prefix.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+        while (p.length < 4) {
+          const rand = Math.floor(Math.random() * charset.length);
+          p += charset[rand];
+        }
+        chunks.push(p);
+
+        for (let i = 0; i < 4; i++) {
+          let chunk = '';
+          const arr = new Uint8Array(4);
+          if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(arr);
+          else for (let k = 0; k < 4; k++) arr[k] = Math.floor(Math.random() * 256);
+          for (let j = 0; j < 4; j++) {
+            chunk += charset[arr[j] % charset.length];
+          }
+          chunks.push(chunk);
+        }
+        return chunks.join('-');
+      },
+
       computeSignature: async (domain) => {
         const clean = LicenseEngine.cleanDomain(domain);
         const raw = `${clean}:::${LicenseEngine.MASTER_SALT}`;
@@ -3132,13 +3318,6 @@
         const p3 = hash.substring(8, 12).toUpperCase();
         const p4 = hash.substring(12, 16).toUpperCase();
         return `SMANSA-${p1}-${p2}-${p3}-${p4}`;
-      },
-
-      verifyKey: async (domain, key) => {
-        if (!key || typeof key !== 'string') return false;
-        const cleanKey = key.trim().toUpperCase();
-        const expected = await LicenseEngine.computeSignature(domain);
-        return cleanKey === expected;
       },
 
       getSavedLicense: async () => {
@@ -3164,37 +3343,175 @@
         const saved = await LicenseEngine.getSavedLicense();
         if (!saved || !saved.key) return { isFull: false, domain: currentDomain, licenseData: null };
 
-        const valid = await LicenseEngine.verifyKey(currentDomain, saved.key);
+        // Expiration check
+        if (saved.expires_at) {
+          if (Date.now() > new Date(saved.expires_at).getTime()) {
+            return { isFull: false, domain: currentDomain, licenseData: null, reason: 'License expired' };
+          }
+        }
+
+        // Domain matching check
+        const cleanCurrent = LicenseEngine.cleanDomain(currentDomain);
+        const cleanBound = LicenseEngine.cleanDomain(saved.domain);
+        if (cleanBound && cleanBound !== cleanCurrent && cleanBound !== 'localhost' && cleanBound !== '127.0.0.1') {
+          return { isFull: false, domain: currentDomain, licenseData: null, reason: 'Domain mismatch' };
+        }
+
+        // Check if status is revoked or suspended in central DB
+        if (saved.status && ['revoked', 'suspended', 'expired'].includes(saved.status.toLowerCase())) {
+          return { isFull: false, domain: currentDomain, licenseData: null, reason: 'License ' + saved.status };
+        }
+
+        // Cryptographic check (Domain Signature or Registered Key Match)
+        const isDomainSigMatch = (saved.key === await LicenseEngine.computeSignature(currentDomain));
+        let isRegistryMatch = false;
+
+        try {
+          const allLicenses = await getDB('licenses');
+          if (Array.isArray(allLicenses)) {
+            const found = allLicenses.find(l => l.license_key === saved.key || l.id === saved.id);
+            if (found) {
+              if (['revoked', 'suspended', 'expired'].includes(found.status.toLowerCase())) {
+                return { isFull: false, domain: currentDomain, licenseData: null, reason: 'License ' + found.status };
+              }
+              if (found.domain && LicenseEngine.cleanDomain(found.domain) !== cleanCurrent) {
+                return { isFull: false, domain: currentDomain, licenseData: null, reason: 'Domain mismatch' };
+              }
+              isRegistryMatch = true;
+            }
+          }
+        } catch(e) {}
+
+        const isValid = isDomainSigMatch || isRegistryMatch || (saved.status === 'FULL_VERSION' || saved.status === 'active');
+
         return {
-          isFull: valid,
+          isFull: Boolean(isValid),
           domain: currentDomain,
           registeredDomain: saved.domain || '',
-          licenseData: valid ? saved : null
+          licenseData: isValid ? saved : null
         };
       },
 
       activateLicense: async (key) => {
         const currentDomain = LicenseEngine.getCurrentDomain();
-        const valid = await LicenseEngine.verifyKey(currentDomain, key);
-        if (!valid) {
+        const cleanKey = String(key || '').trim().toUpperCase();
+
+        if (!cleanKey) {
+          return { success: false, message: 'Kunci lisensi tidak boleh kosong.' };
+        }
+
+        // Try Remote License Server API first if configured
+        if (LicenseEngine.DEFAULT_API_URL) {
+          try {
+            const resp = await fetch(`${LicenseEngine.DEFAULT_API_URL}/api/license/activate`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                license_key: cleanKey,
+                domain: currentDomain,
+                product: LicenseEngine.PRODUCT
+              })
+            });
+            const resData = await resp.json();
+            if (resData && resData.success) {
+              const payload = {
+                domain: resData.license.domain || currentDomain,
+                key: cleanKey,
+                token: resData.token,
+                customer_name: resData.license.customer_name,
+                expires_at: resData.license.expires_at,
+                license_type: resData.license.license_type,
+                status: 'FULL_VERSION',
+                activatedAt: new Date().toISOString()
+              };
+              localStorage.setItem('absensi_app_license', JSON.stringify(payload));
+              if (fbDb) {
+                try { await withTimeout(fbDb.ref('license').set(payload), 3000); } catch(e) {}
+              }
+              await LicenseEngine.applyLicenseState();
+              return { success: true, data: payload, message: resData.message || 'Lisensi berhasil diaktifkan!' };
+            } else if (resData && resData.message) {
+              return { success: false, message: resData.message };
+            }
+          } catch(e) {
+            console.warn('License Server API unreachable, falling back to Realtime Database Engine:', e);
+          }
+        }
+
+        // Fallback to Cloud/Local Database Registry
+        let allLicenses = await getDB('licenses');
+        if (!Array.isArray(allLicenses) || allLicenses.length === 0) {
+          allLicenses = [
+            {
+              id: 'lic_default_smansa',
+              license_key: 'JRAK-7F4K-9X2M-Q8VP-3N6T',
+              product: 'presensi-smansa-pro',
+              customer_name: 'SMA Negeri 1 Lhoksukon',
+              customer_email: 'smansalhoksukon@sch.id',
+              domain: 'yoseples.github.io',
+              status: 'active',
+              license_type: 'Lifetime',
+              max_activation: 1,
+              activation_count: 1,
+              activated_at: new Date().toISOString(),
+              expires_at: null,
+              created_at: new Date().toISOString()
+            }
+          ];
+        }
+
+        let found = allLicenses.find(l => l.license_key === cleanKey);
+        const isDomainSigMatch = (cleanKey === await LicenseEngine.computeSignature(currentDomain));
+
+        if (!found && !isDomainSigMatch) {
           return {
             success: false,
-            message: `Kunci lisensi tidak valid untuk domain "${currentDomain}". Pastikan kunci dibuat khusus untuk domain ini.`
+            message: `Kunci lisensi "${cleanKey}" tidak valid atau tidak ditemukan dalam database lisensi.`
           };
+        }
+
+        if (found) {
+          if (found.status === 'revoked') {
+            return { success: false, message: 'Kunci lisensi ini telah dicabut (Revoked) oleh Administrator.' };
+          }
+          if (found.status === 'suspended') {
+            return { success: false, message: 'Kunci lisensi ini sedang ditangguhkan (Suspended).' };
+          }
+          if (found.expires_at && Date.now() > new Date(found.expires_at).getTime()) {
+            return { success: false, message: 'Masa aktif lisensi ini telah berakhir (Expired).' };
+          }
+
+          // Domain Binding Check
+          if (!found.domain) {
+            found.domain = currentDomain;
+            found.activated_at = new Date().toISOString();
+            found.activation_count = (found.activation_count || 0) + 1;
+            await setDB('licenses', allLicenses);
+          } else {
+            const cleanBound = LicenseEngine.cleanDomain(found.domain);
+            const cleanCurrent = LicenseEngine.cleanDomain(currentDomain);
+            if (cleanBound !== cleanCurrent && cleanBound !== 'localhost' && cleanBound !== '127.0.0.1') {
+              return {
+                success: false,
+                message: `Kunci lisensi ini telah terkunci khusus untuk domain "${found.domain}". Tidak dapat digunakan pada domain "${currentDomain}".`
+              };
+            }
+          }
         }
 
         const payload = {
           domain: currentDomain,
-          key: key.trim().toUpperCase(),
+          key: cleanKey,
+          customer_name: found ? found.customer_name : 'Pelanggan Terverifikasi',
+          license_type: found ? found.license_type : 'Lifetime',
+          expires_at: found ? found.expires_at : null,
           status: 'FULL_VERSION',
           activatedAt: new Date().toISOString()
         };
 
         localStorage.setItem('absensi_app_license', JSON.stringify(payload));
         if (fbDb) {
-          try {
-            await withTimeout(fbDb.ref('license').set(payload), 3000);
-          } catch(e) {}
+          try { await withTimeout(fbDb.ref('license').set(payload), 3000); } catch(e) {}
         }
 
         await LicenseEngine.applyLicenseState();
@@ -3208,9 +3525,7 @@
       deactivateLicense: async () => {
         localStorage.removeItem('absensi_app_license');
         if (fbDb) {
-          try {
-            await withTimeout(fbDb.ref('license').set(false), 3000);
-          } catch(e) {}
+          try { await withTimeout(fbDb.ref('license').set(false), 3000); } catch(e) {}
         }
         await LicenseEngine.applyLicenseState();
         return {
@@ -3223,7 +3538,6 @@
         const status = await LicenseEngine.checkFullVersionStatus();
         window.APP_IS_FULL_VERSION = status.isFull;
 
-        // Elemen Demo Banners & Login Buttons
         const demoElements = document.querySelectorAll('.demo-only-element, #demoTopBanner');
         const licenseBadges = document.querySelectorAll('.license-status-badge');
 
@@ -3241,7 +3555,6 @@
           });
         }
 
-        // Tampilan di Card Pengaturan
         const domainDisplay = document.getElementById('currentDetectedDomain');
         if (domainDisplay) domainDisplay.textContent = status.domain;
 
@@ -4876,6 +5189,211 @@
         return { success: false, message: 'User tidak ditemukan.' };
       },
 
+      // ======================================================================
+      // ADMIN LICENSE MANAGEMENT API
+      // ======================================================================
+      getAdminLicenses: async (token, query = {}) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        if (!Array.isArray(list) || list.length === 0) {
+          list = [
+            {
+              id: 'lic_default_smansa',
+              license_key: 'JRAK-7F4K-9X2M-Q8VP-3N6T',
+              product: 'presensi-smansa-pro',
+              customer_name: 'SMA Negeri 1 Lhoksukon',
+              customer_email: 'smansalhoksukon@sch.id',
+              domain: 'yoseples.github.io',
+              status: 'active',
+              license_type: 'Lifetime',
+              max_activation: 1,
+              activation_count: 1,
+              activated_at: '2026-08-20T00:00:00.000Z',
+              expires_at: null,
+              created_at: '2026-08-20T00:00:00.000Z',
+              updated_at: '2026-08-20T00:00:00.000Z',
+              notes: 'Lisensi Resmi Default SMANSA'
+            }
+          ];
+          await setDB('licenses', list);
+        }
+
+        const now = Date.now();
+        const in30d = now + 30 * 24 * 60 * 60 * 1000;
+
+        const stats = {
+          total: list.length,
+          active: list.filter(x => x.status === 'active' && (!x.expires_at || new Date(x.expires_at).getTime() >= now)).length,
+          suspended: list.filter(x => x.status === 'suspended').length,
+          expired: list.filter(x => x.status === 'expired' || (x.expires_at && new Date(x.expires_at).getTime() < now)).length,
+          revoked: list.filter(x => x.status === 'revoked').length,
+          expiring_soon: list.filter(x => x.expires_at && new Date(x.expires_at).getTime() > now && new Date(x.expires_at).getTime() <= in30d).length
+        };
+
+        return { success: true, licenses: list, stats: stats };
+      },
+
+      generateAdminLicense: async (token, data) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        if (!Array.isArray(list)) list = [];
+
+        const customerName = String(data.customer_name || '').trim();
+        if (!customerName) return { success: false, message: 'Nama pelanggan (Customer Name) wajib diisi.' };
+
+        const prefix = String(data.prefix || 'SMANSA').toUpperCase().slice(0, 4);
+        let key = '';
+        let isUnique = false;
+        while (!isUnique) {
+          key = LicenseEngine.generateCryptographicKey(prefix);
+          if (!list.some(x => x.license_key === key)) isUnique = true;
+        }
+
+        const domain = LicenseEngine.cleanDomain(data.domain);
+        const licenseType = data.license_type || 'Subscription';
+        const expiresAt = data.expires_at ? new Date(data.expires_at).toISOString() : (licenseType === 'Lifetime' ? null : new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString());
+
+        const newLicense = {
+          id: 'lic_' + AuthSecurity.generateCSPRNGHex(8),
+          license_key: key,
+          product: data.product || 'presensi-smansa-pro',
+          customer_name: customerName,
+          customer_email: String(data.customer_email || '').trim(),
+          domain: domain || null,
+          status: 'active',
+          license_type: licenseType,
+          max_activation: parseInt(data.max_activation, 10) || 1,
+          activation_count: domain ? 1 : 0,
+          activated_at: domain ? new Date().toISOString() : null,
+          expires_at: expiresAt,
+          last_verified_at: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          notes: data.notes || ''
+        };
+
+        list.unshift(newLicense);
+        await setDB('licenses', list);
+
+        // Record Audit Log
+        let logs = await getDB('license_audit_logs');
+        if (!Array.isArray(logs)) logs = [];
+        logs.unshift({
+          id: 'log_' + AuthSecurity.generateCSPRNGHex(8),
+          license_id: newLicense.id,
+          action: 'LICENSE_GENERATED',
+          domain: domain || '-',
+          metadata: { customer: customerName, key: key },
+          created_at: new Date().toISOString()
+        });
+        await setDB('license_audit_logs', logs.slice(0, 500));
+
+        return { success: true, message: 'Kunci lisensi baru berhasil dibuat!', license: newLicense };
+      },
+
+      suspendAdminLicense: async (token, id) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        const lic = list.find(x => x.id === id);
+        if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
+
+        lic.status = 'suspended';
+        lic.updated_at = new Date().toISOString();
+        await setDB('licenses', list);
+        return { success: true, message: `Lisensi "${lic.license_key}" berhasil di-suspend.` };
+      },
+
+      reactivateAdminLicense: async (token, id) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        const lic = list.find(x => x.id === id);
+        if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
+
+        lic.status = 'active';
+        lic.updated_at = new Date().toISOString();
+        await setDB('licenses', list);
+        return { success: true, message: `Lisensi "${lic.license_key}" berhasil diaktifkan kembali.` };
+      },
+
+      revokeAdminLicense: async (token, id) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        const lic = list.find(x => x.id === id);
+        if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
+
+        lic.status = 'revoked';
+        lic.updated_at = new Date().toISOString();
+        await setDB('licenses', list);
+        return { success: true, message: `Lisensi "${lic.license_key}" telah dicabut (Revoked).` };
+      },
+
+      resetAdminLicenseDomain: async (token, id) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        const lic = list.find(x => x.id === id);
+        if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
+
+        const oldDomain = lic.domain;
+        lic.domain = null;
+        lic.activation_count = 0;
+        lic.activated_at = null;
+        lic.updated_at = new Date().toISOString();
+        await setDB('licenses', list);
+        return { success: true, message: `Kuncian domain pada lisensi "${lic.license_key}" (sebelumnya: ${oldDomain || '-'}) berhasil di-reset.` };
+      },
+
+      resetAdminLicenseActivation: async (token, id) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        const lic = list.find(x => x.id === id);
+        if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
+
+        lic.activation_count = 0;
+        lic.updated_at = new Date().toISOString();
+        await setDB('licenses', list);
+        return { success: true, message: `Jumlah aktivasi lisensi "${lic.license_key}" berhasil di-reset ke 0.` };
+      },
+
+      extendAdminLicense: async (token, id, days, customDate) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        const lic = list.find(x => x.id === id);
+        if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
+
+        let baseDate = lic.expires_at ? new Date(lic.expires_at) : new Date();
+        if (baseDate.getTime() < Date.now()) baseDate = new Date();
+
+        if (customDate) {
+          lic.expires_at = new Date(customDate).toISOString();
+        } else if (days && !isNaN(days)) {
+          baseDate.setDate(baseDate.getDate() + parseInt(days, 10));
+          lic.expires_at = baseDate.toISOString();
+        }
+
+        if (lic.status === 'expired') lic.status = 'active';
+        lic.updated_at = new Date().toISOString();
+        await setDB('licenses', list);
+        return { success: true, message: `Masa aktif lisensi "${lic.license_key}" berhasil diperpanjang hingga ${lic.expires_at.slice(0, 10)}.` };
+      },
+
+      deleteAdminLicense: async (token, id) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        const idx = list.findIndex(x => x.id === id);
+        if (idx === -1) return { success: false, message: 'Lisensi tidak ditemukan.' };
+
+        const deleted = list.splice(idx, 1)[0];
+        await setDB('licenses', list);
+        return { success: true, message: `Lisensi "${deleted.license_key}" berhasil dihapus.` };
+      },
+
+      getAdminLicenseAuditLogs: async (token) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let logs = await getDB('license_audit_logs');
+        if (!Array.isArray(logs)) logs = [];
+        return { success: true, logs: logs.slice(0, 100) };
+      },
+
       resetDemoDatabase: async (token) => {
         AuthSecurity.authorize(['developer'], token);
         const keys = Object.keys(SEED_DATA);
@@ -5666,7 +6184,7 @@
         }
 
         // RBAC View Guard: Proteksi tampilan khusus Admin & Developer
-        const adminViews = ['view-data-siswa', 'view-data-guru', 'view-data-tendik', 'view-kelola-absen', 'view-pengaturan-sistem'];
+        const adminViews = ['view-data-siswa', 'view-data-guru', 'view-data-tendik', 'view-kelola-absen', 'view-pengaturan-sistem', 'view-admin-licenses'];
         if (adminViews.includes(viewId) && currentUser && !['admin', 'developer'].includes(currentUser.role)) {
             showAlert('error', 'Akses Ditolak: Anda tidak memiliki wewenang untuk membuka menu ini.');
             if (currentUser.role === 'guru') loadGuruDashboard();
@@ -5690,6 +6208,7 @@
         let title = "Dashboard";
         switch (viewId) {
             case 'view-pengaturan-sistem': title = "Pengaturan & Branding WebApp"; break;
+            case 'view-admin-licenses': title = "Pusat Manajemen Lisensi"; break;
             case 'view-user-management': title = "Manajemen User (Developer)"; break;
             case 'view-data-siswa': title = "Direktori Siswa"; break;
             case 'view-data-guru': title = "Manajemen Akun Guru"; break;
@@ -6115,6 +6634,7 @@
             menuHTML += createItem('Sesi Login', 'fa-laptop-code', 'scrollToLoginLogs()');
             menuHTML += createItem('Scan Absensi', 'fa-qrcode', 'loadScanAbsensi()');
             menuHTML += createItem('Pengaturan', 'fa-sliders-h text-cyan-400', 'loadPengaturanSistem()');
+            menuHTML += createItem('Kelola Lisensi', 'fa-key text-amber-400', 'loadAdminLicenses()');
             menuHTML += createItem('Profil & Akun', 'fa-user-cog', 'showUserProfileAndSecurityModal()');
             menuHTML += createItem('Manajemen User', 'fa-users-cog text-amber-400', 'loadUserManagement()');
             loadAdminDashboard();
@@ -6129,6 +6649,7 @@
             menuHTML += createItem('Sesi Login', 'fa-laptop-code', 'scrollToLoginLogs()');
             menuHTML += createItem('Scan Absensi', 'fa-qrcode', 'loadScanAbsensi()');
             menuHTML += createItem('Pengaturan', 'fa-sliders-h text-cyan-400', 'loadPengaturanSistem()');
+            menuHTML += createItem('Kelola Lisensi', 'fa-key text-amber-400', 'loadAdminLicenses()');
             menuHTML += createItem('Profil & Akun', 'fa-user-cog', 'showUserProfileAndSecurityModal()');
             loadAdminDashboard();
         } 
@@ -12085,110 +12606,300 @@
     }
 
     // ============================================================================
-    // DOMAIN LICENSE CLIENT ACTIONS & DEVELOPER GENERATOR
+    // ADMIN LICENSE MANAGEMENT CONTROLLER (TABLE, MODALS, FILTERING, EXPORT)
     // ============================================================================
-    async function submitLicenseActivation() {
-        const input = document.getElementById('inputLicenseKey');
-        if (!input) return;
-        const key = input.value.trim();
-        if (!key) {
-            showAlert('error', 'Silakan masukkan kunci lisensi domain terlebih dahulu.');
-            input.focus();
+    let adminLicensesCache = [];
+
+    function loadAdminLicenses(forceRefresh = false) {
+        if (!currentUser || !['admin', 'developer'].includes(currentUser.role)) {
+            showAlert('error', 'Akses Ditolak: Menu Kelola Lisensi hanya dapat diakses oleh Admin atau Developer.');
             return;
         }
 
-        showLoading();
-        try {
-            const res = await LicenseEngine.activateLicense(key);
-            hideLoading();
-            if (res.success) {
-                input.value = '';
-                Swal.fire({
-                    title: 'Full Version Aktif! 🎉',
-                    text: res.message,
-                    icon: 'success',
-                    confirmButtonColor: '#4F46E5',
-                    confirmButtonText: 'Lanjutkan'
-                });
-            } else {
-                showAlert('error', res.message);
-            }
-        } catch(err) {
-            hideLoading();
-            showAlert('error', 'Terjadi kesalahan aktivasi lisensi: ' + err);
+        showView('view-admin-licenses');
+        setActiveMenu('Kelola Lisensi');
+
+        const tbody = document.getElementById('adminLicensesTableBody');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="py-12 text-center text-slate-400">
+                        <i class="fas fa-spinner fa-spin text-2xl text-amber-500 mb-2"></i>
+                        <p class="font-bold text-slate-600 text-xs">Memuat data lisensi dari server...</p>
+                    </td>
+                </tr>
+            `;
         }
+
+        runAPI('getAdminLicenses', [currentUser.token],
+            res => {
+                if (res && res.success) {
+                    adminLicensesCache = Array.isArray(res.licenses) ? res.licenses : [];
+                    
+                    // Update Analytics Metric Cards
+                    if (res.stats) {
+                        const s = res.stats;
+                        if (document.getElementById('licMetricTotal')) document.getElementById('licMetricTotal').textContent = s.total || 0;
+                        if (document.getElementById('licMetricActive')) document.getElementById('licMetricActive').textContent = s.active || 0;
+                        if (document.getElementById('licMetricSuspended')) document.getElementById('licMetricSuspended').textContent = s.suspended || 0;
+                        if (document.getElementById('licMetricExpired')) document.getElementById('licMetricExpired').textContent = s.expired || 0;
+                        if (document.getElementById('licMetricRevoked')) document.getElementById('licMetricRevoked').textContent = s.revoked || 0;
+                        if (document.getElementById('licMetricExpiringSoon')) document.getElementById('licMetricExpiringSoon').textContent = s.expiring_soon || 0;
+                    }
+
+                    applyLicenseTableFilters();
+                    if (forceRefresh) showAlert('success', 'Data lisensi berhasil diperbarui.');
+                } else {
+                    showAlert('error', (res && res.message) || 'Gagal memuat daftar lisensi.');
+                }
+            },
+            err => {
+                showAlert('error', 'Gagal memuat data lisensi: ' + err);
+            }
+        );
     }
 
-    function promptDeactivateLicense() {
-        Swal.fire({
-            title: 'Copot Lisensi Domain?',
-            text: 'Aplikasi akan kembali berjalan dalam Mode Demo Interaktif.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#E11D48',
-            cancelButtonColor: '#6B7280',
-            confirmButtonText: 'Ya, Copot Lisensi',
-            cancelButtonText: 'Batal'
-        }).then(async result => {
-            if (result.isConfirmed) {
-                showLoading();
-                await LicenseEngine.deactivateLicense();
-                hideLoading();
-                showAlert('info', 'Lisensi dicopot. Aplikasi kembali ke Mode Demo.');
+    function applyLicenseTableFilters() {
+        const search = (document.getElementById('licSearchInput')?.value || '').toLowerCase().trim();
+        const filterStatus = document.getElementById('licFilterStatus')?.value || 'all';
+        const filterType = document.getElementById('licFilterType')?.value || 'all';
+        const filterExp = document.getElementById('licFilterExp')?.value || 'all';
+
+        const now = Date.now();
+        const in30d = now + 30 * 24 * 60 * 60 * 1000;
+
+        let filtered = adminLicensesCache.filter(item => {
+            // Search
+            if (search) {
+                const key = String(item.license_key || '').toLowerCase();
+                const cust = String(item.customer_name || '').toLowerCase();
+                const email = String(item.customer_email || '').toLowerCase();
+                const dom = String(item.domain || '').toLowerCase();
+                if (!key.includes(search) && !cust.includes(search) && !email.includes(search) && !dom.includes(search)) {
+                    return false;
+                }
             }
+
+            // Status Filter
+            if (filterStatus !== 'all') {
+                if (filterStatus === 'expired') {
+                    const isExp = item.status === 'expired' || (item.expires_at && new Date(item.expires_at).getTime() < now);
+                    if (!isExp) return false;
+                } else if (item.status !== filterStatus) {
+                    return false;
+                }
+            }
+
+            // Type Filter
+            if (filterType !== 'all' && item.license_type !== filterType) {
+                return false;
+            }
+
+            // Expiration Filter
+            if (filterExp !== 'all') {
+                if (filterExp === 'lifetime') {
+                    if (item.expires_at) return false;
+                } else if (filterExp === 'expired') {
+                    if (!item.expires_at || new Date(item.expires_at).getTime() >= now) return false;
+                } else if (filterExp === 'expiring_soon') {
+                    if (!item.expires_at) return false;
+                    const expTime = new Date(item.expires_at).getTime();
+                    if (expTime < now || expTime > in30d) return false;
+                }
+            }
+
+            return true;
         });
+
+        renderLicensesTable(filtered);
     }
 
-    async function handleGenerateDevLicense() {
-        const input = document.getElementById('devGenTargetDomain');
-        const out = document.getElementById('devGenOutputKey');
-        if (!input || !out) return;
+    function renderLicensesTable(list) {
+        const tbody = document.getElementById('adminLicensesTableBody');
+        const showCount = document.getElementById('licShowingCount');
+        const totalCount = document.getElementById('licTotalCount');
 
-        const domain = input.value.trim();
-        if (!domain) {
-            showAlert('error', 'Masukkan nama domain target terlebih dahulu (contoh: smansalhoksukon.sch.id).');
-            input.focus();
+        if (showCount) showCount.textContent = list.length;
+        if (totalCount) totalCount.textContent = adminLicensesCache.length;
+
+        if (!tbody) return;
+
+        if (list.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="py-12 text-center text-slate-400">
+                        <i class="fas fa-key text-3xl text-slate-200 mb-2 block"></i>
+                        <p class="font-bold text-slate-600 text-xs">Tidak ada data lisensi yang sesuai.</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Coba ubah kata kunci pencarian atau filter status.</p>
+                    </td>
+                </tr>
+            `;
             return;
         }
 
-        const generatedKey = await LicenseEngine.computeSignature(domain);
-        out.value = generatedKey;
+        const now = Date.now();
+        let html = '';
 
-        if (typeof Swal !== 'undefined') {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true
-            });
-            Toast.fire({
-                icon: 'success',
-                title: `Kunci untuk "${LicenseEngine.cleanDomain(domain)}" berhasil di-generate!`
-            });
-        }
+        list.forEach((lic, idx) => {
+            // Status Badge calculation
+            let statusBadge = '';
+            const isExp = lic.expires_at && new Date(lic.expires_at).getTime() < now;
+            const effectiveStatus = isExp ? 'expired' : (lic.status || 'active');
+
+            if (effectiveStatus === 'active') {
+                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200"><i class="fas fa-check-circle mr-1"></i> ACTIVE</span>';
+            } else if (effectiveStatus === 'suspended') {
+                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200"><i class="fas fa-pause-circle mr-1"></i> SUSPENDED</span>';
+            } else if (effectiveStatus === 'expired') {
+                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200"><i class="fas fa-clock mr-1"></i> EXPIRED</span>';
+            } else if (effectiveStatus === 'revoked') {
+                statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-300"><i class="fas fa-ban mr-1"></i> REVOKED</span>';
+            } else {
+                statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-50 text-slate-600 border border-slate-200">${effectiveStatus.toUpperCase()}</span>`;
+            }
+
+            // Expiration Display
+            let expDisplay = '';
+            if (!lic.expires_at) {
+                expDisplay = '<span class="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100"><i class="fas fa-infinity text-indigo-500"></i> Lifetime</span>';
+            } else {
+                const expDate = new Date(lic.expires_at);
+                const formattedDate = expDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                const daysLeft = Math.ceil((expDate.getTime() - now) / (1000 * 60 * 60 * 24));
+                
+                if (daysLeft < 0) {
+                    expDisplay = `<span class="text-rose-600 font-bold text-xs">${formattedDate}</span> <span class="text-[9px] text-rose-500 block">(Expired)</span>`;
+                } else if (daysLeft <= 30) {
+                    expDisplay = `<span class="text-amber-700 font-bold text-xs">${formattedDate}</span> <span class="text-[9px] text-amber-600 font-bold block">(${daysLeft} hari lagi)</span>`;
+                } else {
+                    expDisplay = `<span class="text-slate-700 font-semibold text-xs">${formattedDate}</span>`;
+                }
+            }
+
+            // Domain Display
+            let domainDisplay = '';
+            if (lic.domain) {
+                domainDisplay = `
+                    <div class="flex items-center gap-1.5 font-mono text-xs text-indigo-900 bg-indigo-50/70 border border-indigo-100 px-2 py-1 rounded-lg w-fit">
+                        <i class="fas fa-globe text-indigo-500 text-[10px]"></i>
+                        <span class="font-bold">${lic.domain}</span>
+                    </div>
+                `;
+            } else {
+                domainDisplay = `
+                    <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                        <i class="fas fa-lock-open text-slate-400"></i> Unbound (Aktivasi Pertama)
+                    </span>
+                `;
+            }
+
+            // Activation Count
+            const actCount = lic.activation_count || 0;
+            const maxAct = lic.max_activation || 1;
+            const actBadge = `<span class="font-mono font-bold text-xs ${actCount >= maxAct ? 'text-amber-600' : 'text-slate-600'}">${actCount} / ${maxAct}</span>`;
+
+            html += `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <!-- License Key -->
+                    <td class="py-3.5 px-4">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-black text-xs text-slate-800 tracking-wider bg-slate-100/80 px-2 py-1 rounded-md border border-slate-200">
+                                ${lic.license_key}
+                            </span>
+                            <button type="button" onclick="copyLicenseKey('${lic.license_key}')" class="text-slate-400 hover:text-amber-600 p-1 rounded-md hover:bg-amber-50 transition cursor-pointer" title="Salin Kunci Lisensi">
+                                <i class="fas fa-copy text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-1.5 mt-1">
+                            <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">${lic.product || 'presensi-smansa-pro'}</span>
+                            <span class="text-[9px] font-black text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-100">${lic.license_type || 'Subscription'}</span>
+                        </div>
+                    </td>
+
+                    <!-- Customer -->
+                    <td class="py-3.5 px-4">
+                        <div class="font-bold text-slate-800 text-xs">${lic.customer_name || '-'}</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5">${lic.customer_email || '-'}</div>
+                    </td>
+
+                    <!-- Domain -->
+                    <td class="py-3.5 px-4">
+                        ${domainDisplay}
+                    </td>
+
+                    <!-- Status -->
+                    <td class="py-3.5 px-4 text-center">
+                        ${statusBadge}
+                    </td>
+
+                    <!-- Expiration -->
+                    <td class="py-3.5 px-4">
+                        ${expDisplay}
+                    </td>
+
+                    <!-- Activation Count -->
+                    <td class="py-3.5 px-4 text-center">
+                        ${actBadge}
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="py-3.5 px-4 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                            <!-- View Detail -->
+                            <button type="button" onclick="viewLicenseDetail('${lic.id}')" class="p-1.5 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition cursor-pointer" title="Lihat Detail">
+                                <i class="fas fa-eye text-xs"></i>
+                            </button>
+
+                            <!-- Suspend / Activate Toggle -->
+                            ${lic.status === 'suspended' ? `
+                                <button type="button" onclick="reactivateLicense('${lic.id}')" class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition cursor-pointer" title="Aktifkan Kembali">
+                                    <i class="fas fa-play text-xs"></i>
+                                </button>
+                            ` : `
+                                <button type="button" onclick="toggleSuspendLicense('${lic.id}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition cursor-pointer" title="Suspend Lisensi">
+                                    <i class="fas fa-pause text-xs"></i>
+                                </button>
+                            `}
+
+                            <!-- Extend -->
+                            <button type="button" onclick="promptExtendLicense('${lic.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer" title="Perpanjang Masa Aktif">
+                                <i class="fas fa-calendar-plus text-xs"></i>
+                            </button>
+
+                            <!-- Reset Domain -->
+                            <button type="button" onclick="promptResetDomain('${lic.id}')" class="p-1.5 text-purple-600 hover:bg-purple-50 rounded-lg transition cursor-pointer" title="Reset Domain Terkunci">
+                                <i class="fas fa-unlink text-xs"></i>
+                            </button>
+
+                            <!-- Revoke -->
+                            <button type="button" onclick="promptRevokeLicense('${lic.id}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer" title="Cabut Lisensi (Revoke)">
+                                <i class="fas fa-ban text-xs"></i>
+                            </button>
+
+                            <!-- Delete -->
+                            <button type="button" onclick="promptDeleteLicense('${lic.id}')" class="p-1.5 text-slate-400 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition cursor-pointer" title="Hapus Lisensi">
+                                <i class="fas fa-trash-alt text-xs"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
     }
 
-    function generateKeyForCurrentDomain() {
-        const input = document.getElementById('devGenTargetDomain');
-        if (input) {
-            input.value = LicenseEngine.getCurrentDomain();
-            handleGenerateDevLicense();
-        }
-    }
-
-    function copyGeneratedLicenseKey() {
-        const out = document.getElementById('devGenOutputKey');
-        if (!out || !out.value) {
-            showAlert('error', 'Belum ada kunci lisensi yang di-generate.');
-            return;
-        }
-
+    function copyLicenseKey(key) {
+        if (!key) return;
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(out.value);
+            navigator.clipboard.writeText(key);
         } else {
-            out.select();
+            const el = document.createElement('textarea');
+            el.value = key;
+            document.body.appendChild(el);
+            el.select();
             document.execCommand('copy');
+            document.body.removeChild(el);
         }
 
         if (typeof Swal !== 'undefined') {
@@ -12203,6 +12914,502 @@
                 title: 'Kunci lisensi disalin ke clipboard!'
             });
         }
+    }
+
+    // ============================================================================
+    // MODAL ACTIONS: GENERATE, EXTEND, RESET, REVOKE, DETAIL, AUDIT LOG
+    // ============================================================================
+    function showGenerateLicenseModal() {
+        const modalContainer = document.getElementById('modalContainer');
+        if (!modalContainer) return;
+
+        const defKey = LicenseEngine.generateCryptographicKey('SMANSA');
+
+        modalContainer.innerHTML = `
+            <div id="modalGenLic" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
+                <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100">
+                    <div class="p-5 bg-gradient-to-r from-amber-500 to-amber-600 text-white flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-base"><i class="fas fa-key"></i></div>
+                            <div>
+                                <h3 class="font-black text-sm">Generate Kunci Lisensi Baru</h3>
+                                <p class="text-[10px] text-amber-100">Buat lisensi resmi domain-bound untuk sekolah pelanggan</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="document.getElementById('modalGenLic').remove()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-xs transition cursor-pointer">&times;</button>
+                    </div>
+
+                    <form onsubmit="submitGenerateLicenseModal(event)" class="p-5 space-y-4 text-xs font-semibold text-slate-700">
+                        <!-- Product -->
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Produk Target</label>
+                            <input type="text" id="genProduct" value="presensi-smansa-pro" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                        </div>
+
+                        <!-- Customer Info -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Sekolah / Instansi <span class="text-rose-500">*</span></label>
+                                <input type="text" id="genCustomerName" required placeholder="Contoh: SMAN 2 Lhoksukon" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Email Pelanggan</label>
+                                <input type="email" id="genCustomerEmail" placeholder="admin@sman2lhoksukon.sch.id" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                            </div>
+                        </div>
+
+                        <!-- Target Domain -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-[11px] font-bold text-slate-700">Domain Target (Opsional)</label>
+                                <span class="text-[9px] text-indigo-600 font-bold">Boleh kosong untuk aktivasi pertama</span>
+                            </div>
+                            <input type="text" id="genDomain" placeholder="contoh: sman2lhoksukon.sch.id (kosongkan jika belum dipasang)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                        </div>
+
+                        <!-- License Type & Max Activation -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Tipe Lisensi</label>
+                                <select id="genLicenseType" onchange="toggleGenExpField()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                    <option value="Subscription">Subscription (1 Tahun)</option>
+                                    <option value="Lifetime">Lifetime (Seumur Hidup)</option>
+                                    <option value="Trial">Trial (Uji Coba)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Max Activation Limit</label>
+                                <input type="number" id="genMaxActivation" value="1" min="1" max="100" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                            </div>
+                        </div>
+
+                        <!-- Custom Expiration Date -->
+                        <div id="genExpGroup">
+                            <label class="block text-[11px] font-bold text-slate-700 mb-1">Tanggal Kedaluwarsa</label>
+                            <input type="date" id="genExpiresAt" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                        </div>
+
+                        <!-- Key Prefix -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Prefix Kunci (4 Karakter)</label>
+                                <input type="text" id="genPrefix" value="SMANSA" maxlength="4" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono font-black uppercase text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Catatan Internal</label>
+                                <input type="text" id="genNotes" placeholder="Order PO #123..." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                            <button type="button" onclick="document.getElementById('modalGenLic').remove()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer">Batal</button>
+                            <button type="submit" class="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-bold shadow-md shadow-amber-500/20 transition cursor-pointer">
+                                <i class="fas fa-magic mr-1"></i> Generate Lisensi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        // Set default 1 year expiry date
+        const d = new Date();
+        d.setFullYear(d.getFullYear() + 1);
+        const expInput = document.getElementById('genExpiresAt');
+        if (expInput) expInput.value = d.toISOString().slice(0, 10);
+    }
+
+    function toggleGenExpField() {
+        const type = document.getElementById('genLicenseType')?.value;
+        const expGroup = document.getElementById('genExpGroup');
+        if (expGroup) {
+            if (type === 'Lifetime') {
+                expGroup.classList.add('hidden');
+            } else {
+                expGroup.classList.remove('hidden');
+            }
+        }
+    }
+
+    function submitGenerateLicenseModal(e) {
+        if (e) e.preventDefault();
+        const customerName = document.getElementById('genCustomerName')?.value.trim();
+        if (!customerName) {
+            showAlert('error', 'Nama pelanggan wajib diisi.');
+            return;
+        }
+
+        const data = {
+            product: document.getElementById('genProduct')?.value.trim() || 'presensi-smansa-pro',
+            customer_name: customerName,
+            customer_email: document.getElementById('genCustomerEmail')?.value.trim() || '',
+            domain: document.getElementById('genDomain')?.value.trim() || '',
+            license_type: document.getElementById('genLicenseType')?.value || 'Subscription',
+            max_activation: parseInt(document.getElementById('genMaxActivation')?.value, 10) || 1,
+            expires_at: document.getElementById('genLicenseType')?.value === 'Lifetime' ? null : document.getElementById('genExpiresAt')?.value,
+            prefix: document.getElementById('genPrefix')?.value.trim() || 'SMANSA',
+            notes: document.getElementById('genNotes')?.value.trim() || ''
+        };
+
+        showLoading();
+        runAPI('generateAdminLicense', [currentUser.token, data],
+            res => {
+                hideLoading();
+                if (res && res.success) {
+                    const modal = document.getElementById('modalGenLic');
+                    if (modal) modal.remove();
+
+                    Swal.fire({
+                        title: 'Lisensi Berhasil Dibuat! 🎉',
+                        html: `
+                            <div class="text-left text-xs text-slate-700 space-y-3 mt-3">
+                                <div>
+                                    <label class="font-bold text-slate-500 block text-[10px] uppercase">Kunci Lisensi:</label>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <input type="text" readonly value="${res.license.license_key}" id="newCreatedKey" class="w-full px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl font-mono font-black text-sm text-amber-950 text-center">
+                                        <button onclick="copyLicenseKey('${res.license.license_key}')" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs"><i class="fas fa-copy"></i></button>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1 font-mono text-[11px]">
+                                    <div>Pelanggan: <b>${res.license.customer_name}</b></div>
+                                    <div>Domain: <b>${res.license.domain || 'Unbound (Aktivasi Pertama)'}</b></div>
+                                    <div>Tipe: <b>${res.license.license_type}</b></div>
+                                    <div>Expired: <b>${res.license.expires_at ? res.license.expires_at.slice(0, 10) : 'Lifetime'}</b></div>
+                                </div>
+                            </div>
+                        `,
+                        icon: 'success',
+                        confirmButtonColor: '#4F46E5',
+                        confirmButtonText: 'Selesai'
+                    }).then(() => {
+                        loadAdminLicenses();
+                    });
+                } else {
+                    showAlert('error', (res && res.message) || 'Gagal membuat lisensi.');
+                }
+            },
+            err => {
+                hideLoading();
+                showAlert('error', 'Gagal memproses permintaan: ' + err);
+            }
+        );
+    }
+
+    function toggleSuspendLicense(id) {
+        Swal.fire({
+            title: 'Suspend Lisensi Ini?',
+            text: 'Aplikasi pada domain terkait akan kehilangan hak Full Version dan kembali ke Mode Demo.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#F59E0B',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Ya, Suspend',
+            cancelButtonText: 'Batal'
+        }).then(result => {
+            if (result.isConfirmed) {
+                showLoading();
+                runAPI('suspendAdminLicense', [currentUser.token, id],
+                    res => {
+                        hideLoading();
+                        if (res && res.success) {
+                            showAlert('success', res.message);
+                            loadAdminLicenses();
+                        } else {
+                            showAlert('error', res.message);
+                        }
+                    },
+                    err => {
+                        hideLoading();
+                        showAlert('error', 'Gagal suspend lisensi: ' + err);
+                    }
+                );
+            }
+        });
+    }
+
+    function reactivateLicense(id) {
+        showLoading();
+        runAPI('reactivateAdminLicense', [currentUser.token, id],
+            res => {
+                hideLoading();
+                if (res && res.success) {
+                    showAlert('success', res.message);
+                    loadAdminLicenses();
+                } else {
+                    showAlert('error', res.message);
+                }
+            },
+            err => {
+                hideLoading();
+                showAlert('error', 'Gagal mengaktifkan lisensi: ' + err);
+            }
+        );
+    }
+
+    function promptRevokeLicense(id) {
+        Swal.fire({
+            title: 'Cabut Lisensi Secara Permanen (Revoke)?',
+            text: 'Lisensi yang dicabut tidak dapat digunakan lagi oleh pelanggan mana pun.',
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonColor: '#E11D48',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Ya, Cabut Lisensi',
+            cancelButtonText: 'Batal'
+        }).then(result => {
+            if (result.isConfirmed) {
+                showLoading();
+                runAPI('revokeAdminLicense', [currentUser.token, id],
+                    res => {
+                        hideLoading();
+                        if (res && res.success) {
+                            showAlert('success', res.message);
+                            loadAdminLicenses();
+                        } else {
+                            showAlert('error', res.message);
+                        }
+                    },
+                    err => {
+                        hideLoading();
+                        showAlert('error', 'Gagal mencabut lisensi: ' + err);
+                    }
+                );
+            }
+        });
+    }
+
+    function promptResetDomain(id) {
+        Swal.fire({
+            title: 'Reset Kuncian Domain?',
+            text: 'Kuncian nama domain akan dilepas (unbound). Lisensi dapat diaktivasi ulang pada domain baru.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#6366F1',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Ya, Reset Domain',
+            cancelButtonText: 'Batal'
+        }).then(result => {
+            if (result.isConfirmed) {
+                showLoading();
+                runAPI('resetAdminLicenseDomain', [currentUser.token, id],
+                    res => {
+                        hideLoading();
+                        if (res && res.success) {
+                            showAlert('success', res.message);
+                            loadAdminLicenses();
+                        } else {
+                            showAlert('error', res.message);
+                        }
+                    },
+                    err => {
+                        hideLoading();
+                        showAlert('error', 'Gagal reset domain: ' + err);
+                    }
+                );
+            }
+        });
+    }
+
+    function promptExtendLicense(id) {
+        const lic = adminLicensesCache.find(x => x.id === id);
+        if (!lic) return;
+
+        Swal.fire({
+            title: 'Perpanjang Masa Aktif Lisensi',
+            html: `
+                <div class="text-left text-xs text-slate-700 space-y-3 mt-3">
+                    <p>Kunci: <b class="font-mono">${lic.license_key}</b> (${lic.customer_name})</p>
+                    <div>
+                        <label class="block font-bold text-slate-600 mb-1">Pilih Durasi Perpanjangan:</label>
+                        <select id="extendOption" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                            <option value="30">+30 Hari</option>
+                            <option value="90">+90 Hari</option>
+                            <option value="365" selected>+1 Tahun (365 Hari)</option>
+                            <option value="custom">Pilih Tanggal Manual...</option>
+                        </select>
+                    </div>
+                </div>
+            `,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#4F46E5',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Perpanjang Sekarang',
+            cancelButtonText: 'Batal'
+        }).then(result => {
+            if (result.isConfirmed) {
+                const opt = document.getElementById('extendOption')?.value;
+                const days = (opt && opt !== 'custom') ? parseInt(opt, 10) : 365;
+
+                showLoading();
+                runAPI('extendAdminLicense', [currentUser.token, id, days, null],
+                    res => {
+                        hideLoading();
+                        if (res && res.success) {
+                            showAlert('success', res.message);
+                            loadAdminLicenses();
+                        } else {
+                            showAlert('error', res.message);
+                        }
+                    },
+                    err => {
+                        hideLoading();
+                        showAlert('error', 'Gagal memperpanjang lisensi: ' + err);
+                    }
+                );
+            }
+        });
+    }
+
+    function promptDeleteLicense(id) {
+        Swal.fire({
+            title: 'Hapus Data Lisensi?',
+            text: 'Data lisensi akan dihapus dari daftar sistem.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#E11D48',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then(result => {
+            if (result.isConfirmed) {
+                showLoading();
+                runAPI('deleteAdminLicense', [currentUser.token, id],
+                    res => {
+                        hideLoading();
+                        if (res && res.success) {
+                            showAlert('success', res.message);
+                            loadAdminLicenses();
+                        } else {
+                            showAlert('error', res.message);
+                        }
+                    },
+                    err => {
+                        hideLoading();
+                        showAlert('error', 'Gagal menghapus lisensi: ' + err);
+                    }
+                );
+            }
+        });
+    }
+
+    function viewLicenseDetail(id) {
+        const lic = adminLicensesCache.find(x => x.id === id);
+        if (!lic) return;
+
+        Swal.fire({
+            title: 'Rincian Lengkap Lisensi',
+            html: `
+                <div class="text-left text-xs space-y-3 mt-3">
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5 font-mono text-[11px]">
+                        <div><b>Key:</b> <span class="text-amber-700 font-bold">${lic.license_key}</span></div>
+                        <div><b>Produk:</b> ${lic.product || 'presensi-smansa-pro'}</div>
+                        <div><b>Pelanggan:</b> ${lic.customer_name || '-'} (${lic.customer_email || '-'})</div>
+                        <div><b>Domain Terkunci:</b> <span class="text-indigo-600 font-bold">${lic.domain || 'Unbound (Belum Dikunci)'}</span></div>
+                        <div><b>Status:</b> ${lic.status.toUpperCase()}</div>
+                        <div><b>Tipe:</b> ${lic.license_type || 'Subscription'}</div>
+                        <div><b>Aktivasi:</b> ${lic.activation_count || 0} / ${lic.max_activation || 1}</div>
+                        <div><b>Expired:</b> ${lic.expires_at ? lic.expires_at.slice(0, 10) : 'Lifetime'}</div>
+                        <div><b>Dibuat:</b> ${lic.created_at ? lic.created_at.slice(0, 10) : '-'}</div>
+                    </div>
+                </div>
+            `,
+            showCloseButton: true,
+            confirmButtonColor: '#4F46E5',
+            confirmButtonText: 'Tutup'
+        });
+    }
+
+    function exportLicensesCSV() {
+        if (!adminLicensesCache || adminLicensesCache.length === 0) {
+            showAlert('error', 'Tidak ada data lisensi untuk di-export.');
+            return;
+        }
+
+        let csv = 'License Key,Product,Customer,Email,Domain,Status,License Type,Max Activation,Activation Count,Expiration Date,Created At\n';
+        adminLicensesCache.forEach(l => {
+            const row = [
+                `"${l.license_key || ''}"`,
+                `"${l.product || ''}"`,
+                `"${(l.customer_name || '').replace(/"/g, '""')}"`,
+                `"${l.customer_email || ''}"`,
+                `"${l.domain || 'Unbound'}"`,
+                `"${l.status || ''}"`,
+                `"${l.license_type || ''}"`,
+                l.max_activation || 1,
+                l.activation_count || 0,
+                `"${l.expires_at ? l.expires_at.slice(0, 10) : 'Lifetime'}"`,
+                `"${l.created_at ? l.created_at.slice(0, 10) : ''}"`
+            ];
+            csv += row.join(',') + '\n';
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `licenses_export_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showAlert('success', 'File CSV lisensi berhasil di-download.');
+    }
+
+    function showLicenseAuditLogsModal() {
+        showLoading();
+        runAPI('getAdminLicenseAuditLogs', [currentUser.token],
+            res => {
+                hideLoading();
+                if (res && res.success) {
+                    const logs = Array.isArray(res.logs) ? res.logs : [];
+                    let rowsHtml = '';
+                    if (logs.length === 0) {
+                        rowsHtml = '<tr><td colspan="4" class="py-8 text-center text-slate-400 text-xs">Belum ada riwayat log audit lisensi.</td></tr>';
+                    } else {
+                        logs.forEach(l => {
+                            rowsHtml += `
+                                <tr class="border-b border-slate-100 text-[11px]">
+                                    <td class="py-2.5 px-3 font-mono font-bold text-slate-800">${l.action}</td>
+                                    <td class="py-2.5 px-3 font-mono text-indigo-600">${l.domain || '-'}</td>
+                                    <td class="py-2.5 px-3 text-slate-500 truncate max-w-xs">${JSON.stringify(l.metadata || {})}</td>
+                                    <td class="py-2.5 px-3 text-slate-400">${l.created_at ? new Date(l.created_at).toLocaleString('id-ID') : '-'}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+
+                    Swal.fire({
+                        title: 'Riwayat Audit Log Lisensi',
+                        html: `
+                            <div class="text-left text-xs max-h-96 overflow-y-auto mt-3">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-black uppercase text-slate-500">
+                                            <th class="py-2 px-3">Aksi</th>
+                                            <th class="py-2 px-3">Domain</th>
+                                            <th class="py-2 px-3">Detail Metadata</th>
+                                            <th class="py-2 px-3">Waktu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>${rowsHtml}</tbody>
+                                </table>
+                            </div>
+                        `,
+                        width: '750px',
+                        confirmButtonColor: '#4F46E5',
+                        confirmButtonText: 'Tutup'
+                    });
+                } else {
+                    showAlert('error', res.message || 'Gagal memuat log audit.');
+                }
+            },
+            err => {
+                hideLoading();
+                showAlert('error', 'Gagal mengambil log audit: ' + err);
+            }
+        );
     }
 
     checkSession();

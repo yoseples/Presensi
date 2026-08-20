@@ -45,19 +45,97 @@ Aplikasi ini dilengkapi fitur **1-Click Quick Demo Login** pada halaman login un
 
 ---
 
-## 🛡️ Proteksi Versi Demo vs Full Version Berlisensi
+## 🛡️ Sistem Manajemen Lisensi Multi-Klien & Proteksi Domain
 
-Aplikasi ini menggunakan **Sistem Lisensi Kriptografis Berbasis Domain (1 Domain 1 Kunci & Auto-Detect)**:
+Aplikasi ini dilengkapi dengan **Production-Grade License Management System**:
 
-1. **Deteksi Domain Otomatis**: Sistem secara otomatis membaca nama domain tempat aplikasi dijalankan (`window.location.hostname`).
-2. **Kunci Lisensi Terikat Domain (Domain-Bound)**:
-   - Kunci berformat `SMANSA-XXXX-XXXX-XXXX-XXXX` dihitung via enkripsi SHA-256 terikat secara unik pada satu nama domain tertentu.
-   - Kunci lisensi untuk domain A tidak dapat digunakan pada domain B.
-3. **Membuka Versi Penuh (Full Version)**:
-   - Masukkan kunci lisensi resmi di menu **Pengaturan & Branding WebApp** $\rightarrow$ **Lisensi Domain**.
-   - Saat lisensi terverifikasi, seluruh pembatasan demo dicabut, banner demo disembunyikan, dan badge berubah menjadi `👑 FULL VERSION (RESMI)`.
-4. **Developer Master Key Generator**:
-   - Akun Developer memiliki alat eksklusif di menu **Manajemen User** untuk meng-generate kunci lisensi resmi bagi sekolah klien.
+### 1. 🏗️ Alur & Logika Lisensi
+```
+ADMIN LICENSE GENERATOR
+          ↓
+  DATABASE LICENSE
+          ↓
+   LICENSE API (POST /api/license/activate)
+          ↓
+        WEBAPP
+          ↓
+   VALID LICENSE  →  👑 FULL VERSION (Akses Tanpa Batas)
+   INVALID / EXPIRED / REVOKED  →  🛡️ DEMO MODE
+```
+
+### 2. 🔑 Karakteristik Kunci & Token
+- **Format Kunci**: `XXXX-XXXX-XXXX-XXXX-XXXX` (dibuat menggunakan CSPRNG kriptografis acak yang aman).
+- **Domain Binding**: Lisensi dapat dibuat tanpa domain (*unbound*). Domain pertama yang berhasil mengaktivasi lisensi akan langsung dikunci otomatis. Kunci tidak dapat digunakan di domain lain (*domain mismatch protection*).
+- **Asymmetric Signed Token (RSA-2048)**: Token lisensi ditandatangani di sisi server menggunakan Private Key (`keys/license_private.key`), dan diverifikasi oleh WebApp menggunakan Public Key. Private Key tidak pernah diekspos ke frontend atau bundle klien.
+
+### 3. 🛠️ Pusat Manajemen Lisensi Admin (`/admin/licenses` / Menu "Kelola Lisensi")
+Admin dan Developer memiliki akses ke modul **Pusat Manajemen Lisensi** dengan fitur lengkap:
+- **Statistik Realtime**: Total Lisensi, Aktif, Suspended, Expired, Revoked, dan Segera Expired (<30 Hari).
+- **Tombol `+ Generate Lisensi Baru`**: Modal pembuatan lisensi kustom (Produk, Nama Pelanggan, Email, Domain, Tipe: Lifetime/Subscription/Trial, Batas Aktivasi, Expiration Date).
+- **Tindakan (Actions)**:
+  - 👁️ **Lihat Detail**: Rincian status, tanggal aktivasi, dan masa berlaku.
+  - ⏸️ **Suspend / ▶️ Aktifkan Kembali**: Menghentikan sementara hak lisensi pelanggan.
+  - 🚫 **Revoke (Cabut)**: Menolak token lisensi secara permanen.
+  - 🔄 **Reset Domain**: Melepas kuncian domain agar lisensi dapat dipasang di domain baru pelanggan.
+  - 🔁 **Reset Aktivasi**: Mengembalikan jumlah hitungan aktivasi ke 0.
+  - ⏳ **Perpanjang Masa Aktif**: Menambah masa aktif (+30 hari, +90 hari, +1 tahun, atau tanggal kustom).
+  - 🗑️ **Hapus Lisensi**.
+- **Filter & Pencarian**: Pencarian instan berdasarkan kunci, nama sekolah, email, domain, filter status, tipe lisensi, dan masa berlaku.
+- **Export Data**: Ekspor seluruh basis data lisensi ke format CSV dengan satu klik.
+- **Audit Log**: Pencatatan histori seluruh operasi lisensi (generate, aktivasi, suspend, revoke, extend, reset).
+
+---
+
+## 📡 Dokumentasi Endpoint REST API Lisensi
+
+License Server berjalan di port `3001` (atau via node script `server/license-server.js`):
+
+### 1. `POST /api/license/activate`
+Mengaktivasi lisensi pada domain WebApp.
+- **Request Body**:
+  ```json
+  {
+    "license_key": "JRAK-7F4K-9X2M-Q8VP-3N6T",
+    "domain": "smansalhoksukon.sch.id",
+    "product": "presensi-smansa-pro"
+  }
+  ```
+- **Response Success (200)**:
+  ```json
+  {
+    "success": true,
+    "status": "active",
+    "message": "License activated successfully",
+    "license": {
+      "product": "presensi-smansa-pro",
+      "domain": "smansalhoksukon.sch.id",
+      "customer_name": "SMA Negeri 1 Lhoksukon",
+      "license_type": "Lifetime",
+      "expires_at": null
+    },
+    "token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+  ```
+
+### 2. `POST /api/license/verify`
+Memverifikasi validitas signed token dan status lisensi terkini.
+- **Request Body**:
+  ```json
+  {
+    "token": "SIGNED_RSA_TOKEN",
+    "domain": "smansalhoksukon.sch.id",
+    "product": "presensi-smansa-pro"
+  }
+  ```
+
+### 3. `POST /api/license/deactivate`
+Mencopot lisensi pada browser dan mengembalikan WebApp ke Mode Demo.
+
+### 4. `GET /api/license/public-key`
+Menyediakan RSA-2048 Public Key untuk verifikasi tanda tangan kriptografis token di frontend.
+
+### 5. `GET /api/admin/licenses` & `POST /api/admin/licenses/generate`
+Manajemen lisensi penuh untuk panel administrator.
 
 ---
 

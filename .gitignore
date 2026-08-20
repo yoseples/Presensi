@@ -4,3 +4,6 @@ android/
 www/
 release-apk/
 .DS_Store
+keys/license_private.key
+data/
+
