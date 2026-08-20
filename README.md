@@ -30,7 +30,6 @@ Aplikasi web presensi siswa dan manajemen kehadiran sekolah modern, responsif, d
 | Role | Username | Password | Nama Lengkap / Jabatan |
 | :--- | :--- | :--- | :--- |
 | **Admin** | `admin` | `admin123` / `12345` | Administrator (Kepala TU) |
-| **Admin** | `mukhlis` | `admin123` / `12345` | MUHAMMAD MUKHLIS (Administrator) |
 
 ---
 

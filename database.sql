@@ -37,8 +37,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 -- Data awal users (Administrator)
 INSERT INTO `users` (`username`, `password`, `role`, `kelas`, `nip`, `nama_lengkap`, `jabatan`, `no_handphone`) VALUES
-('admin',   'admin123',   'admin',  NULL,         '198001012005011001', 'Administrator',            'Kepala Tata Usaha',      '081234567800'),
-('mukhlis', 'admin123',   'admin',  NULL,         '198904152026211006', 'MUHAMMAD MUKHLIS',         'Administrator',          '081234567808');
+('admin',   'admin123',   'admin',  NULL,         '198001012005011001', 'Administrator',            'Kepala Tata Usaha',      '081234567800');
 
 -- ============================================================================
 -- 2. TABEL GURU
