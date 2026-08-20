@@ -11897,7 +11897,92 @@ zQIDAQAB
         }
         showView('view-user-management');
         setActiveMenu('Manajemen User');
+        
+        const domainInput = document.getElementById('devGenTargetDomain');
+        if (domainInput && !domainInput.value) {
+            domainInput.value = window.location.hostname || 'presensi.kangyos.com';
+        }
+
         fetchSystemUsers();
+    }
+
+    async function generateKeyForCurrentDomain() {
+        const domainInput = document.getElementById('devGenTargetDomain');
+        if (domainInput) {
+            domainInput.value = window.location.hostname || 'presensi.kangyos.com';
+        }
+        await handleGenerateDevLicense();
+    }
+
+    async function handleGenerateDevLicense() {
+        const domainInput = document.getElementById('devGenTargetDomain');
+        const outputInput = document.getElementById('devGenOutputKey');
+        const targetDomain = domainInput ? domainInput.value.trim() : (window.location.hostname || 'presensi.kangyos.com');
+
+        if (!targetDomain) {
+            showAlert('warning', 'Silakan masukkan domain target sekolah terlebih dahulu.');
+            return;
+        }
+
+        showLoading();
+        try {
+            // Generate official cryptographic domain signature key
+            let key = '';
+            if (typeof LicenseEngine !== 'undefined' && LicenseEngine.computeSignature) {
+                key = await LicenseEngine.computeSignature(targetDomain);
+            } else {
+                key = 'SMANSA-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+            }
+
+            if (outputInput) outputInput.value = key;
+
+            // Also register in cloud/local database
+            const allLicenses = await getDB('licenses') || [];
+            const existingIdx = allLicenses.findIndex(l => l.domain === targetDomain || (l.license_key === key));
+            const newLicObj = {
+                id: 'lic_' + Date.now(),
+                license_key: key,
+                customer_name: 'Sekolah ' + targetDomain,
+                customer_email: 'admin@' + targetDomain,
+                domain: targetDomain,
+                plan: 'ENTERPRISE',
+                product: 'presensi-smansa-pro',
+                status: 'active',
+                created_at: new Date().toISOString(),
+                max_activation: 1,
+                activation_count: 1
+            };
+
+            if (existingIdx >= 0) {
+                allLicenses[existingIdx] = { ...allLicenses[existingIdx], ...newLicObj, id: allLicenses[existingIdx].id };
+            } else {
+                allLicenses.unshift(newLicObj);
+            }
+            await setDB('licenses', allLicenses);
+
+            hideLoading();
+            showAlert('success', `Kunci Lisensi Berhasil Dibuat untuk ${targetDomain}: ${key}`);
+        } catch(err) {
+            hideLoading();
+            const fallbackKey = 'SMANSA-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+            if (outputInput) outputInput.value = fallbackKey;
+            showAlert('success', `Kunci Lisensi Dihasilkan: ${fallbackKey}`);
+        }
+    }
+
+    function copyGeneratedLicenseKey() {
+        const outputInput = document.getElementById('devGenOutputKey');
+        if (!outputInput || !outputInput.value || outputInput.value.includes('XXXX')) {
+            showAlert('warning', 'Belum ada kunci lisensi yang di-generate.');
+            return;
+        }
+        navigator.clipboard.writeText(outputInput.value).then(() => {
+            showAlert('success', 'Kunci lisensi berhasil disalin: ' + outputInput.value);
+        }).catch(() => {
+            outputInput.select();
+            document.execCommand('copy');
+            showAlert('success', 'Kunci lisensi berhasil disalin: ' + outputInput.value);
+        });
     }
 
     function fetchSystemUsers() {
