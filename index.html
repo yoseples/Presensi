@@ -2007,20 +2007,31 @@
                   </div>
               </div>
 
-              <!-- 9. SCANNER KAMERA -->
+              <!-- 9. SCANNER KAMERA & USB/BLUETOOTH HID BARCODE -->
               <div id="view-scanner" class="view-section animate-fade-in">
                   <div class="max-w-md mx-auto">
                       <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
                           <div class="p-5 bg-slate-900 text-white text-center flex items-center justify-between">
                               <div>
-                                <h3 class="font-bold text-base tracking-wide">Scanner Absensi Kamera</h3>
-                                <p class="text-[11px] text-slate-400">Arahkan kamera ke QR Code Kartu (Siswa / Guru / Tendik)</p>
+                                <h3 class="font-bold text-base tracking-wide">Scanner Presensi Siswa & Guru</h3>
+                                <p class="text-[11px] text-slate-400">Mendukung Kamera QR & External USB/Bluetooth Barcode Scanner</p>
                               </div>
-                              <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
-                                <i class="fas fa-video"></i>
+                              <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-xs" title="Scanner Input Ready">
+                                <i class="fas fa-barcode"></i>
                               </div>
                           </div>
                           <div class="p-5">
+                              <!-- Scanner Mode Indicator -->
+                              <div class="mb-3 flex items-center justify-between bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-[11px]">
+                                  <span class="flex items-center gap-1.5 font-bold text-slate-700">
+                                      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                      Status Scanner:
+                                  </span>
+                                  <span class="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                                      Kamera & USB/HID Ready
+                                  </span>
+                              </div>
+
                               <div class="relative w-full aspect-square bg-black rounded-2xl overflow-hidden mb-4 shadow-inner">
                                   <div id="reader" class="w-full h-full object-cover"></div>
                                   <div id="camLoading" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-20">
@@ -2029,9 +2040,21 @@
                                   </div>
                               </div>
                               <div id="scanResult" class="hidden mb-4 text-center text-xs font-bold animate-fade-in"></div>
+
+                              <!-- Manual / USB Barcode Fallback Input -->
+                              <div class="mb-3">
+                                  <div class="relative">
+                                      <input type="text" id="manualBarcodeInput" placeholder="Scan Barcode USB atau ketik NISN / NIP..." class="w-full pl-9 pr-20 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" onkeydown="if(event.key==='Enter'){handleManualBarcodeSubmit();}">
+                                      <i class="fas fa-barcode absolute left-3 top-3 text-slate-400 text-xs"></i>
+                                      <button type="button" onclick="handleManualBarcodeSubmit()" class="absolute right-1.5 top-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold transition">
+                                          Submit
+                                      </button>
+                                  </div>
+                              </div>
+
                               <div class="flex gap-2 mb-3">
-                                  <button onclick="startCamera('environment')" class="flex-1 bg-indigo-50 text-indigo-700 py-2.5 rounded-xl font-bold text-xs hover:bg-indigo-100 flex items-center justify-center gap-1.5"><i class="fas fa-camera"></i> Kamera Belakang</button>
-                                  <button onclick="startCamera('user')" class="flex-1 bg-purple-50 text-purple-700 py-2.5 rounded-xl font-bold text-xs hover:bg-purple-100 flex items-center justify-center gap-1.5"><i class="fas fa-user"></i> Kamera Depan</button>
+                                  <button onclick="startCamera('environment')" class="flex-1 bg-indigo-50 text-indigo-700 py-2.5 rounded-xl font-bold text-xs hover:bg-indigo-100 flex items-center justify-center gap-1.5 transition"><i class="fas fa-camera"></i> Kamera Belakang</button>
+                                  <button onclick="startCamera('user')" class="flex-1 bg-purple-50 text-purple-700 py-2.5 rounded-xl font-bold text-xs hover:bg-purple-100 flex items-center justify-center gap-1.5 transition"><i class="fas fa-user"></i> Kamera Depan</button>
                               </div>
                               <button onclick="stopAndBack(true)" class="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-bold text-xs hover:bg-gray-200 transition">Kembali ke Dashboard</button>
                           </div>
@@ -6289,6 +6312,20 @@ zQIDAQAB
             liveMonitoringInterval = null;
         }
 
+        // Camera Resource Management: Hentikan video stream saat berpindah dari halaman scanner
+        if (viewId !== 'view-scanner' && typeof html5QrCode !== 'undefined' && html5QrCode) {
+            try {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    html5QrCode = null;
+                }).catch(() => {
+                    html5QrCode = null;
+                });
+            } catch(e) {
+                html5QrCode = null;
+            }
+        }
+
         // RBAC View Guard: Proteksi tampilan khusus Developer
         if (viewId === 'view-user-management' && (!currentUser || currentUser.role !== 'developer')) {
             showAlert('error', 'Akses Ditolak: Modul Manajemen User eksklusif untuk Akun Developer.');
@@ -10200,10 +10237,84 @@ zQIDAQAB
             });
     }
 
-    function onScanSuccess(decodedText) {
-        if (!decodedText || decodedText.trim() === "" || isScanning) return;
+    let hidScanBuffer = '';
+    let hidLastKeyTime = 0;
+    let lastProcessedScan = '';
+    let lastProcessedScanTime = 0;
 
-        const cleanScanned = decodedText.trim().toLowerCase();
+    function handleManualBarcodeSubmit() {
+        const input = document.getElementById('manualBarcodeInput');
+        if (!input) return;
+        const val = input.value.trim();
+        if (val) {
+            onScanSuccess(val);
+            input.value = '';
+        }
+    }
+
+    function initHIDBarcodeScanner() {
+        window.addEventListener('keydown', function(e) {
+            const now = Date.now();
+            const target = e.target;
+            const isInputActive = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+            const isScannerViewActive = document.getElementById('view-scanner')?.classList.contains('active');
+
+            // If user is typing in regular text fields (outside dedicated barcode input or scanner view), do not intercept
+            if (isInputActive && target.id !== 'manualBarcodeInput' && !isScannerViewActive) {
+                return;
+            }
+
+            // Terminator check (Enter / Tab) from USB/Bluetooth HID Barcode Scanners
+            if (e.key === 'Enter' || e.key === 'Tab') {
+                if (hidScanBuffer.length >= 3) {
+                    const scannedData = hidScanBuffer.trim();
+                    hidScanBuffer = '';
+
+                    if (currentUser && ['admin', 'developer', 'guru', 'tendik'].includes(currentUser.role)) {
+                        if (!isScannerViewActive) {
+                            loadScanAbsensi();
+                        }
+                        if (scannedData === lastProcessedScan && (now - lastProcessedScanTime) < 2500) {
+                            return; // Debounce duplicate scan
+                        }
+                        lastProcessedScan = scannedData;
+                        lastProcessedScanTime = now;
+                        onScanSuccess(scannedData);
+                        if (e.preventDefault) e.preventDefault();
+                    }
+                }
+                return;
+            }
+
+            // Printable single character keystroke capture
+            if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                // Inter-keystroke interval threshold (<120ms typical for hardware barcode scanners)
+                if (now - hidLastKeyTime > 150) {
+                    hidScanBuffer = '';
+                }
+                hidScanBuffer += e.key;
+                hidLastKeyTime = now;
+
+                clearTimeout(window._hidScanTimer);
+                window._hidScanTimer = setTimeout(() => {
+                    hidScanBuffer = '';
+                }, 350);
+            }
+        });
+    }
+
+    if (typeof window !== 'undefined') {
+        initHIDBarcodeScanner();
+    }
+
+    function onScanSuccess(decodedText) {
+        if (!decodedText || typeof decodedText !== 'string' || decodedText.trim() === "" || isScanning) return;
+
+        // Strict Sanitization: Remove dangerous HTML/script tags or control characters
+        const sanitizedRaw = decodedText.trim().replace(/[<>'"`;()\[\]{}]/g, '').slice(0, 64);
+        if (!sanitizedRaw) return;
+
+        const cleanScanned = sanitizedRaw.toLowerCase();
         const myId = currentUser ? (currentUser.nip || currentUser.nisn || currentUser.username || '').toLowerCase() : '';
         const myUsername = currentUser ? (currentUser.username || '').toLowerCase() : '';
         const myNip = currentUser ? String(currentUser.nip || '').toLowerCase() : '';
@@ -10239,7 +10350,7 @@ zQIDAQAB
         const myKelas = currentUser ? currentUser.kelas : '';
         const scannerId = currentUser ? (currentUser.nip || currentUser.nisn || currentUser.username || '') : '';
 
-        runAPI('scanAbsensi', [decodedText, myRole, myKelas, null, null, scannerId], result => {
+        runAPI('scanAbsensi', [sanitizedRaw, myRole, myKelas, null, null, scannerId], result => {
             if (result.success) {
                 playScanSound(true);
                 const isDatang = result.type === 'datang';
