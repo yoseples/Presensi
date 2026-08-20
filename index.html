@@ -2484,8 +2484,11 @@
         const sIdx = siswaList.findIndex(x => String(x.nisn || '').replace(/^'+/, '').trim() === inputUser);
         if (sIdx !== -1) {
           const siswa = siswaList[sIdx];
-          const storedPass = String(siswa.password || siswa.nisn || '').replace(/^'+/, '').trim();
-          const verify = await AuthSecurity.verifyPassword(inputPass, storedPass);
+          const storedPass = String(siswa.password || '12345').replace(/^'+/, '').trim();
+          let verify = await AuthSecurity.verifyPassword(inputPass, storedPass);
+          if (!verify.valid && !siswa.password && String(siswa.nisn || '').replace(/^'+/, '').trim() === inputPass) {
+            verify = { valid: true, needsRehash: true };
+          }
           if (verify.valid) {
             // Auto-migrasi ke SHA-256 Hash
             if (verify.needsRehash) {
@@ -2543,7 +2546,7 @@
           const tIdx = tendikList.findIndex(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
           if (tIdx !== -1) {
             const tendik = tendikList[tIdx];
-            const storedPass = String(tendik.password || 'tendik123').trim();
+            const storedPass = String(tendik.password || '12345').trim();
             const verify = await AuthSecurity.verifyPassword(inputPass, storedPass);
             if (verify.valid) {
               // Auto-migrasi ke SHA-256 Hash
@@ -2693,8 +2696,8 @@
         }
         siswaData.nisn = cleanNisn;
         siswaData.noHp = String(siswaData.noHp || '').replace(/^'/, '');
-        // Hash password siswa dengan SHA-256
-        const initialPass = String(siswaData.password || cleanNisn).trim();
+        // Hash password siswa dengan SHA-256 (default: 12345)
+        const initialPass = String(siswaData.password || '12345').trim();
         siswaData.password = await AuthSecurity.hashPassword(initialPass);
         list.push(siswaData);
         await setDB('siswa', list);
@@ -2908,7 +2911,7 @@
         if (list.some(x => x.username.toLowerCase() === cleanU.toLowerCase())) {
           return { success: false, message: 'Username sudah terdaftar!' };
         }
-        const initialPass = String(password || 'tendik123').trim();
+        const initialPass = String(password || '12345').trim();
         const hashedPass = await AuthSecurity.hashPassword(initialPass);
         list.push({
           username: cleanU,
@@ -9013,7 +9016,7 @@
                         </div>
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Password</label>
-                            <input type="password" id="tendikPassword" required value="tendik123" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                            <input type="password" id="tendikPassword" required value="12345" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
                         </div>
                     </div>
                     <div class="pt-3">
@@ -9089,7 +9092,7 @@
                         </div>
                         <div>
                             <label class="block font-bold text-slate-700 mb-1">Password Baru</label>
-                            <input type="password" id="editTendikPassword" value="${item.password || 'tendik123'}" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                            <input type="password" id="editTendikPassword" value="${item.password || '12345'}" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
                         </div>
                     </div>
                     <div class="pt-3">
@@ -9738,6 +9741,7 @@
                     if (!nisn || list.some(x => String(x.nisn) === nisn)) { skipped++; continue; }
                     list.push({
                         nisn: nisn,
+                        password: String(r[10] || '12345'),
                         nama: String(r[0] || ''),
                         kelas: String(r[2] || ''),
                         jenisKelamin: String(r[3] || ''),
@@ -9764,7 +9768,7 @@
                     if (!username || list.some(x => x.username.toLowerCase() === username.toLowerCase())) { skipped++; continue; }
                     list.push({
                         username: username,
-                        password: String(r[1] || 'guru123'),
+                        password: String(r[1] || '12345'),
                         role: String(r[2] || 'guru'),
                         nama: String(r[3] || username),
                         nip: String(r[4] || '-').replace(/^'/, ''),
@@ -9787,7 +9791,7 @@
                     if (!username || list.some(x => x.username.toLowerCase() === username.toLowerCase())) { skipped++; continue; }
                     list.push({
                         username: username,
-                        password: String(r[1] || 'tendik123'),
+                        password: String(r[1] || '12345'),
                         role: 'tendik',
                         nip: String(r[2] || '-').replace(/^'/, ''),
                         nama: String(r[3] || username),
