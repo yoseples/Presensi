@@ -27,18 +27,31 @@ Aplikasi web presensi siswa dan manajemen kehadiran sekolah modern, responsif, d
 
 ---
 
-## 🔑 Akun Login Pengguna Bawaan
+## 🔑 Akun Login Pengguna Bawaan (Versi Demo)
 
-| Role | Username / NISN | Password | Nama Lengkap / Jabatan | Catatan |
+Aplikasi ini dilengkapi fitur **1-Click Quick Demo Login** pada halaman login untuk memudahkan pengujian semua role:
+
+| Role | Username / NISN | Password | Nama Lengkap / Jabatan | Catatan Akses |
 | :--- | :--- | :--- | :--- | :--- |
-| **Developer** | `developer` | `dev123` | System Developer (KangYos) | Eksklusif: Modul Manajemen User & Master Controller |
-| **Admin** | `admin` | `admin123` | Administrator (Kepala TU) | Kelola Siswa, Guru, Tendik, Jadwal Absen & Laporan |
-| **Guru** | `(Username Guru)` | `12345` | Bapak/Ibu Guru | Default password diseragamkan ke `12345` |
-| **Tendik** | `(Username Tendik)` | `12345` | Tenaga Kependidikan | Default password diseragamkan ke `12345` |
-| **Siswa** | `(NISN Siswa)` | `12345` | Siswa / Pelajar | Default password diseragamkan ke `12345` |
+| **👑 Developer** | `developer` | `dev123` | System Developer (KangYos) | Eksklusif: Manajemen User, Reset DB Demo, Full Bypass |
+| **🛡️ Admin** | `admin` | `admin123` | Administrator SMANSA | Kelola Siswa, Guru, Tendik, Laporan, & Pengaturan Branding |
+| **👨‍🏫 Guru** | `guru1` | `12345` | Drs. Syamsuddin, M.Pd | Wali Kelas XII MIPA 1, Monitoring Kehadiran, Scan QR |
+| **👨‍🏫 Guru** | `guru2` | `12345` | Cut Nurhaliza, S.Pd | Wali Kelas XI IPS 1, Monitoring Kehadiran |
+| **👔 Tendik** | `tendik1` | `12345` | Zulfikar, S.Sos | Staf Tata Usaha, Presensi Mandiri GPS |
+| **🎓 Siswa** | `20240101` | `12345` | Ahmad Fadhil (XII MIPA 1) | Kartu Pelajar Digital, Presensi Mandiri, Status Kehadiran |
+| **🎓 Siswa** | `20240102` | `12345` | Siti Raisa (XII MIPA 1) | Kartu Pelajar Digital, Izin Mandiri |
+| **🎓 Siswa** | `20240201` | `12345` | Rizky Pratama (XI IPS 1) | Kartu Pelajar Digital |
 
 ---
 
-## 🌐 Tautan Live Produksi
-👉 **[https://yoseples.github.io/smansalhoksukon/](https://yoseples.github.io/smansalhoksukon/)**
-*(Demo: [https://yoseples.github.io/Presensi/](https://yoseples.github.io/Presensi/))*
+## 🛡️ Proteksi & Pembatasan Versi Demo (Demo Safeguards)
+1. **Proteksi Password Inti**: Password akun `developer` dan `admin` tidak dapat diubah oleh pengunjung demo untuk mencegah akun terkunci.
+2. **Proteksi Akun Bawaan**: Akun demo bawaan di atas dilindungi dari penghapusan.
+3. **Proteksi Hapus Massal**: Penghapusan massal seluruh siswa/guru dinonaktifkan di mode demo.
+4. **Tombol Reset DB Demo (Developer)**: Developer dapat mengembalikan seluruh database demo ke setelan awal pabrik kapan saja dengan 1 klik.
+
+---
+
+## 🌐 Tautan Live Demo
+👉 **[https://yoseples.github.io/Presensi/](https://yoseples.github.io/Presensi/)**
+*(Official Repository: [github.com/yoseples/Presensi](https://github.com/yoseples/Presensi))*

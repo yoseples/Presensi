@@ -145,43 +145,67 @@
     </div>
 
     <!-- Main Card Container -->
-    <div class="relative z-10 w-full max-w-[430px] bg-white rounded-[2.5rem] shadow-2xl p-7 sm:p-9 animate-slide-up">
+    <div class="relative z-10 w-full max-w-[440px] bg-white rounded-[2.5rem] shadow-2xl p-7 sm:p-8 animate-slide-up">
         
+        <!-- Demo Mode Notice Banner -->
+        <div class="mb-4 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white p-3 rounded-2xl shadow-sm flex items-center justify-between gap-2 border border-amber-300/30">
+            <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-xl bg-white/20 flex items-center justify-center text-xs shrink-0"><i class="fas fa-sparkles"></i></span>
+                <div>
+                    <h5 class="text-xs font-black tracking-tight leading-none">Versi Demo Interaktif</h5>
+                    <p class="text-[10px] text-amber-100 mt-0.5">Semua peran dapat diuji langsung</p>
+                </div>
+            </div>
+            <span class="text-[9px] bg-black/30 backdrop-blur-xs text-white font-mono px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">DEMO</span>
+        </div>
+
         <!-- Logo Sekolah SMANSA Lhoksukon -->
         <div class="flex flex-col items-center text-center">
-            <div class="w-24 h-24 flex items-center justify-center mb-3">
+            <div class="w-20 h-20 flex items-center justify-center mb-2">
                 <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" 
                      onerror="this.src='https://yoseples.github.io/Presensi/logo.png'" 
                      alt="Logo Sekolah" 
                      class="app-brand-logo w-full h-full object-contain filter drop-shadow-sm">
             </div>
             
-            <h1 class="app-brand-title text-2xl font-black text-slate-800 tracking-wider uppercase">PRESENSI</h1>
-            <p class="app-school-name text-sm text-slate-600 font-semibold mt-1">SMA Negeri 1 Lhoksukon</p>
+            <h1 class="app-brand-title text-xl font-black text-slate-800 tracking-wider uppercase">PRESENSI</h1>
+            <p class="app-school-name text-xs text-slate-600 font-semibold mt-0.5">SMA Negeri 1 Lhoksukon</p>
         </div>
 
-        <!-- Info Badges / Instruction Pills -->
-        <div class="mt-6 space-y-2 text-[11px] text-slate-600">
-            <div class="flex items-center gap-2.5 bg-[#F0F4F9] px-3.5 py-2.5 rounded-xl border border-[#E2EAF4]">
-                <i class="far fa-user text-blue-600 text-xs w-4 text-center"></i>
-                <span>Masukkan <b>Username</b> atau <b>NISN</b> / <b>NIP</b></span>
+        <!-- Quick 1-Click Demo Login Selector -->
+        <div class="mt-4 p-3.5 bg-slate-50/90 border border-slate-200/80 rounded-2xl">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+                    <i class="fas fa-bolt text-amber-500"></i> Uji Coba Cepat (1-Klik):
+                </span>
+                <span class="text-[9px] text-indigo-600 font-bold bg-indigo-50 px-1.5 py-0.5 rounded-md border border-indigo-100">Pilih Role</span>
             </div>
-            <div class="flex items-center gap-2.5 bg-[#F0F4F9] px-3.5 py-2.5 rounded-xl border border-[#E2EAF4]">
-                <i class="fas fa-key text-blue-600 text-xs w-4 text-center"></i>
-                <span>Masukkan <b>Password</b> akun Anda</span>
-            </div>
-            <div class="flex items-center gap-2.5 bg-[#F0F4F9] px-3.5 py-2.5 rounded-xl border border-[#E2EAF4]">
-                <i class="fas fa-map-marker-alt text-blue-600 text-xs w-4 text-center"></i>
-                <span>Izinkan akses lokasi GPS di perangkat</span>
-            </div>
-            <div class="flex items-center gap-2.5 bg-[#F0F4F9] px-3.5 py-2.5 rounded-xl border border-[#E2EAF4]">
-                <i class="fas fa-camera text-blue-600 text-xs w-4 text-center"></i>
-                <span>Izinkan akses <b>kamera</b> untuk presensi QR</span>
+            <div class="grid grid-cols-5 gap-1.5">
+                <button type="button" onclick="quickDemoLogin('developer', 'dev123', 'Developer')" class="px-1.5 py-2 bg-white hover:bg-amber-500 hover:text-white border border-amber-200 text-slate-700 rounded-xl text-[10px] font-bold transition flex flex-col items-center gap-0.5 shadow-2xs group cursor-pointer" title="Login Developer (dev123)">
+                    <span class="text-amber-500 group-hover:text-white text-sm">👑</span>
+                    <span class="truncate">Dev</span>
+                </button>
+                <button type="button" onclick="quickDemoLogin('admin', 'admin123', 'Admin')" class="px-1.5 py-2 bg-white hover:bg-indigo-600 hover:text-white border border-indigo-200 text-slate-700 rounded-xl text-[10px] font-bold transition flex flex-col items-center gap-0.5 shadow-2xs group cursor-pointer" title="Login Admin (admin123)">
+                    <span class="text-indigo-600 group-hover:text-white text-sm">🛡️</span>
+                    <span class="truncate">Admin</span>
+                </button>
+                <button type="button" onclick="quickDemoLogin('guru1', '12345', 'Guru')" class="px-1.5 py-2 bg-white hover:bg-emerald-600 hover:text-white border border-emerald-200 text-slate-700 rounded-xl text-[10px] font-bold transition flex flex-col items-center gap-0.5 shadow-2xs group cursor-pointer" title="Login Guru (12345)">
+                    <span class="text-emerald-600 group-hover:text-white text-sm">👨‍🏫</span>
+                    <span class="truncate">Guru</span>
+                </button>
+                <button type="button" onclick="quickDemoLogin('tendik1', '12345', 'Tendik')" class="px-1.5 py-2 bg-white hover:bg-cyan-600 hover:text-white border border-cyan-200 text-slate-700 rounded-xl text-[10px] font-bold transition flex flex-col items-center gap-0.5 shadow-2xs group cursor-pointer" title="Login Tendik (12345)">
+                    <span class="text-cyan-600 group-hover:text-white text-sm">👔</span>
+                    <span class="truncate">Tendik</span>
+                </button>
+                <button type="button" onclick="quickDemoLogin('20240101', '12345', 'Siswa')" class="px-1.5 py-2 bg-white hover:bg-blue-600 hover:text-white border border-blue-200 text-slate-700 rounded-xl text-[10px] font-bold transition flex flex-col items-center gap-0.5 shadow-2xs group cursor-pointer" title="Login Siswa (12345)">
+                    <span class="text-blue-600 group-hover:text-white text-sm">🎓</span>
+                    <span class="truncate">Siswa</span>
+                </button>
             </div>
         </div>
 
         <!-- Form Input -->
-        <form onsubmit="handleUnifiedLogin(event)" class="mt-5 space-y-3">
+        <form onsubmit="handleUnifiedLogin(event)" class="mt-4 space-y-3">
             <div>
                 <input type="text" id="loginUsername" required 
                        class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-2xl text-slate-800 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition shadow-sm" 
@@ -275,11 +299,18 @@
                   </div>
               </div>
               <div class="flex items-center space-x-2 sm:space-x-3">
+                  <!-- Demo Mode Pill Badge -->
+                  <div class="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 rounded-full text-[10px] font-black tracking-wide">
+                      <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                      <span class="hidden sm:inline uppercase">Demo Mode</span>
+                      <span class="sm:hidden">DEMO</span>
+                  </div>
+
                   <div class="text-right hidden md:block">
                       <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Hari ini</p>
                       <p class="text-xs font-bold text-slate-700" id="currentDateDisplay">Senin, 1 Jan 2026</p>
                   </div>
-                  <button onclick="showUserProfileAndSecurityModal()" class="flex items-center gap-2 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-xl text-xs font-bold text-slate-700 transition" title="Lihat Profil Saya">
+                  <button onclick="showUserProfileAndSecurityModal()" class="flex items-center gap-2 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-xl text-xs font-bold text-slate-700 transition cursor-pointer" title="Lihat Profil Saya">
                       <i class="fas fa-user-circle text-indigo-600 text-base"></i>
                       <span class="hidden sm:inline">Profil</span>
                   </button>
@@ -287,6 +318,24 @@
           </header>
 
           <div id="mainContentArea" class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 scroll-smooth">
+              
+              <!-- Demo Top Notice Bar -->
+              <div id="demoTopBanner" class="mb-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                  <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-inner">
+                          <i class="fas fa-sparkles"></i>
+                      </div>
+                      <div>
+                          <h4 class="text-xs font-black text-amber-950">Akun Demo Aktif &bull; Sistem Absensi Digital SMANSA</h4>
+                          <p class="text-[11px] text-amber-700 mt-0.5">Seluruh fitur presensi QR & GPS dapat diuji coba. Data inti dan password akun utama dilindungi.</p>
+                      </div>
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0">
+                      <button type="button" onclick="logout()" class="px-3 py-1.5 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer">
+                          <i class="fas fa-sync-alt text-amber-600"></i> Ganti Akun Demo
+                      </button>
+                  </div>
+              </div>
               
               <!-- 1. ADMIN DASHBOARD -->
               <div id="view-admin-dashboard" class="view-section animate-fade-in">
@@ -2016,15 +2065,18 @@
                            <h2 class="text-2xl font-black text-slate-800 tracking-tight mt-1">Manajemen User Sistem</h2>
                            <p class="text-xs text-slate-500 mt-0.5">Pusat kontrol hak akses dan otentikasi seluruh pengguna lintas-role.</p>
                       </div>
-                      <div class="flex items-center gap-2.5 flex-wrap">
-                          <button onclick="fetchSystemUsers()" class="flex items-center space-x-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-xs hover:bg-slate-50 transition">
-                              <i class="fas fa-sync-alt"></i> <span>Refresh Data</span>
+                      <div class="flex items-center gap-2 flex-wrap">
+                          <button onclick="confirmResetDemoDatabase()" class="flex items-center space-x-1.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-2 rounded-xl shadow-xs transition cursor-pointer" title="Kembalikan seluruh database demo ke setelan pabrik">
+                              <i class="fas fa-undo-alt text-rose-500"></i> <span>Reset DB Demo</span>
                           </button>
-                          <button onclick="exportUserAuditExcel()" class="flex items-center space-x-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl shadow-xs hover:bg-emerald-100 transition">
+                          <button onclick="fetchSystemUsers()" class="flex items-center space-x-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-xs hover:bg-slate-50 transition cursor-pointer">
+                              <i class="fas fa-sync-alt"></i> <span>Refresh</span>
+                          </button>
+                          <button onclick="exportUserAuditExcel()" class="flex items-center space-x-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl shadow-xs hover:bg-emerald-100 transition cursor-pointer">
                               <i class="fas fa-file-excel"></i> <span>Export Excel</span>
                           </button>
-                          <button onclick="showAddSystemUserModal()" class="flex items-center space-x-1.5 text-xs font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 px-4 py-2 rounded-xl shadow-md transition transform active:scale-95">
-                              <i class="fas fa-user-plus"></i> <span>Tambah User Baru</span>
+                          <button onclick="showAddSystemUserModal()" class="flex items-center space-x-1.5 text-xs font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 px-4 py-2 rounded-xl shadow-md transition transform active:scale-95 cursor-pointer">
+                              <i class="fas fa-user-plus"></i> <span>Tambah User</span>
                           </button>
                       </div>
                   </div>
@@ -2470,7 +2522,40 @@
           noHp: '081234567899'
         }
       ],
-      siswa: [],
+      siswa: [
+        {
+          nisn: '20240101',
+          password: '12345',
+          nama: 'Ahmad Fadhil',
+          kelas: 'XII MIPA 1',
+          jenisKelamin: 'Laki-laki',
+          noHp: '081234567811'
+        },
+        {
+          nisn: '20240102',
+          password: '12345',
+          nama: 'Siti Raisa',
+          kelas: 'XII MIPA 1',
+          jenisKelamin: 'Perempuan',
+          noHp: '081234567812'
+        },
+        {
+          nisn: '20240201',
+          password: '12345',
+          nama: 'Rizky Pratama',
+          kelas: 'XI IPS 1',
+          jenisKelamin: 'Laki-laki',
+          noHp: '081234567813'
+        },
+        {
+          nisn: '20240202',
+          password: '12345',
+          nama: 'Nabila Azzahra',
+          kelas: 'XI IPS 1',
+          jenisKelamin: 'Perempuan',
+          noHp: '081234567814'
+        }
+      ],
       guru: [
         {
           username: 'admin',
@@ -2481,13 +2566,43 @@
           jabatan: 'Administrator Sistem',
           kelas: '',
           noHp: '081234567890'
+        },
+        {
+          username: 'guru1',
+          password: '12345',
+          nama: 'Drs. Syamsuddin, M.Pd',
+          role: 'guru',
+          nip: '197503122002121003',
+          jabatan: 'Wali Kelas XII MIPA 1',
+          kelas: 'XII MIPA 1',
+          noHp: '081234567801'
+        },
+        {
+          username: 'guru2',
+          password: '12345',
+          nama: 'Cut Nurhaliza, S.Pd',
+          role: 'guru',
+          nip: '198807242014032002',
+          jabatan: 'Wali Kelas XI IPS 1',
+          kelas: 'XI IPS 1',
+          noHp: '081234567802'
         }
       ],
-      tendik: [],
+      tendik: [
+        {
+          username: 'tendik1',
+          password: '12345',
+          nama: 'Zulfikar, S.Sos',
+          role: 'tendik',
+          nip: '199205102020121008',
+          jabatan: 'Staf Tata Usaha',
+          noHp: '081234567803'
+        }
+      ],
       config: {
         nama_sekolah: 'SMA Negeri 1 Lhoksukon',
         singkatan_sekolah: 'SMANSA LHOKSUKON',
-        titel_webapp: 'Presensi - Sistem Absensi SMA Negeri 1 Lhoksukon',
+        titel_webapp: 'Presensi SMANSA - Sistem Absensi Digital (Demo)',
         deskripsi_webapp: 'Sistem Presensi Digital dengan QR Code dan GPS SMA Negeri 1 Lhoksukon.',
         alamat_sekolah: 'Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara',
         logo_url: '',
@@ -2519,6 +2634,12 @@
       if (!localStorage.getItem(DB_KEYS.LOGIN_LOGS)) localStorage.setItem(DB_KEYS.LOGIN_LOGS, JSON.stringify(SEED_DATA.login_logs));
     }
     initLocalStorage();
+
+    // ============================================================================
+    // DEMO MODE CONFIGURATION & SECURITY SAFEGUARDS
+    // ============================================================================
+    const IS_DEMO_MODE = true;
+    const DEMO_PROTECTED_USERS = ['developer', 'admin', 'guru1', 'guru2', 'tendik1', '20240101', '20240102', '20240201', '20240202'];
 
     function withTimeout(promise, ms = 2500) {
       return new Promise((resolve, reject) => {
@@ -3250,15 +3371,21 @@
 
       deleteSiswa: async (token, nisn) => {
         AuthSecurity.authorize(['admin'], token);
+        const clean = String(nisn).replace(/^'/, '').trim();
+        if (IS_DEMO_MODE && DEMO_PROTECTED_USERS.includes(clean)) {
+          return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Akun siswa demo bawaan dilindungi dari penghapusan.' };
+        }
         let list = await getDB('siswa');
-        const clean = String(nisn).replace(/^'/, '');
-        list = list.filter(x => String(x.nisn) !== clean);
+        list = list.filter(x => String(x.nisn).replace(/^'/, '').trim() !== clean);
         await setDB('siswa', list);
         return { success: true, message: 'Siswa berhasil dihapus' };
       },
 
       deleteMultipleSiswa: async (token, nisnList) => {
         AuthSecurity.authorize(['admin'], token);
+        if (IS_DEMO_MODE) {
+          return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Penghapusan massal data siswa dinonaktifkan pada versi demo.' };
+        }
         if (!Array.isArray(nisnList) || nisnList.length === 0) {
           return { success: false, message: 'Tidak ada siswa yang dipilih' };
         }
@@ -3334,15 +3461,21 @@
 
       deleteGuru: async (token, username) => {
         AuthSecurity.authorize(['admin'], token);
+        const clean = String(username).replace(/^'/, '').trim().toLowerCase();
+        if (IS_DEMO_MODE && (DEMO_PROTECTED_USERS.includes(clean) || clean === 'admin')) {
+          return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Akun guru/admin demo bawaan dilindungi dari penghapusan.' };
+        }
         let list = await getDB('guru');
-        const clean = String(username).replace(/^'/, '');
-        list = list.filter(x => x.username.toLowerCase() !== clean.toLowerCase());
+        list = list.filter(x => x.username.toLowerCase() !== clean);
         await setDB('guru', list);
         return { success: true, message: 'Guru berhasil dihapus' };
       },
 
       deleteMultipleGuru: async (token, usernameList) => {
         AuthSecurity.authorize(['admin'], token);
+        if (IS_DEMO_MODE) {
+          return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Penghapusan massal akun guru dinonaktifkan pada versi demo.' };
+        }
         if (!Array.isArray(usernameList) || usernameList.length === 0) {
           return { success: false, message: 'Tidak ada guru yang dipilih' };
         }
@@ -3420,15 +3553,21 @@
 
       deleteTendik: async (token, username) => {
         AuthSecurity.authorize(['admin'], token);
+        const clean = String(username).replace(/^'/, '').trim().toLowerCase();
+        if (IS_DEMO_MODE && DEMO_PROTECTED_USERS.includes(clean)) {
+          return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Akun tendik demo bawaan dilindungi dari penghapusan.' };
+        }
         let list = await getDB('tendik');
-        const clean = String(username).replace(/^'/, '');
-        list = list.filter(x => x.username.toLowerCase() !== clean.toLowerCase());
+        list = list.filter(x => x.username.toLowerCase() !== clean);
         await setDB('tendik', list);
         return { success: true, message: 'Data Tendik berhasil dihapus' };
       },
 
       deleteMultipleTendik: async (token, usernameList) => {
         AuthSecurity.authorize(['admin'], token);
+        if (IS_DEMO_MODE) {
+          return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Penghapusan massal data tendik dinonaktifkan pada versi demo.' };
+        }
         if (!Array.isArray(usernameList) || usernameList.length === 0) {
           return { success: false, message: 'Tidak ada tendik yang dipilih' };
         }
@@ -3466,6 +3605,14 @@
         const cleanNama = String(newNama || '').trim();
         const oldP = String(oldPassword || '').trim();
         const newP = String(newPassword || '').trim();
+
+        // Mode Demo Guard: Proteksi password akun Developer & Admin utama agar akun demo tidak terkunci bagi penguji lain
+        if (IS_DEMO_MODE && newP && ['developer', 'admin'].includes(oldU)) {
+          return {
+            success: false,
+            message: '⛔ Aksi Dibatasi di Mode Demo: Penggantian password akun utama (Developer & Admin) dikunci agar akun demo tetap dapat diakses penguji lain.'
+          };
+        }
 
         // Otorisasi IDOR: Pengguna non-admin hanya dapat merubah akun miliknya sendiri
         if (caller.role !== 'admin') {
@@ -4282,6 +4429,11 @@
         const pass = String(newPassword || '').trim();
         if (!pass) return { success: false, message: 'Password baru tidak boleh kosong.' };
 
+        // Mode Demo Guard
+        if (IS_DEMO_MODE && ['developer', 'admin'].includes(cleanId)) {
+          return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Reset password akun Developer/Admin utama dikunci pada versi demo.' };
+        }
+
         const hashedPassword = await AuthSecurity.hashPassword(pass);
 
         if (role === 'developer') {
@@ -4332,6 +4484,9 @@
         if (cleanId === 'admin') {
           return { success: false, message: 'Proteksi Sistem: Akun Admin Utama tidak boleh dihapus!' };
         }
+        if (IS_DEMO_MODE && DEMO_PROTECTED_USERS.includes(cleanId)) {
+          return { success: false, message: `⛔ Aksi Dibatasi di Mode Demo: Akun demo bawaan "${cleanId}" dilindungi dan tidak dapat dihapus.` };
+        }
 
         if (role === 'developer') {
           let list = await getDB('developers');
@@ -4355,6 +4510,23 @@
           return { success: true, message: `Data siswa NISN "${cleanId}" berhasil dihapus.` };
         }
         return { success: false, message: 'User tidak ditemukan.' };
+      },
+
+      resetDemoDatabase: async (token) => {
+        AuthSecurity.authorize(['developer'], token);
+        const keys = Object.keys(SEED_DATA);
+        for (const k of keys) {
+          const freshData = JSON.parse(JSON.stringify(SEED_DATA[k]));
+          if (k === 'developers' || k === 'guru' || k === 'tendik' || k === 'siswa') {
+            for (let item of freshData) {
+              if (item.password && !item.password.startsWith('sha256$')) {
+                item.password = await AuthSecurity.hashPassword(item.password);
+              }
+            }
+          }
+          await setDB(k, freshData);
+        }
+        return { success: true, message: 'Seluruh database demo berhasil di-reset kembali ke setelan awal pabrik!' };
       }
     };
 
@@ -11445,6 +11617,104 @@
                 showAlert('error', 'Gagal menyimpan pengaturan: ' + err);
             }
         );
+    }
+
+    // ============================================================================
+    // DEMO MODE CLIENT CONTROLLER & QUICK ACTIONS
+    // ============================================================================
+    function quickDemoLogin(username, password, roleLabel) {
+        const uInput = document.getElementById('loginUsername');
+        const pInput = document.getElementById('loginPassword');
+        if (!uInput || !pInput) return;
+
+        uInput.value = username;
+        pInput.value = password;
+
+        // Visual flash effect on inputs
+        uInput.classList.add('ring-2', 'ring-indigo-500');
+        pInput.classList.add('ring-2', 'ring-indigo-500');
+        setTimeout(() => {
+            uInput.classList.remove('ring-2', 'ring-indigo-500');
+            pInput.classList.remove('ring-2', 'ring-indigo-500');
+        }, 500);
+
+        // Toast feedback
+        if (typeof Swal !== 'undefined') {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true
+            });
+            Toast.fire({
+                icon: 'info',
+                title: `Menguji Akun Demo (${roleLabel || username})...`
+            });
+        }
+
+        // Automatic submit
+        setTimeout(() => {
+            const form = uInput.closest('form');
+            if (form) {
+                form.requestSubmit();
+            } else {
+                handleUnifiedLogin({ preventDefault: () => {} });
+            }
+        }, 300);
+    }
+
+    function confirmResetDemoDatabase() {
+        if (!currentUser || currentUser.role !== 'developer') {
+            showAlert('error', 'Akses Ditolak: Hanya Akun Developer yang berwenang mereset database demo.');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Reset Seluruh Database Demo?',
+            html: `
+                <div class="text-left text-xs text-slate-600 space-y-2 mt-2">
+                    <p>Tindakan ini akan mengembalikan seluruh data ke <b>setelan awal pabrik (clean seed)</b>:</p>
+                    <ul class="list-disc pl-4 space-y-1 text-slate-500">
+                        <li>Semua user demo (Developer, Admin, Guru, Tendik, Siswa) akan direstorasi.</li>
+                        <li>Log absensi & login logs percobaan akan dibersihkan.</li>
+                        <li>Pengaturan nama sekolah & jam absensi dikembalikan ke default.</li>
+                    </ul>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#E11D48',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: '<i class="fas fa-undo-alt mr-1"></i> Ya, Reset Database Sekarang',
+            cancelButtonText: 'Batal'
+        }).then(result => {
+            if (result.isConfirmed) {
+                showLoading();
+                runAPI('resetDemoDatabase', [currentUser.token],
+                    res => {
+                        hideLoading();
+                        if (res.success) {
+                            Swal.fire({
+                                title: 'Database Berhasil Di-Reset!',
+                                text: res.message,
+                                icon: 'success',
+                                confirmButtonColor: '#4F46E5'
+                            }).then(() => {
+                                if (typeof fetchSystemUsers === 'function') fetchSystemUsers();
+                                if (typeof loadAdminDashboard === 'function') loadAdminDashboard();
+                            });
+                        } else {
+                            showAlert('error', res.message);
+                        }
+                    },
+                    err => {
+                        hideLoading();
+                        showAlert('error', 'Gagal mereset database: ' + err);
+                    }
+                );
+            }
+        });
     }
 
     checkSession();
