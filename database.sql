@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 -- Data awal users (Developer & Administrator)
 INSERT INTO `users` (`username`, `password`, `role`, `kelas`, `nip`, `nama_lengkap`, `jabatan`, `no_handphone`) VALUES
-('developer', 'dev12345',  'developer', NULL,        'DEV-001',            'System Developer (KangYos)', 'Lead System Developer', '081234567899'),
+('developer', 'dev123',    'developer', NULL,        'DEV-001',            'System Developer (KangYos)', 'Lead System Developer', '081234567899'),
 ('admin',     'admin123',  'admin',     NULL,        '198001012005011001', 'Administrator',            'Kepala Tata Usaha',      '081234567800');
 
 -- ============================================================================

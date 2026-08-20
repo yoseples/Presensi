@@ -31,7 +31,7 @@ Aplikasi web presensi siswa dan manajemen kehadiran sekolah modern, responsif, d
 
 | Role | Username / NISN | Password | Nama Lengkap / Jabatan | Catatan |
 | :--- | :--- | :--- | :--- | :--- |
-| **Developer** | `developer` | `dev12345` | System Developer (KangYos) | Eksklusif: Modul Manajemen User & Master Controller |
+| **Developer** | `developer` | `dev123` | System Developer (KangYos) | Eksklusif: Modul Manajemen User & Master Controller |
 | **Admin** | `admin` | `admin123` | Administrator (Kepala TU) | Kelola Siswa, Guru, Tendik, Jadwal Absen & Laporan |
 | **Guru** | `(Username Guru)` | `12345` | Bapak/Ibu Guru | Default password diseragamkan ke `12345` |
 | **Tendik** | `(Username Tendik)` | `12345` | Tenaga Kependidikan | Default password diseragamkan ke `12345` |
