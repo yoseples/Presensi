@@ -2001,6 +2001,122 @@
                   <div id="kartuSiswaContainer"></div>
               </div>
 
+              <!-- 11. MANAJEMEN USER (EKSKLUSIF DEVELOPER) -->
+              <div id="view-user-management" class="view-section animate-fade-in">
+                  <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+                      <div>
+                           <div class="flex items-center gap-2">
+                               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                                   <i class="fas fa-crown text-amber-500 mr-1"></i> Developer Only
+                               </span>
+                               <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-slate-500 bg-slate-100 border border-slate-200">
+                                   Full Master Control
+                               </span>
+                           </div>
+                           <h2 class="text-2xl font-black text-slate-800 tracking-tight mt-1">Manajemen User Sistem</h2>
+                           <p class="text-xs text-slate-500 mt-0.5">Pusat kontrol hak akses dan otentikasi seluruh pengguna lintas-role.</p>
+                      </div>
+                      <div class="flex items-center gap-2.5 flex-wrap">
+                          <button onclick="fetchSystemUsers()" class="flex items-center space-x-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-xs hover:bg-slate-50 transition">
+                              <i class="fas fa-sync-alt"></i> <span>Refresh Data</span>
+                          </button>
+                          <button onclick="exportUserAuditExcel()" class="flex items-center space-x-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl shadow-xs hover:bg-emerald-100 transition">
+                              <i class="fas fa-file-excel"></i> <span>Export Excel</span>
+                          </button>
+                          <button onclick="showAddSystemUserModal()" class="flex items-center space-x-1.5 text-xs font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 px-4 py-2 rounded-xl shadow-md transition transform active:scale-95">
+                              <i class="fas fa-user-plus"></i> <span>Tambah User Baru</span>
+                          </button>
+                      </div>
+                  </div>
+
+                  <!-- Statistik Master User -->
+                  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+                      <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs">
+                          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total User</p>
+                          <h3 id="statDevTotalUsers" class="text-xl font-extrabold text-slate-800 mt-1">0</h3>
+                          <p class="text-[9px] text-slate-400 mt-0.5">Semua entitas</p>
+                      </div>
+                      <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-100 shadow-xs">
+                          <p class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Developer</p>
+                          <h3 id="statDevTotalDev" class="text-xl font-extrabold text-amber-900 mt-1">0</h3>
+                          <p class="text-[9px] text-amber-600 mt-0.5">Super Super Admin</p>
+                      </div>
+                      <div class="bg-indigo-50/70 p-4 rounded-2xl border border-indigo-100 shadow-xs">
+                          <p class="text-[10px] font-bold text-indigo-700 uppercase tracking-wider">Admin</p>
+                          <h3 id="statDevTotalAdmin" class="text-xl font-extrabold text-indigo-900 mt-1">0</h3>
+                          <p class="text-[9px] text-indigo-600 mt-0.5">Administrator</p>
+                      </div>
+                      <div class="bg-purple-50/70 p-4 rounded-2xl border border-purple-100 shadow-xs">
+                          <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">Guru</p>
+                          <h3 id="statDevTotalGuru" class="text-xl font-extrabold text-purple-900 mt-1">0</h3>
+                          <p class="text-[9px] text-purple-600 mt-0.5">Guru & Wali</p>
+                      </div>
+                      <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-100 shadow-xs">
+                          <p class="text-[10px] font-bold text-amber-800 uppercase tracking-wider">Tendik</p>
+                          <h3 id="statDevTotalTendik" class="text-xl font-extrabold text-amber-900 mt-1">0</h3>
+                          <p class="text-[9px] text-amber-700 mt-0.5">Staf Sekolah</p>
+                      </div>
+                      <div class="bg-blue-50/70 p-4 rounded-2xl border border-blue-100 shadow-xs">
+                          <p class="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Siswa</p>
+                          <h3 id="statDevTotalSiswa" class="text-xl font-extrabold text-blue-900 mt-1">0</h3>
+                          <p class="text-[9px] text-blue-600 mt-0.5">Pelajar</p>
+                      </div>
+                  </div>
+
+                  <!-- Card Tabel Manajemen User -->
+                  <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                      <!-- Toolbar Filter & Search -->
+                      <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-center gap-3 bg-slate-50/50">
+                          <!-- Filter Tab Role -->
+                          <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-hide text-xs" id="devUserRoleFilterTabs">
+                              <button onclick="setDevUserFilter('all')" data-role="all" class="dev-filter-tab px-3.5 py-1.5 rounded-xl font-bold bg-amber-600 text-white shadow-xs transition">Semua (<span id="countFilterAll">0</span>)</button>
+                              <button onclick="setDevUserFilter('developer')" data-role="developer" class="dev-filter-tab px-3.5 py-1.5 rounded-xl font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Dev (<span id="countFilterDev">0</span>)</button>
+                              <button onclick="setDevUserFilter('admin')" data-role="admin" class="dev-filter-tab px-3.5 py-1.5 rounded-xl font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Admin (<span id="countFilterAdmin">0</span>)</button>
+                              <button onclick="setDevUserFilter('guru')" data-role="guru" class="dev-filter-tab px-3.5 py-1.5 rounded-xl font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Guru (<span id="countFilterGuru">0</span>)</button>
+                              <button onclick="setDevUserFilter('tendik')" data-role="tendik" class="dev-filter-tab px-3.5 py-1.5 rounded-xl font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Tendik (<span id="countFilterTendik">0</span>)</button>
+                              <button onclick="setDevUserFilter('siswa')" data-role="siswa" class="dev-filter-tab px-3.5 py-1.5 rounded-xl font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Siswa (<span id="countFilterSiswa">0</span>)</button>
+                          </div>
+
+                          <!-- Search Box -->
+                          <div class="w-full md:w-72 relative">
+                              <input type="text" id="devUserSearchInput" oninput="handleDevUserSearch()" placeholder="Cari nama, username, NIP/NISN..." class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition shadow-xs">
+                              <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                          </div>
+                      </div>
+
+                      <!-- Tabel Responsif -->
+                      <div class="overflow-x-auto">
+                          <table class="w-full text-left border-collapse text-xs">
+                              <thead>
+                                  <tr class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px] border-b border-slate-100">
+                                      <th class="py-3.5 px-4 w-12 text-center">No</th>
+                                      <th class="py-3.5 px-4">Role</th>
+                                      <th class="py-3.5 px-4">Identitas & Nama</th>
+                                      <th class="py-3.5 px-4">Username Login</th>
+                                      <th class="py-3.5 px-4">Jabatan / Kelas</th>
+                                      <th class="py-3.5 px-4">Status Password</th>
+                                      <th class="py-3.5 px-4 text-center">Aksi Cepat</th>
+                                  </tr>
+                              </thead>
+                              <tbody id="devUserTableBody" class="divide-y divide-slate-100">
+                                  <tr>
+                                      <td colspan="7" class="text-center py-10 text-slate-400">
+                                          <div class="w-8 h-8 border-3 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-2"></div>
+                                          <p class="text-xs">Memuat data user sistem...</p>
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                      </div>
+
+                      <!-- Pagination Bar -->
+                      <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-50/50 text-xs text-slate-500">
+                          <div id="devUserPaginationInfo">Menampilkan 0 dari 0 data</div>
+                          <div class="flex items-center gap-1" id="devUserPaginationBtns"></div>
+                      </div>
+                  </div>
+              </div>
+
           </div>
       </main>
   </div>
@@ -2046,6 +2162,7 @@
     const DEFAULT_GAS_API_URL = '';
 
     const DB_KEYS = {
+      DEVELOPERS: 'absensi_db_developers',
       SISWA: 'absensi_db_siswa',
       GURU: 'absensi_db_guru',
       TENDIK: 'absensi_db_tendik',
@@ -2057,6 +2174,17 @@
     };
 
     const SEED_DATA = {
+      developers: [
+        {
+          username: 'developer',
+          password: 'dev12345',
+          nama: 'System Developer (KangYos)',
+          role: 'developer',
+          nip: 'DEV-001',
+          jabatan: 'Lead Developer & Security Architect',
+          noHp: '081234567899'
+        }
+      ],
       siswa: [],
       guru: [
         {
@@ -2089,6 +2217,7 @@
     };
 
     function initLocalStorage() {
+      if (!localStorage.getItem(DB_KEYS.DEVELOPERS)) localStorage.setItem(DB_KEYS.DEVELOPERS, JSON.stringify(SEED_DATA.developers));
       if (!localStorage.getItem(DB_KEYS.SISWA)) localStorage.setItem(DB_KEYS.SISWA, JSON.stringify(SEED_DATA.siswa));
       if (!localStorage.getItem(DB_KEYS.GURU)) localStorage.setItem(DB_KEYS.GURU, JSON.stringify(SEED_DATA.guru));
       if (!localStorage.getItem(DB_KEYS.TENDIK)) localStorage.setItem(DB_KEYS.TENDIK, JSON.stringify(SEED_DATA.tendik));
@@ -2393,13 +2522,13 @@
         if (sessionStr) {
           try { session = JSON.parse(sessionStr); } catch(e) {}
         }
-        const activeUser = currentUser || session;
+        const activeUser = (typeof currentUser !== 'undefined' ? currentUser : null) || session;
         if (!activeUser || !activeUser.token) {
           throw new Error('401 Unauthorized: Sesi tidak ditemukan. Silakan login kembali.');
         }
 
         // Token consistency check
-        if (callerToken && callerToken !== activeUser.token && activeUser.role !== 'admin') {
+        if (callerToken && callerToken !== activeUser.token && !['admin', 'developer'].includes(activeUser.role)) {
           throw new Error('403 Forbidden: Token tidak valid.');
         }
 
@@ -2408,9 +2537,15 @@
           throw new Error('401 Unauthorized: Sesi telah kedaluwarsa. Silakan login kembali.');
         }
 
-        // Role check
-        if (allowedRoles.length > 0 && !allowedRoles.includes(activeUser.role)) {
-          throw new Error(`403 Forbidden: Akses ditolak. Role "${activeUser.role}" tidak memiliki wewenang untuk tindakan ini.`);
+        // Role check: Developer has master permission to all general/admin/staff/siswa endpoints, but non-developers can NEVER access developer routes
+        if (allowedRoles.length > 0) {
+          if (allowedRoles.includes('developer')) {
+            if (activeUser.role !== 'developer') {
+              throw new Error(`403 Forbidden: Akses ditolak. Modul Manajemen User eksklusif untuk role "developer".`);
+            }
+          } else if (activeUser.role !== 'developer' && !allowedRoles.includes(activeUser.role)) {
+            throw new Error(`403 Forbidden: Akses ditolak. Role "${activeUser.role}" tidak memiliki wewenang untuk tindakan ini.`);
+          }
         }
 
         return activeUser;
@@ -2454,38 +2589,84 @@
         const device = deviceInfo || (typeof getDeviceInformation === 'function' ? getDeviceInformation() : { os: 'Perangkat', browser: 'Browser', type: 'Desktop', icon: 'fa-laptop' });
         let userResult = null;
 
-        // 2. Cek Akun Siswa (berdasarkan NISN)
-        const siswaList = await getDB('siswa');
-        const sIdx = siswaList.findIndex(x => String(x.nisn || '').replace(/^'+/, '').trim() === inputUser);
-        if (sIdx !== -1) {
-          const siswa = siswaList[sIdx];
-          const storedPass = String(siswa.password || '12345').replace(/^'+/, '').trim();
-          let verify = await AuthSecurity.verifyPassword(inputPass, storedPass);
-          if (!verify.valid && !siswa.password && String(siswa.nisn || '').replace(/^'+/, '').trim() === inputPass) {
-            verify = { valid: true, needsRehash: true };
-          }
-          if (verify.valid) {
-            // Auto-migrasi ke SHA-256 Hash
-            if (verify.needsRehash) {
-              siswa.password = await AuthSecurity.hashPassword(inputPass);
-              siswaList[sIdx] = siswa;
-              await setDB('siswa', siswaList);
+        // 2. Cek Akun Developer (berdasarkan Username atau NIP)
+        const devList = await getDB('developers');
+        if (Array.isArray(devList) && devList.length > 0) {
+          const dIdx = devList.findIndex(x => String(x.username || '').toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
+          if (dIdx !== -1) {
+            const dev = devList[dIdx];
+            const storedPass = String(dev.password || 'dev12345').trim();
+            const verify = await AuthSecurity.verifyPassword(inputPass, storedPass);
+            if (verify.valid) {
+              if (verify.needsRehash) {
+                dev.password = await AuthSecurity.hashPassword(inputPass);
+                devList[dIdx] = dev;
+                await setDB('developers', devList);
+              }
+              userResult = {
+                success: true,
+                role: 'developer',
+                username: dev.username,
+                nama: dev.nama || 'System Developer',
+                nip: dev.nip || 'DEV-001',
+                jabatan: dev.jabatan || 'Lead Developer & Security Architect',
+                noHp: dev.noHp || '-',
+                kelas: 'Developer',
+                foto: dev.foto || ''
+              };
             }
-            userResult = {
-              success: true,
-              role: 'siswa',
-              nama: siswa.nama,
-              nisn: String(siswa.nisn || '').replace(/^'+/, '').trim(),
-              kelas: siswa.kelas,
-              foto: siswa.foto || '',
-              jenisKelamin: siswa.jenisKelamin || '',
-              tanggalLahir: siswa.tanggalLahir || '',
-              alamat: siswa.alamat || ''
-            };
           }
         }
 
-        // 3. Cek Akun Guru / Admin (berdasarkan Username atau NIP)
+        // Fallback default developer jika database belum berisi developer
+        if (!userResult && inputUser.toLowerCase() === 'developer' && (inputPass === 'dev12345' || inputPass === 'developer123')) {
+          userResult = {
+            success: true,
+            role: 'developer',
+            username: 'developer',
+            nama: 'System Developer (KangYos)',
+            nip: 'DEV-001',
+            jabatan: 'Lead Developer & Security Architect',
+            noHp: '081234567899',
+            kelas: 'Developer',
+            foto: ''
+          };
+        }
+
+        // 3. Cek Akun Siswa (berdasarkan NISN)
+        if (!userResult) {
+          const siswaList = await getDB('siswa');
+          const sIdx = siswaList.findIndex(x => String(x.nisn || '').replace(/^'+/, '').trim() === inputUser);
+          if (sIdx !== -1) {
+            const siswa = siswaList[sIdx];
+            const storedPass = String(siswa.password || '12345').replace(/^'+/, '').trim();
+            let verify = await AuthSecurity.verifyPassword(inputPass, storedPass);
+            if (!verify.valid && !siswa.password && String(siswa.nisn || '').replace(/^'+/, '').trim() === inputPass) {
+              verify = { valid: true, needsRehash: true };
+            }
+            if (verify.valid) {
+              // Auto-migrasi ke SHA-256 Hash
+              if (verify.needsRehash) {
+                siswa.password = await AuthSecurity.hashPassword(inputPass);
+                siswaList[sIdx] = siswa;
+                await setDB('siswa', siswaList);
+              }
+              userResult = {
+                success: true,
+                role: 'siswa',
+                nama: siswa.nama,
+                nisn: String(siswa.nisn || '').replace(/^'+/, '').trim(),
+                kelas: siswa.kelas,
+                foto: siswa.foto || '',
+                jenisKelamin: siswa.jenisKelamin || '',
+                tanggalLahir: siswa.tanggalLahir || '',
+                alamat: siswa.alamat || ''
+              };
+            }
+          }
+        }
+
+        // 4. Cek Akun Guru / Admin (berdasarkan Username atau NIP)
         if (!userResult) {
           const guruList = await getDB('guru');
           const gIdx = guruList.findIndex(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
@@ -2515,7 +2696,7 @@
           }
         }
 
-        // 4. Cek Akun Tendik (berdasarkan Username atau NIP)
+        // 5. Cek Akun Tendik (berdasarkan Username atau NIP)
         if (!userResult) {
           const tendikList = await getDB('tendik');
           const tIdx = tendikList.findIndex(x => x.username.toLowerCase() === inputUser.toLowerCase() || String(x.nip || '').trim() === inputUser);
@@ -2545,7 +2726,7 @@
           }
         }
 
-        // 5. Default Superadmin Fallback jika database belum berisi admin
+        // 6. Default Superadmin Fallback jika database belum berisi admin
         if (!userResult && inputUser.toLowerCase() === 'admin' && inputPass === 'admin123') {
           userResult = {
             success: true,
@@ -2560,7 +2741,7 @@
           };
         }
 
-        // 6. Jika Otentikasi Gagal
+        // 7. Jika Otentikasi Gagal
         if (!userResult) {
           await AuthSecurity.recordFailedAttempt(inputUser);
           return { success: false, message: 'NISN, Username, atau Password tidak valid.' };
@@ -3574,6 +3755,292 @@
         XLSX.writeFile(wb, filename);
 
         return { success: true, url: '#' };
+      },
+
+      // ============================================================================
+      // DEVELOPER EXCLUSIVE: MANAJEMEN USER MASTER API
+      // ============================================================================
+      getAllSystemUsers: async (token) => {
+        AuthSecurity.authorize(['developer'], token);
+        const [devs, gurus, tendiks, siswas] = await Promise.all([
+          getDB('developers'),
+          getDB('guru'),
+          getDB('tendik'),
+          getDB('siswa')
+        ]);
+
+        const allUsers = [];
+        
+        // 1. Developers
+        (Array.isArray(devs) ? devs : []).forEach(d => {
+          allUsers.push({
+            id: d.username,
+            username: d.username,
+            nama: d.nama || d.username,
+            role: 'developer',
+            nip: d.nip || 'DEV-001',
+            jabatan: d.jabatan || 'Lead Developer & Security Architect',
+            kelas: '-',
+            noHp: d.noHp || '-',
+            isEncrypted: String(d.password || '').startsWith('sha256$'),
+            rawRole: 'developer'
+          });
+        });
+
+        // 2. Guru & Admin
+        (Array.isArray(gurus) ? gurus : []).forEach(g => {
+          const isAdm = String(g.role || '').toLowerCase() === 'admin' || g.username === 'admin';
+          allUsers.push({
+            id: g.username,
+            username: g.username,
+            nama: g.nama || g.username,
+            role: isAdm ? 'admin' : 'guru',
+            nip: g.nip || '-',
+            jabatan: g.jabatan || (isAdm ? 'Administrator Sistem' : (g.kelas ? 'Wali Kelas ' + g.kelas : 'Guru Mata Pelajaran')),
+            kelas: g.kelas || '-',
+            noHp: g.noHp || '-',
+            isEncrypted: String(g.password || '').startsWith('sha256$'),
+            rawRole: isAdm ? 'admin' : 'guru'
+          });
+        });
+
+        // 3. Tendik
+        (Array.isArray(tendiks) ? tendiks : []).forEach(t => {
+          allUsers.push({
+            id: t.username,
+            username: t.username,
+            nama: t.nama || t.username,
+            role: 'tendik',
+            nip: t.nip || '-',
+            jabatan: t.jabatan || 'Staf Kependidikan',
+            kelas: '-',
+            noHp: t.noHp || '-',
+            isEncrypted: String(t.password || '').startsWith('sha256$'),
+            rawRole: 'tendik'
+          });
+        });
+
+        // 4. Siswa
+        (Array.isArray(siswas) ? siswas : []).forEach(s => {
+          const sNisn = String(s.nisn || '').replace(/^'+/, '').trim();
+          allUsers.push({
+            id: sNisn,
+            username: sNisn,
+            nama: s.nama || sNisn,
+            role: 'siswa',
+            nip: sNisn,
+            jabatan: 'Pelajar ' + (s.kelas ? 'Kelas ' + s.kelas : ''),
+            kelas: s.kelas || '-',
+            noHp: s.noHp || '-',
+            isEncrypted: String(s.password || '').startsWith('sha256$'),
+            rawRole: 'siswa'
+          });
+        });
+
+        return { success: true, data: allUsers };
+      },
+
+      addSystemUser: async (token, userData) => {
+        AuthSecurity.authorize(['developer'], token);
+        const role = String(userData.role || 'guru').toLowerCase();
+        const username = String(userData.username || '').replace(/^'+/, '').trim();
+        const plainPassword = String(userData.password || (role === 'developer' ? 'dev12345' : (role === 'admin' ? 'admin123' : '12345'))).trim();
+        const nama = String(userData.nama || username).trim();
+        const nip = String(userData.nip || '-').replace(/^'+/, '').trim();
+        const jabatan = String(userData.jabatan || '').trim();
+        const kelas = String(userData.kelas || '').trim();
+        const noHp = String(userData.noHp || '-').replace(/^'+/, '').trim();
+
+        if (!username) return { success: false, message: 'Username / NISN wajib diisi.' };
+        const hashedPassword = await AuthSecurity.hashPassword(plainPassword);
+
+        if (role === 'developer') {
+          let list = await getDB('developers');
+          if (!Array.isArray(list)) list = [];
+          if (list.some(x => x.username.toLowerCase() === username.toLowerCase())) {
+            return { success: false, message: `Username developer "${username}" sudah digunakan!` };
+          }
+          list.push({ username, password: hashedPassword, nama, role: 'developer', nip, jabatan: jabatan || 'Developer', noHp });
+          await setDB('developers', list);
+          return { success: true, message: `Akun Developer "${username}" berhasil dibuat.` };
+        } 
+        else if (role === 'admin' || role === 'guru') {
+          let list = await getDB('guru');
+          if (!Array.isArray(list)) list = [];
+          if (list.some(x => x.username.toLowerCase() === username.toLowerCase())) {
+            return { success: false, message: `Username "${username}" sudah digunakan di data guru/admin!` };
+          }
+          list.push({ username, password: hashedPassword, nama, role: role, nip, jabatan, kelas, noHp });
+          await setDB('guru', list);
+          return { success: true, message: `Akun ${role === 'admin' ? 'Admin' : 'Guru'} "${username}" berhasil dibuat.` };
+        } 
+        else if (role === 'tendik') {
+          let list = await getDB('tendik');
+          if (!Array.isArray(list)) list = [];
+          if (list.some(x => x.username.toLowerCase() === username.toLowerCase())) {
+            return { success: false, message: `Username tendik "${username}" sudah digunakan!` };
+          }
+          list.push({ username, password: hashedPassword, nama, role: 'tendik', nip, jabatan: jabatan || 'Staf Kependidikan', noHp });
+          await setDB('tendik', list);
+          return { success: true, message: `Akun Tendik "${username}" berhasil dibuat.` };
+        } 
+        else if (role === 'siswa') {
+          let list = await getDB('siswa');
+          if (!Array.isArray(list)) list = [];
+          if (list.some(x => String(x.nisn || '').replace(/^'+/, '').trim() === username)) {
+            return { success: false, message: `NISN "${username}" sudah terdaftar di data siswa!` };
+          }
+          list.push({ nisn: username, password: hashedPassword, nama, kelas, noHp, jenisKelamin: userData.jenisKelamin || '', alamat: userData.alamat || '' });
+          await setDB('siswa', list);
+          return { success: true, message: `Akun Siswa "${nama}" (NISN: ${username}) berhasil dibuat.` };
+        }
+        return { success: false, message: 'Role tidak dikenali.' };
+      },
+
+      updateSystemUser: async (token, rawRole, targetId, userData) => {
+        AuthSecurity.authorize(['developer'], token);
+        const role = String(rawRole || '').toLowerCase();
+        const cleanId = String(targetId || '').replace(/^'+/, '').trim().toLowerCase();
+        const newNama = String(userData.nama || '').trim();
+        const newNip = String(userData.nip || '').trim();
+        const newJabatan = String(userData.jabatan || '').trim();
+        const newKelas = String(userData.kelas || '').trim();
+        const newNoHp = String(userData.noHp || '').trim();
+        const newUsername = String(userData.username || '').replace(/^'+/, '').trim();
+
+        if (role === 'developer') {
+          let list = await getDB('developers');
+          const idx = list.findIndex(x => String(x.username || '').toLowerCase() === cleanId);
+          if (idx !== -1) {
+            if (newNama) list[idx].nama = newNama;
+            if (newNip) list[idx].nip = newNip;
+            if (newJabatan) list[idx].jabatan = newJabatan;
+            if (newNoHp) list[idx].noHp = newNoHp;
+            if (newUsername) list[idx].username = newUsername;
+            await setDB('developers', list);
+            return { success: true, message: 'Data Developer berhasil diperbarui.' };
+          }
+        } else if (role === 'admin' || role === 'guru') {
+          let list = await getDB('guru');
+          const idx = list.findIndex(x => String(x.username || '').toLowerCase() === cleanId);
+          if (idx !== -1) {
+            if (newNama) list[idx].nama = newNama;
+            if (newNip) list[idx].nip = newNip;
+            if (newJabatan) list[idx].jabatan = newJabatan;
+            if (newKelas !== undefined) list[idx].kelas = newKelas;
+            if (newNoHp) list[idx].noHp = newNoHp;
+            if (userData.role) list[idx].role = userData.role;
+            if (newUsername) list[idx].username = newUsername;
+            await setDB('guru', list);
+            return { success: true, message: `Data ${role} berhasil diperbarui.` };
+          }
+        } else if (role === 'tendik') {
+          let list = await getDB('tendik');
+          const idx = list.findIndex(x => String(x.username || '').toLowerCase() === cleanId);
+          if (idx !== -1) {
+            if (newNama) list[idx].nama = newNama;
+            if (newNip) list[idx].nip = newNip;
+            if (newJabatan) list[idx].jabatan = newJabatan;
+            if (newNoHp) list[idx].noHp = newNoHp;
+            if (newUsername) list[idx].username = newUsername;
+            await setDB('tendik', list);
+            return { success: true, message: 'Data Tendik berhasil diperbarui.' };
+          }
+        } else if (role === 'siswa') {
+          let list = await getDB('siswa');
+          const idx = list.findIndex(x => String(x.nisn || '').replace(/^'+/, '').toLowerCase() === cleanId);
+          if (idx !== -1) {
+            if (newNama) list[idx].nama = newNama;
+            if (newKelas) list[idx].kelas = newKelas;
+            if (newNoHp) list[idx].noHp = newNoHp;
+            if (newUsername) list[idx].nisn = newUsername;
+            await setDB('siswa', list);
+            return { success: true, message: 'Data Siswa berhasil diperbarui.' };
+          }
+        }
+        return { success: false, message: 'User tidak ditemukan.' };
+      },
+
+      resetSystemUserPassword: async (token, rawRole, targetId, newPassword) => {
+        AuthSecurity.authorize(['developer'], token);
+        const role = String(rawRole || '').toLowerCase();
+        const cleanId = String(targetId || '').replace(/^'+/, '').trim().toLowerCase();
+        const pass = String(newPassword || '').trim();
+        if (!pass) return { success: false, message: 'Password baru tidak boleh kosong.' };
+
+        const hashedPassword = await AuthSecurity.hashPassword(pass);
+
+        if (role === 'developer') {
+          let list = await getDB('developers');
+          const idx = list.findIndex(x => String(x.username || '').toLowerCase() === cleanId);
+          if (idx !== -1) {
+            list[idx].password = hashedPassword;
+            await setDB('developers', list);
+            return { success: true, message: `Password developer "${cleanId}" berhasil di-reset.` };
+          }
+        } else if (role === 'admin' || role === 'guru') {
+          let list = await getDB('guru');
+          const idx = list.findIndex(x => String(x.username || '').toLowerCase() === cleanId);
+          if (idx !== -1) {
+            list[idx].password = hashedPassword;
+            await setDB('guru', list);
+            return { success: true, message: `Password akun "${cleanId}" berhasil di-reset.` };
+          }
+        } else if (role === 'tendik') {
+          let list = await getDB('tendik');
+          const idx = list.findIndex(x => String(x.username || '').toLowerCase() === cleanId);
+          if (idx !== -1) {
+            list[idx].password = hashedPassword;
+            await setDB('tendik', list);
+            return { success: true, message: `Password tendik "${cleanId}" berhasil di-reset.` };
+          }
+        } else if (role === 'siswa') {
+          let list = await getDB('siswa');
+          const idx = list.findIndex(x => String(x.nisn || '').replace(/^'+/, '').toLowerCase() === cleanId);
+          if (idx !== -1) {
+            list[idx].password = hashedPassword;
+            await setDB('siswa', list);
+            return { success: true, message: `Password siswa NISN "${cleanId}" berhasil di-reset.` };
+          }
+        }
+        return { success: false, message: 'User tidak ditemukan.' };
+      },
+
+      deleteSystemUser: async (token, rawRole, targetId) => {
+        AuthSecurity.authorize(['developer'], token);
+        const role = String(rawRole || '').toLowerCase();
+        const cleanId = String(targetId || '').replace(/^'+/, '').trim().toLowerCase();
+
+        // Proteksi akun Developer utama dan Admin utama
+        if (cleanId === 'developer') {
+          return { success: false, message: 'Proteksi Sistem: Akun Developer Utama tidak boleh dihapus!' };
+        }
+        if (cleanId === 'admin') {
+          return { success: false, message: 'Proteksi Sistem: Akun Admin Utama tidak boleh dihapus!' };
+        }
+
+        if (role === 'developer') {
+          let list = await getDB('developers');
+          list = list.filter(x => String(x.username || '').toLowerCase() !== cleanId);
+          await setDB('developers', list);
+          return { success: true, message: `Akun developer "${cleanId}" berhasil dihapus.` };
+        } else if (role === 'admin' || role === 'guru') {
+          let list = await getDB('guru');
+          list = list.filter(x => String(x.username || '').toLowerCase() !== cleanId);
+          await setDB('guru', list);
+          return { success: true, message: `Akun ${role} "${cleanId}" berhasil dihapus.` };
+        } else if (role === 'tendik') {
+          let list = await getDB('tendik');
+          list = list.filter(x => String(x.username || '').toLowerCase() !== cleanId);
+          await setDB('tendik', list);
+          return { success: true, message: `Akun tendik "${cleanId}" berhasil dihapus.` };
+        } else if (role === 'siswa') {
+          let list = await getDB('siswa');
+          list = list.filter(x => String(x.nisn || '').replace(/^'+/, '').toLowerCase() !== cleanId);
+          await setDB('siswa', list);
+          return { success: true, message: `Data siswa NISN "${cleanId}" berhasil dihapus.` };
+        }
+        return { success: false, message: 'User tidak ditemukan.' };
       }
     };
 
@@ -4338,9 +4805,19 @@
             liveMonitoringInterval = null;
         }
 
-        // RBAC View Guard: Proteksi tampilan khusus Admin
+        // RBAC View Guard: Proteksi tampilan khusus Developer
+        if (viewId === 'view-user-management' && (!currentUser || currentUser.role !== 'developer')) {
+            showAlert('error', 'Akses Ditolak: Modul Manajemen User eksklusif untuk Akun Developer.');
+            if (currentUser && currentUser.role === 'admin') loadAdminDashboard();
+            else if (currentUser && currentUser.role === 'guru') loadGuruDashboard();
+            else if (currentUser && currentUser.role === 'tendik') loadTendikDashboard();
+            else loadSiswaDashboard();
+            return;
+        }
+
+        // RBAC View Guard: Proteksi tampilan khusus Admin & Developer
         const adminViews = ['view-data-siswa', 'view-data-guru', 'view-data-tendik', 'view-kelola-absen'];
-        if (adminViews.includes(viewId) && currentUser && currentUser.role !== 'admin') {
+        if (adminViews.includes(viewId) && currentUser && !['admin', 'developer'].includes(currentUser.role)) {
             showAlert('error', 'Akses Ditolak: Anda tidak memiliki wewenang untuk membuka menu ini.');
             if (currentUser.role === 'guru') loadGuruDashboard();
             else if (currentUser.role === 'tendik') loadTendikDashboard();
@@ -4362,6 +4839,7 @@
 
         let title = "Dashboard";
         switch (viewId) {
+            case 'view-user-management': title = "Manajemen User (Developer)"; break;
             case 'view-data-siswa': title = "Direktori Siswa"; break;
             case 'view-data-guru': title = "Manajemen Akun Guru"; break;
             case 'view-kelola-absen': title = "Jam & Hari Libur"; break;
@@ -4776,7 +5254,20 @@
             </a>`;
         };
 
-        if (currentUser.role === 'admin') {
+        if (currentUser.role === 'developer') {
+            menuHTML += createItem('Manajemen User', 'fa-users-cog text-amber-400', 'loadUserManagement()', true);
+            menuHTML += createItem('Dashboard Admin', 'fa-home', 'loadAdminDashboard()');
+            menuHTML += createItem('Data Siswa', 'fa-user-graduate', 'loadDataSiswa()');
+            menuHTML += createItem('Data Guru', 'fa-chalkboard-teacher', 'loadDataGuru()');
+            menuHTML += createItem('Data Tendik', 'fa-user-tie', 'loadDataTendik()');
+            menuHTML += createItem('Laporan', 'fa-clipboard-list', 'loadRekapAbsensi()');
+            menuHTML += createItem('Kelola Absen', 'fa-calendar-times', 'loadKelolaAbsen()');
+            menuHTML += createItem('Sesi Login', 'fa-laptop-code', 'scrollToLoginLogs()');
+            menuHTML += createItem('Scan Absensi', 'fa-qrcode', 'loadScanAbsensi()');
+            menuHTML += createItem('Profil & Akun', 'fa-user-cog', 'showUserProfileAndSecurityModal()');
+            loadUserManagement();
+        }
+        else if (currentUser.role === 'admin') {
             menuHTML += createItem('Dashboard', 'fa-home', 'loadAdminDashboard()', true);
             menuHTML += createItem('Data Siswa', 'fa-user-graduate', 'loadDataSiswa()');
             menuHTML += createItem('Data Guru', 'fa-chalkboard-teacher', 'loadDataGuru()');
@@ -9785,6 +10276,513 @@
             showAlert(added > 0 ? 'success' : 'error', msg);
         };
         reader.readAsArrayBuffer(file);
+    }
+
+    // ============================================================================
+    // DEVELOPER: MANAJEMEN USER CONTROLLERS & UI LOGIC
+    // ============================================================================
+    let devUsersRaw = [];
+    let devUsersFiltered = [];
+    let devUserFilter = 'all';
+    let devUserSearchQuery = '';
+    let devUserPage = 1;
+    const devUserLimit = 12;
+
+    function loadUserManagement() {
+        if (!currentUser || currentUser.role !== 'developer') {
+            showAlert('error', 'Akses ditolak: Menu ini eksklusif untuk Developer Sistem.');
+            if (currentUser && currentUser.role === 'admin') loadAdminDashboard();
+            return;
+        }
+        showView('view-user-management');
+        setActiveMenu('Manajemen User');
+        fetchSystemUsers();
+    }
+
+    function fetchSystemUsers() {
+        if (!currentUser || currentUser.role !== 'developer') return;
+        showLoading();
+        runAPI('getAllSystemUsers', [currentUser.token],
+            res => {
+                hideLoading();
+                if (res.success) {
+                    devUsersRaw = res.data || [];
+                    updateDevUserCounts();
+                    applyDevUserFilterAndSearch();
+                } else {
+                    showAlert('error', res.message || 'Gagal memuat data pengguna.');
+                }
+            },
+            err => {
+                hideLoading();
+                showAlert('error', 'Gagal memuat data user: ' + err);
+            }
+        );
+    }
+
+    function updateDevUserCounts() {
+        const total = devUsersRaw.length;
+        const totalDev = devUsersRaw.filter(x => x.role === 'developer').length;
+        const totalAdm = devUsersRaw.filter(x => x.role === 'admin').length;
+        const totalGuru = devUsersRaw.filter(x => x.role === 'guru').length;
+        const totalTendik = devUsersRaw.filter(x => x.role === 'tendik').length;
+        const totalSiswa = devUsersRaw.filter(x => x.role === 'siswa').length;
+
+        document.getElementById('statDevTotalUsers') && (document.getElementById('statDevTotalUsers').textContent = total);
+        document.getElementById('statDevTotalDev') && (document.getElementById('statDevTotalDev').textContent = totalDev);
+        document.getElementById('statDevTotalAdmin') && (document.getElementById('statDevTotalAdmin').textContent = totalAdm);
+        document.getElementById('statDevTotalGuru') && (document.getElementById('statDevTotalGuru').textContent = totalGuru);
+        document.getElementById('statDevTotalTendik') && (document.getElementById('statDevTotalTendik').textContent = totalTendik);
+        document.getElementById('statDevTotalSiswa') && (document.getElementById('statDevTotalSiswa').textContent = totalSiswa);
+
+        document.getElementById('countFilterAll') && (document.getElementById('countFilterAll').textContent = total);
+        document.getElementById('countFilterDev') && (document.getElementById('countFilterDev').textContent = totalDev);
+        document.getElementById('countFilterAdmin') && (document.getElementById('countFilterAdmin').textContent = totalAdm);
+        document.getElementById('countFilterGuru') && (document.getElementById('countFilterGuru').textContent = totalGuru);
+        document.getElementById('countFilterTendik') && (document.getElementById('countFilterTendik').textContent = totalTendik);
+        document.getElementById('countFilterSiswa') && (document.getElementById('countFilterSiswa').textContent = totalSiswa);
+    }
+
+    function setDevUserFilter(role) {
+        devUserFilter = role;
+        devUserPage = 1;
+        document.querySelectorAll('.dev-filter-tab').forEach(btn => {
+            const r = btn.getAttribute('data-role');
+            if (r === role) {
+                btn.className = 'dev-filter-tab px-3.5 py-1.5 rounded-xl font-bold bg-amber-600 text-white shadow-xs transition';
+            } else {
+                btn.className = 'dev-filter-tab px-3.5 py-1.5 rounded-xl font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition';
+            }
+        });
+        applyDevUserFilterAndSearch();
+    }
+
+    function handleDevUserSearch() {
+        const input = document.getElementById('devUserSearchInput');
+        devUserSearchQuery = input ? input.value.trim().toLowerCase() : '';
+        devUserPage = 1;
+        applyDevUserFilterAndSearch();
+    }
+
+    function applyDevUserFilterAndSearch() {
+        let list = [...devUsersRaw];
+        if (devUserFilter !== 'all') {
+            list = list.filter(u => u.role === devUserFilter);
+        }
+        if (devUserSearchQuery) {
+            list = list.filter(u => {
+                const nama = String(u.nama || '').toLowerCase();
+                const username = String(u.username || '').toLowerCase();
+                const nip = String(u.nip || '').toLowerCase();
+                const jabatan = String(u.jabatan || '').toLowerCase();
+                return nama.includes(devUserSearchQuery) || username.includes(devUserSearchQuery) || nip.includes(devUserSearchQuery) || jabatan.includes(devUserSearchQuery);
+            });
+        }
+        devUsersFiltered = list;
+        renderDevUserTable();
+    }
+
+    function renderDevUserTable() {
+        const tbody = document.getElementById('devUserTableBody');
+        const infoEl = document.getElementById('devUserPaginationInfo');
+        const btnsEl = document.getElementById('devUserPaginationBtns');
+        if (!tbody) return;
+
+        const total = devUsersFiltered.length;
+        if (total === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-12 text-slate-400">
+                        <i class="fas fa-user-slash text-3xl mb-2 opacity-50"></i>
+                        <p class="text-xs font-semibold">Tidak ada data pengguna yang sesuai filter / pencarian.</p>
+                    </td>
+                </tr>
+            `;
+            if (infoEl) infoEl.textContent = 'Menampilkan 0 data';
+            if (btnsEl) btnsEl.innerHTML = '';
+            return;
+        }
+
+        const totalPages = Math.ceil(total / devUserLimit) || 1;
+        if (devUserPage > totalPages) devUserPage = totalPages;
+        const startIdx = (devUserPage - 1) * devUserLimit;
+        const endIdx = startIdx + devUserLimit;
+        const pageItems = devUsersFiltered.slice(startIdx, endIdx);
+
+        const roleBadge = (role) => {
+            switch(role) {
+                case 'developer':
+                    return '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase bg-amber-500/10 text-amber-700 border border-amber-500/30"><i class="fas fa-crown text-amber-500"></i> DEVELOPER</span>';
+                case 'admin':
+                    return '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase bg-indigo-50 text-indigo-700 border border-indigo-200"><i class="fas fa-shield-alt text-indigo-500"></i> ADMIN</span>';
+                case 'guru':
+                    return '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-purple-50 text-purple-700 border border-purple-200"><i class="fas fa-chalkboard-teacher text-purple-500"></i> GURU</span>';
+                case 'tendik':
+                    return '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-amber-50 text-amber-800 border border-amber-200"><i class="fas fa-user-tie text-amber-600"></i> TENDIK</span>';
+                case 'siswa':
+                    return '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase bg-blue-50 text-blue-700 border border-blue-200"><i class="fas fa-user-graduate text-blue-500"></i> SISWA</span>';
+                default:
+                    return `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">${role}</span>`;
+            }
+        };
+
+        const passBadge = (isEnc) => {
+            if (isEnc) {
+                return '<span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200"><i class="fas fa-lock text-emerald-600"></i> SHA-256 Terenkripsi</span>';
+            } else {
+                return '<span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200" title="Akan otomatis di-hash ke SHA-256 saat user login"><i class="fas fa-key text-amber-500"></i> Default / Standby</span>';
+            }
+        };
+
+        tbody.innerHTML = pageItems.map((u, i) => {
+            const no = startIdx + i + 1;
+            const isProtected = u.username === 'developer' || u.username === 'admin';
+            return `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-3 px-4 text-center font-mono font-bold text-slate-400 text-[11px]">${no}</td>
+                    <td class="py-3 px-4">${roleBadge(u.role)}</td>
+                    <td class="py-3 px-4">
+                        <div class="font-bold text-slate-800 text-xs">${u.nama}</div>
+                        <div class="text-[10px] text-slate-400 font-mono mt-0.5">ID/NIP/NISN: ${u.nip || '-'}</div>
+                    </td>
+                    <td class="py-3 px-4 font-mono font-bold text-slate-700">${u.username}</td>
+                    <td class="py-3 px-4 text-slate-600 text-[11px]">${u.jabatan || u.kelas || '-'}</td>
+                    <td class="py-3 px-4">${passBadge(u.isEncrypted)}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="showEditSystemUserModal('${u.rawRole}', '${u.id}')" class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Edit Data User">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="promptResetSystemUserPassword('${u.rawRole}', '${u.id}', '${u.username}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Reset Password User">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            ${!isProtected ? `
+                            <button onclick="promptDeleteSystemUser('${u.rawRole}', '${u.id}', '${u.username}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Hapus User">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                            ` : `
+                            <span class="p-1.5 text-slate-300 cursor-not-allowed" title="Akun Utama Terlindungi">
+                                <i class="fas fa-shield-alt"></i>
+                            </span>
+                            `}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        if (infoEl) infoEl.textContent = `Menampilkan ${startIdx + 1} - ${Math.min(endIdx, total)} dari ${total} data`;
+
+        if (btnsEl) {
+            btnsEl.innerHTML = `
+                <button onclick="if(devUserPage > 1){ devUserPage--; renderDevUserTable(); }" ${devUserPage === 1 ? 'disabled class="px-2.5 py-1 text-slate-300 cursor-not-allowed text-xs"' : 'class="px-2.5 py-1 text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-xs font-bold"'}>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="px-2.5 py-1 font-bold text-slate-700 text-xs">${devUserPage} / ${totalPages}</span>
+                <button onclick="if(devUserPage < ${totalPages}){ devUserPage++; renderDevUserTable(); }" ${devUserPage >= totalPages ? 'disabled class="px-2.5 py-1 text-slate-300 cursor-not-allowed text-xs"' : 'class="px-2.5 py-1 text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-xs font-bold"'}>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+        }
+    }
+
+    function showAddSystemUserModal() {
+        showModal(`
+            <div class="bg-white rounded-3xl shadow-2xl p-7 max-w-md w-full relative">
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+                <div class="text-center mb-5">
+                    <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl shadow-xs"><i class="fas fa-user-plus"></i></div>
+                    <h3 class="font-bold text-lg text-slate-800">Tambah User Sistem Baru</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Developer Master User Registration</p>
+                </div>
+                <form onsubmit="submitAddSystemUser(event)" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Pilih Role User</label>
+                        <select id="newSysUserRole" onchange="toggleAddUserRoleFields(this.value)" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                            <option value="developer">Developer (Super Super Admin)</option>
+                            <option value="admin">Administrator (Kepala TU / Sistem)</option>
+                            <option value="guru" selected>Guru / Tenaga Pendidik</option>
+                            <option value="tendik">Tenaga Kependidikan (Staf TU/Lab/Perpus)</option>
+                            <option value="siswa">Siswa / Pelajar</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Nama Lengkap & Gelar</label>
+                        <input type="text" id="newSysUserNama" required placeholder="Contoh: Muhammad Ilham, S.Pd" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label id="newSysUserIdLabel" class="block font-bold text-slate-700 mb-1">Username Login</label>
+                            <input type="text" id="newSysUserUsername" required placeholder="username_login" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Password Awal</label>
+                            <input type="password" id="newSysUserPassword" required value="12345" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                        </div>
+                    </div>
+                    <div id="newSysUserNipContainer">
+                        <label id="newSysUserNipLabel" class="block font-bold text-slate-700 mb-1">NIP / NIK / Identitas</label>
+                        <input type="text" id="newSysUserNip" placeholder="198001012005011001" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                    </div>
+                    <div id="newSysUserJabatanContainer">
+                        <label class="block font-bold text-slate-700 mb-1">Jabatan / Tugas</label>
+                        <input type="text" id="newSysUserJabatan" placeholder="Contoh: Guru Fisika / Staf Perpustakaan" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                    </div>
+                    <div id="newSysUserKelasContainer">
+                        <label class="block font-bold text-slate-700 mb-1">Penugasan Kelas (Jika Ada)</label>
+                        <input type="text" id="newSysUserKelas" placeholder="Contoh: X-1, XI-IPA-1" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                    </div>
+                    <div class="pt-3">
+                        <button type="submit" class="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white py-3 rounded-xl font-bold transition shadow-md">Simpan User Baru</button>
+                    </div>
+                </form>
+            </div>
+        `);
+    }
+
+    function toggleAddUserRoleFields(role) {
+        const nipContainer = document.getElementById('newSysUserNipContainer');
+        const jabatanContainer = document.getElementById('newSysUserJabatanContainer');
+        const kelasContainer = document.getElementById('newSysUserKelasContainer');
+        const userLabel = document.getElementById('newSysUserIdLabel');
+        const passInput = document.getElementById('newSysUserPassword');
+
+        if (role === 'siswa') {
+            if (nipContainer) nipContainer.classList.add('hidden');
+            if (jabatanContainer) jabatanContainer.classList.add('hidden');
+            if (kelasContainer) kelasContainer.classList.remove('hidden');
+            if (userLabel) userLabel.textContent = 'NISN Siswa (Username)';
+            if (passInput) passInput.value = '12345';
+        } else if (role === 'developer') {
+            if (nipContainer) nipContainer.classList.remove('hidden');
+            if (jabatanContainer) jabatanContainer.classList.remove('hidden');
+            if (kelasContainer) kelasContainer.classList.add('hidden');
+            if (userLabel) userLabel.textContent = 'Username Developer';
+            if (passInput) passInput.value = 'dev12345';
+        } else if (role === 'admin') {
+            if (nipContainer) nipContainer.classList.remove('hidden');
+            if (jabatanContainer) jabatanContainer.classList.remove('hidden');
+            if (kelasContainer) kelasContainer.classList.add('hidden');
+            if (userLabel) userLabel.textContent = 'Username Admin';
+            if (passInput) passInput.value = 'admin123';
+        } else {
+            if (nipContainer) nipContainer.classList.remove('hidden');
+            if (jabatanContainer) jabatanContainer.classList.remove('hidden');
+            if (kelasContainer) kelasContainer.classList.remove('hidden');
+            if (userLabel) userLabel.textContent = 'Username Login';
+            if (passInput) passInput.value = '12345';
+        }
+    }
+
+    function submitAddSystemUser(e) {
+        if (e) e.preventDefault();
+        const role = document.getElementById('newSysUserRole').value;
+        const nama = document.getElementById('newSysUserNama').value.trim();
+        const username = document.getElementById('newSysUserUsername').value.trim();
+        const password = document.getElementById('newSysUserPassword').value.trim();
+        const nip = document.getElementById('newSysUserNip') ? document.getElementById('newSysUserNip').value.trim() : '';
+        const jabatan = document.getElementById('newSysUserJabatan') ? document.getElementById('newSysUserJabatan').value.trim() : '';
+        const kelas = document.getElementById('newSysUserKelas') ? document.getElementById('newSysUserKelas').value.trim() : '';
+
+        showLoading();
+        runAPI('addSystemUser', [currentUser.token, { role, nama, username, password, nip, jabatan, kelas }],
+            res => {
+                hideLoading();
+                if (res.success) {
+                    showAlert('success', res.message);
+                    closeModal();
+                    fetchSystemUsers();
+                } else {
+                    showAlert('error', res.message);
+                }
+            },
+            err => {
+                hideLoading();
+                showAlert('error', 'Gagal menambah user: ' + err);
+            }
+        );
+    }
+
+    function showEditSystemUserModal(rawRole, targetId) {
+        const item = devUsersRaw.find(x => x.rawRole === rawRole && String(x.id).toLowerCase() === String(targetId).toLowerCase());
+        if (!item) {
+            showAlert('error', 'User tidak ditemukan.');
+            return;
+        }
+
+        showModal(`
+            <div class="bg-white rounded-3xl shadow-2xl p-7 max-w-md w-full relative">
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+                <div class="text-center mb-5">
+                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl shadow-xs"><i class="fas fa-user-edit"></i></div>
+                    <h3 class="font-bold text-lg text-slate-800">Edit Data User</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">${item.nama} (${item.username})</p>
+                </div>
+                <form onsubmit="submitEditSystemUser(event, '${rawRole}', '${targetId}')" class="space-y-3 text-xs">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Role / Peran</label>
+                        <input type="text" disabled value="${item.role.toUpperCase()}" class="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-500">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Nama Lengkap</label>
+                        <input type="text" id="editSysUserNama" value="${item.nama || ''}" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Username / NISN</label>
+                            <input type="text" id="editSysUserUsername" value="${item.username || ''}" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">NIP / NIK</label>
+                            <input type="text" id="editSysUserNip" value="${item.nip || ''}" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Jabatan / Penugasan</label>
+                        <input type="text" id="editSysUserJabatan" value="${item.jabatan || ''}" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Kelas (Jika Siswa / Wali Kelas)</label>
+                        <input type="text" id="editSysUserKelas" value="${item.kelas !== '-' ? item.kelas : ''}" placeholder="Contoh: X-1" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs">
+                    </div>
+                    <div class="pt-3">
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold transition shadow-md">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        `);
+    }
+
+    function submitEditSystemUser(e, rawRole, targetId) {
+        if (e) e.preventDefault();
+        const nama = document.getElementById('editSysUserNama').value.trim();
+        const username = document.getElementById('editSysUserUsername').value.trim();
+        const nip = document.getElementById('editSysUserNip').value.trim();
+        const jabatan = document.getElementById('editSysUserJabatan').value.trim();
+        const kelas = document.getElementById('editSysUserKelas').value.trim();
+
+        showLoading();
+        runAPI('updateSystemUser', [currentUser.token, rawRole, targetId, { nama, username, nip, jabatan, kelas }],
+            res => {
+                hideLoading();
+                if (res.success) {
+                    showAlert('success', res.message);
+                    closeModal();
+                    fetchSystemUsers();
+                } else {
+                    showAlert('error', res.message);
+                }
+            },
+            err => {
+                hideLoading();
+                showAlert('error', 'Gagal memperbarui user: ' + err);
+            }
+        );
+    }
+
+    function promptResetSystemUserPassword(rawRole, targetId, username) {
+        Swal.fire({
+            title: `Reset Password Akun "${username}"`,
+            html: `
+                <div class="text-sm text-gray-600 mt-2 space-y-3 text-left">
+                    <p>Masukkan password baru untuk akun <b>${username}</b> (Role: <b>${rawRole.toUpperCase()}</b>):</p>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Password Baru:</label>
+                        <input id="reset-sysuser-password-input" type="text" class="w-full p-2.5 border border-gray-300 rounded-xl text-center font-bold text-gray-800" value="12345" autocomplete="off">
+                    </div>
+                    <p class="text-[11px] text-gray-400">Password akan langsung di-hash dengan standar SHA-256 + Salt.</p>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#D97706',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Reset Password Sekarang',
+            cancelButtonText: 'Batal',
+            preConfirm: () => {
+                const pass = document.getElementById('reset-sysuser-password-input')?.value.trim();
+                if (!pass) {
+                    Swal.showValidationMessage('Password baru tidak boleh kosong!');
+                    return false;
+                }
+                return pass;
+            }
+        }).then(result => {
+            if (result.isConfirmed) {
+                showLoading();
+                runAPI('resetSystemUserPassword', [currentUser.token, rawRole, targetId, result.value],
+                    res => {
+                        hideLoading();
+                        if (res.success) {
+                            showAlert('success', res.message);
+                            fetchSystemUsers();
+                        } else {
+                            showAlert('error', res.message);
+                        }
+                    },
+                    err => {
+                        hideLoading();
+                        showAlert('error', 'Gagal reset password: ' + err);
+                    }
+                );
+            }
+        });
+    }
+
+    function promptDeleteSystemUser(rawRole, targetId, username) {
+        Swal.fire({
+            title: `Hapus User "${username}"?`,
+            text: `Apakah Anda yakin ingin menghapus akun ${username} (Role: ${rawRole.toUpperCase()}) dari sistem? Tindakan ini permanen.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DC2626',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: '<i class="fas fa-trash-alt mr-1"></i> Ya, Hapus User',
+            cancelButtonText: 'Batal'
+        }).then(result => {
+            if (result.isConfirmed) {
+                showLoading();
+                runAPI('deleteSystemUser', [currentUser.token, rawRole, targetId],
+                    res => {
+                        hideLoading();
+                        if (res.success) {
+                            showAlert('success', res.message);
+                            fetchSystemUsers();
+                        } else {
+                            showAlert('error', res.message);
+                        }
+                    },
+                    err => {
+                        hideLoading();
+                        showAlert('error', 'Gagal menghapus user: ' + err);
+                    }
+                );
+            }
+        });
+    }
+
+    function exportUserAuditExcel() {
+        if (!devUsersRaw || devUsersRaw.length === 0) {
+            showAlert('info', 'Tidak ada data user untuk diexport.');
+            return;
+        }
+
+        const data = devUsersRaw.map((u, i) => ({
+            'No': i + 1,
+            'Role': u.role.toUpperCase(),
+            'Nama Lengkap': u.nama,
+            'Username': u.username,
+            'NIP / NISN': u.nip || '-',
+            'Jabatan / Kelas': u.jabatan || u.kelas || '-',
+            'No HP': u.noHp || '-',
+            'Status Enkripsi Password': u.isEncrypted ? 'SHA-256 Terenkripsi' : 'Plain / Standby'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Audit_User_Sistem');
+        XLSX.writeFile(wb, `Audit_User_SMANSA_${getTodayString()}.xlsx`);
+        showAlert('success', 'File audit user sistem berhasil diunduh.');
     }
 
     checkSession();

@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id`            INT AUTO_INCREMENT PRIMARY KEY,
   `username`      VARCHAR(50)  NOT NULL UNIQUE,
   `password`      VARCHAR(255) NOT NULL,
-  `role`          ENUM('admin','guru','tendik') NOT NULL DEFAULT 'guru',
+  `role`          ENUM('developer','admin','guru','tendik') NOT NULL DEFAULT 'guru',
   `kelas`         VARCHAR(50)  DEFAULT NULL,
   `nip`           VARCHAR(30)  DEFAULT NULL,
   `nama_lengkap`  VARCHAR(150) NOT NULL,
@@ -35,9 +35,10 @@ CREATE TABLE IF NOT EXISTS `users` (
   `updated_at`    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Data awal users (Administrator)
+-- Data awal users (Developer & Administrator)
 INSERT INTO `users` (`username`, `password`, `role`, `kelas`, `nip`, `nama_lengkap`, `jabatan`, `no_handphone`) VALUES
-('admin',   'admin123',   'admin',  NULL,         '198001012005011001', 'Administrator',            'Kepala Tata Usaha',      '081234567800');
+('developer', 'dev12345',  'developer', NULL,        'DEV-001',            'System Developer (KangYos)', 'Lead System Developer', '081234567899'),
+('admin',     'admin123',  'admin',     NULL,        '198001012005011001', 'Administrator',            'Kepala Tata Usaha',      '081234567800');
 
 -- ============================================================================
 -- 2. TABEL GURU

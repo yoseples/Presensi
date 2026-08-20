@@ -3,6 +3,11 @@
     ".read": true,
     ".write": true,
     
+    "developers": {
+      ".indexOn": ["username", "nip", "role"],
+      ".validate": "newData.hasChildren() || newData.val() == false"
+    },
+    
     "siswa": {
       ".indexOn": ["nisn", "kelas", "nama"],
       ".validate": "newData.hasChildren() || newData.val() == false"
