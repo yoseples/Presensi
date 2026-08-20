@@ -1314,6 +1314,49 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    // 20. Static WebApp File Serving (for single-domain unified hosting)
+    const publicRoot = path.join(__dirname, '..');
+    const safePath = path.normalize(path.join(publicRoot, pathname === '/' ? 'index.html' : pathname));
+
+    // Prevent directory traversal attacks & block sensitive files
+    const sensitiveExts = ['.key', '.env', '.sql', '.log'];
+    const isSensitive = sensitiveExts.some(ext => safePath.toLowerCase().endsWith(ext));
+
+    if (safePath.startsWith(publicRoot) && !isSensitive && fs.existsSync(safePath) && fs.statSync(safePath).isFile()) {
+      const ext = path.extname(safePath).toLowerCase();
+      const mimeTypes = {
+        '.html': 'text/html; charset=utf-8',
+        '.js': 'application/javascript; charset=utf-8',
+        '.json': 'application/json; charset=utf-8',
+        '.css': 'text/css; charset=utf-8',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.ico': 'image/x-icon',
+        '.svg': 'image/svg+xml'
+      };
+
+      const contentType = mimeTypes[ext] || 'application/octet-stream';
+      const fileData = fs.readFileSync(safePath);
+      res.writeHead(200, {
+        'Content-Type': contentType,
+        'Content-Length': fileData.length,
+        'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=86400'
+      });
+      return res.end(fileData);
+    }
+
+    // Default Fallback to index.html for SPA routes (if not an /api route)
+    const indexPath = path.join(publicRoot, 'index.html');
+    if (fs.existsSync(indexPath) && !pathname.startsWith('/api/')) {
+      const htmlData = fs.readFileSync(indexPath);
+      res.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Content-Length': htmlData.length
+      });
+      return res.end(htmlData);
+    }
+
     // Not Found
     return sendJSON(res, 404, { success: false, message: `Endpoint ${pathname} tidak ditemukan` });
 
@@ -1323,11 +1366,15 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-// Start Server if invoked directly
-if (require.main === module) {
-  server.listen(serverConfig.PORT, () => {
+// Start Server: Compatible with Direct Execution, PM2, and Phusion Passenger (CloudLinux / Hostinger)
+const isPassenger = typeof PhusionPassenger !== 'undefined' || process.env.PASSENGER_APP_ENV || process.env.NODE_ENV === 'production';
+const shouldStart = require.main === module || isPassenger || !process.env.TEST_ENV;
+
+if (shouldStart && !server.listening) {
+  const listenPort = process.env.PORT || process.env.LICENSE_SERVER_PORT || serverConfig.PORT || 3001;
+  server.listen(listenPort, () => {
     console.log(`=======================================================`);
-    console.log(`👑 LICENSE MANAGEMENT SERVER RUNNING ON PORT ${serverConfig.PORT}`);
+    console.log(`👑 LICENSE MANAGEMENT SERVER RUNNING ON PORT ${listenPort}`);
     console.log(`🔑 Public Key Initialized for Asymmetric Token Signing`);
     console.log(`🌐 Product Target: ${serverConfig.PRODUCT_NAME}`);
     console.log(`=======================================================`);
