@@ -29,11 +29,10 @@ Aplikasi web presensi siswa dan manajemen kehadiran sekolah modern, responsif, d
 
 ## 🔑 Akun Login Pengguna Bawaan (Versi Demo)
 
-Aplikasi ini dilengkapi fitur **1-Click Quick Demo Login** pada halaman login untuk memudahkan pengujian semua role:
+Aplikasi ini dilengkapi fitur **1-Click Quick Demo Login** pada halaman login untuk memudahkan calon pengguna / penguji mencoba 4 peran sekolah:
 
 | Role | Username / NISN | Password | Nama Lengkap / Jabatan | Catatan Akses |
 | :--- | :--- | :--- | :--- | :--- |
-| **👑 Developer** | `developer` | `dev123` | System Developer (KangYos) | Eksklusif: Manajemen User, Reset DB Demo, Full Bypass |
 | **🛡️ Admin** | `admin` | `admin123` | Administrator SMANSA | Kelola Siswa, Guru, Tendik, Laporan, & Pengaturan Branding |
 | **👨‍🏫 Guru** | `guru1` | `12345` | Drs. Syamsuddin, M.Pd | Wali Kelas XII MIPA 1, Monitoring Kehadiran, Scan QR |
 | **👨‍🏫 Guru** | `guru2` | `12345` | Cut Nurhaliza, S.Pd | Wali Kelas XI IPS 1, Monitoring Kehadiran |
@@ -41,6 +40,8 @@ Aplikasi ini dilengkapi fitur **1-Click Quick Demo Login** pada halaman login un
 | **🎓 Siswa** | `20240101` | `12345` | Ahmad Fadhil (XII MIPA 1) | Kartu Pelajar Digital, Presensi Mandiri, Status Kehadiran |
 | **🎓 Siswa** | `20240102` | `12345` | Siti Raisa (XII MIPA 1) | Kartu Pelajar Digital, Izin Mandiri |
 | **🎓 Siswa** | `20240201` | `12345` | Rizky Pratama (XI IPS 1) | Kartu Pelajar Digital |
+
+> 🔒 *Catatan: Akun **Developer** (Master Super Admin & License Generator) dilindungi secara privat dan hanya dapat diakses langsung oleh pemilik sistem.*
 
 ---
 
