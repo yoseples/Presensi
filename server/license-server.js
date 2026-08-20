@@ -214,20 +214,55 @@ function extractAndNormalizeDomain(req, fallbackDomain) {
   return 'localhost';
 }
 
-function getProductEntitlements(licenseType = 'Lifetime') {
-  if (licenseType === 'Trial') {
-    return {
-      basic_attendance: true,
-      qr_attendance_scan: true,
-      export_advanced_rekap: false,
-      bulk_qr_generator: false,
-      cloud_sync_backup: false,
-      custom_branding_white_label: false,
-      unlimited_user_database: false,
-      realtime_gps_geofencing: true
-    };
-  }
-  return {
+// ============================================================================
+// LICENSE PLANS & ENTITLEMENTS DEFINITION (V2 PRODUCTION CONFIG)
+// ============================================================================
+const PLAN_ENTITLEMENTS = {
+  BASIC: {
+    // V2 Schema
+    attendance: true,
+    reports: true,
+    export: false,
+    multi_user: false,
+    api: false,
+    advanced: false,
+    // V1 Compatibility
+    basic_attendance: true,
+    qr_attendance_scan: true,
+    export_advanced_rekap: false,
+    bulk_qr_generator: false,
+    cloud_sync_backup: false,
+    custom_branding_white_label: false,
+    unlimited_user_database: false,
+    realtime_gps_geofencing: true
+  },
+  PRO: {
+    // V2 Schema
+    attendance: true,
+    reports: true,
+    export: true,
+    multi_user: true,
+    api: false,
+    advanced: false,
+    // V1 Compatibility
+    basic_attendance: true,
+    qr_attendance_scan: true,
+    export_advanced_rekap: true,
+    bulk_qr_generator: true,
+    cloud_sync_backup: true,
+    custom_branding_white_label: false,
+    unlimited_user_database: true,
+    realtime_gps_geofencing: true
+  },
+  ENTERPRISE: {
+    // V2 Schema
+    attendance: true,
+    reports: true,
+    export: true,
+    multi_user: true,
+    api: true,
+    advanced: true,
+    // V1 Compatibility
     basic_attendance: true,
     qr_attendance_scan: true,
     export_advanced_rekap: true,
@@ -236,8 +271,27 @@ function getProductEntitlements(licenseType = 'Lifetime') {
     custom_branding_white_label: true,
     unlimited_user_database: true,
     realtime_gps_geofencing: true
-  };
+  }
+};
+
+function getPlanEntitlements(planName = 'PRO', legacyType = 'Lifetime') {
+  const norm = String(planName || '').toUpperCase().trim();
+  if (norm && PLAN_ENTITLEMENTS[norm]) {
+    return { ...PLAN_ENTITLEMENTS[norm] };
+  }
+  if (legacyType === 'Trial' || norm === 'BASIC') return { ...PLAN_ENTITLEMENTS.BASIC };
+  if (legacyType === 'Enterprise' || norm === 'ENTERPRISE') return { ...PLAN_ENTITLEMENTS.ENTERPRISE };
+  return { ...PLAN_ENTITLEMENTS.PRO };
 }
+
+function getProductEntitlements(licenseType = 'Lifetime', plan = 'PRO') {
+  return getPlanEntitlements(plan, licenseType);
+}
+
+// Multi-Key KeyStore for Secure RSA Key Rotation
+const KEY_STORE = [
+  { id: 'key_active_v1', publicKey: PUBLIC_KEY, is_current: true }
+];
 
 // Sliding window in-memory rate limiter
 const rateLimitMap = new Map();
@@ -325,7 +379,7 @@ function authorizePremiumRequest(req, body, requiredFeature) {
     return { authorized: false, statusCode: 403, error: 'LICENSE_EXPIRED', message: 'Masa aktif lisensi telah berakhir' };
   }
 
-  // Check Database Revocation / Suspension
+  // Check Database Revocation / Suspension / Domain Transfer
   const lic = licensesDB.find(x => x.id === payload.license_id);
   if (lic) {
     if (lic.status === 'revoked') {
@@ -334,11 +388,15 @@ function authorizePremiumRequest(req, body, requiredFeature) {
     if (lic.status === 'suspended') {
       return { authorized: false, statusCode: 403, error: 'LICENSE_SUSPENDED', message: 'Lisensi sedang ditangguhkan' };
     }
+    if (lic.domain && payload.domain && cleanDomainString(lic.domain) !== cleanDomainString(payload.domain)) {
+      return { authorized: false, statusCode: 403, error: 'DOMAIN_MISMATCH', message: 'Lisensi telah ditransfer ke domain lain' };
+    }
   }
 
   // Check Feature Entitlement
-  if (requiredFeature && payload.entitlements) {
-    if (!payload.entitlements[requiredFeature]) {
+  if (requiredFeature) {
+    const activeEntitlements = (lic && lic.plan) ? getPlanEntitlements(lic.plan, lic.license_type) : (payload.entitlements || {});
+    if (!activeEntitlements[requiredFeature]) {
       return { authorized: false, statusCode: 403, error: 'FEATURE_NOT_ENTITLED', message: `Fitur "${requiredFeature}" tidak tercakup dalam paket lisensi ini` };
     }
   }
@@ -536,15 +594,17 @@ const server = http.createServer(async (req, res) => {
       lic.updated_at = new Date().toISOString();
       saveData();
 
-      // Sign License Token (Asymmetric RSA-2048 with Entitlements)
+      // Sign License Token (Asymmetric RSA-2048 with Entitlements & Plan)
+      const planName = lic.plan || (lic.license_type === 'Enterprise' ? 'ENTERPRISE' : (lic.license_type === 'Trial' ? 'BASIC' : 'PRO'));
       const tokenPayload = {
         license_id: lic.id,
         product: lic.product,
         domain: lic.domain,
+        plan: planName,
         customer: lic.customer_name,
         status: lic.status,
         license_type: lic.license_type,
-        entitlements: getProductEntitlements(lic.license_type),
+        entitlements: getPlanEntitlements(planName, lic.license_type),
         issued_at: new Date().toISOString(),
         expires_at: lic.expires_at || null,
         app_version: appVersion
@@ -552,7 +612,7 @@ const server = http.createServer(async (req, res) => {
 
       const signedToken = signLicenseToken(tokenPayload);
 
-      createAuditLog(lic.id, 'LICENSE_ACTIVATED', domain, req, { token_issued: true });
+      createAuditLog(lic.id, 'LICENSE_ACTIVATED', domain, req, { token_issued: true, plan: planName });
 
       return sendJSON(res, 200, {
         success: true,
@@ -561,6 +621,7 @@ const server = http.createServer(async (req, res) => {
         license: {
           product: lic.product,
           domain: lic.domain,
+          plan: planName,
           customer_name: lic.customer_name,
           license_type: lic.license_type,
           entitlements: tokenPayload.entitlements,
@@ -635,7 +696,7 @@ const server = http.createServer(async (req, res) => {
         }
       }
 
-      // Step 4: Verify against Central Database State (Revocation / Suspension check)
+      // Step 4: Verify against Central Database State (Revocation / Suspension / Transfer check)
       const lic = licensesDB.find(x => x.id === payload.license_id);
       if (lic) {
         if (lic.status === 'revoked') {
@@ -654,9 +715,20 @@ const server = http.createServer(async (req, res) => {
             message: 'License is suspended'
           });
         }
+        if (lic.domain && payload.domain && cleanDomainString(lic.domain) !== cleanDomainString(payload.domain)) {
+          return sendJSON(res, 403, {
+            success: false,
+            valid: false,
+            status: 'domain_mismatch',
+            message: 'License has been transferred to another domain'
+          });
+        }
         lic.last_verified_at = new Date().toISOString();
         saveData();
       }
+
+      const activePlan = (lic && lic.plan) ? lic.plan : (payload.plan || 'PRO');
+      const activeEntitlements = getPlanEntitlements(activePlan, lic ? lic.license_type : payload.license_type);
 
       return sendJSON(res, 200, {
         success: true,
@@ -666,9 +738,10 @@ const server = http.createServer(async (req, res) => {
         license: {
           product: payload.product,
           domain: payload.domain,
+          plan: activePlan,
           customer_name: payload.customer,
           expires_at: payload.expires_at,
-          entitlements: payload.entitlements || getProductEntitlements(payload.license_type)
+          entitlements: activeEntitlements
         }
       });
     }
@@ -822,7 +895,7 @@ const server = http.createServer(async (req, res) => {
 
     // 6. GET /api/admin/licenses — List All Licenses with Filters
     if (req.method === 'GET' && pathname === '/api/admin/licenses') {
-      const { search, status, product, expiration } = query;
+      const { search, status, product, plan, expiration } = query;
       let results = [...licensesDB];
 
       if (search) {
@@ -839,6 +912,10 @@ const server = http.createServer(async (req, res) => {
         results = results.filter(x => x.status === status);
       }
 
+      if (plan && plan !== 'all') {
+        results = results.filter(x => (x.plan || 'PRO').toUpperCase() === plan.toUpperCase());
+      }
+
       if (product && product !== 'all') {
         results = results.filter(x => x.product === product);
       }
@@ -847,7 +924,10 @@ const server = http.createServer(async (req, res) => {
         const now = Date.now();
         if (expiration === 'expired') {
           results = results.filter(x => x.expires_at && new Date(x.expires_at).getTime() < now);
-        } else if (expiration === 'expiring_soon') {
+        } else if (expiration === 'expiring_7d') {
+          const in7d = now + 7 * 24 * 60 * 60 * 1000;
+          results = results.filter(x => x.expires_at && new Date(x.expires_at).getTime() > now && new Date(x.expires_at).getTime() <= in7d);
+        } else if (expiration === 'expiring_30d' || expiration === 'expiring_soon') {
           const in30d = now + 30 * 24 * 60 * 60 * 1000;
           results = results.filter(x => x.expires_at && new Date(x.expires_at).getTime() > now && new Date(x.expires_at).getTime() <= in30d);
         } else if (expiration === 'lifetime') {
@@ -857,15 +937,17 @@ const server = http.createServer(async (req, res) => {
 
       // Calculate Realtime Stats
       const now = Date.now();
+      const in7d = now + 7 * 24 * 60 * 60 * 1000;
       const in30d = now + 30 * 24 * 60 * 60 * 1000;
       const stats = {
         total: licensesDB.length,
         active: licensesDB.filter(x => x.status === 'active').length,
-        inactive: licensesDB.filter(x => x.status === 'inactive').length,
+        unused: licensesDB.filter(x => x.status === 'unused' || (x.status === 'inactive' && !x.domain)).length,
         suspended: licensesDB.filter(x => x.status === 'suspended').length,
         expired: licensesDB.filter(x => x.status === 'expired' || (x.expires_at && new Date(x.expires_at).getTime() < now)).length,
         revoked: licensesDB.filter(x => x.status === 'revoked').length,
-        expiring_soon: licensesDB.filter(x => x.expires_at && new Date(x.expires_at).getTime() > now && new Date(x.expires_at).getTime() <= in30d).length
+        expiring_7d: licensesDB.filter(x => x.expires_at && new Date(x.expires_at).getTime() > now && new Date(x.expires_at).getTime() <= in7d).length,
+        expiring_30d: licensesDB.filter(x => x.expires_at && new Date(x.expires_at).getTime() > now && new Date(x.expires_at).getTime() <= in30d).length
       };
 
       return sendJSON(res, 200, {
@@ -875,14 +957,42 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // 7. POST /api/admin/licenses/generate — Generate New License
+    // 6b. GET /api/admin/licenses/:id — License Detail View
+    if (req.method === 'GET' && pathname.startsWith('/api/admin/licenses/') && !pathname.endsWith('/generate') && !pathname.endsWith('/suspend') && !pathname.endsWith('/revoke')) {
+      const licId = pathname.split('/').pop();
+      const lic = licensesDB.find(x => x.id === licId || x.license_key === licId);
+
+      if (!lic) return sendJSON(res, 404, { success: false, message: 'Lisensi tidak ditemukan' });
+
+      const planName = lic.plan || (lic.license_type === 'Enterprise' ? 'ENTERPRISE' : (lic.license_type === 'Trial' ? 'BASIC' : 'PRO'));
+      const entitlements = getPlanEntitlements(planName, lic.license_type);
+      const logs = auditLogsDB.filter(x => x.license_id === lic.id).slice(0, 50);
+
+      // Check Suspicious Status
+      const failedCount = logs.filter(x => x.action.includes('FAILED') || x.action === 'DOMAIN_MISMATCH').length;
+      const suspiciousStatus = failedCount >= 5 ? 'SUSPICIOUS' : 'NORMAL';
+
+      return sendJSON(res, 200, {
+        success: true,
+        license: {
+          ...lic,
+          plan: planName,
+          entitlements: entitlements,
+          suspicious_status: suspiciousStatus,
+          recent_logs: logs
+        }
+      });
+    }
+
+    // 7. POST /api/admin/licenses/generate — Generate New License (V2 Plan Support)
     if (req.method === 'POST' && pathname === '/api/admin/licenses/generate') {
       const body = await parseRequestBody(req);
       const product = String(body.product || serverConfig.PRODUCT_NAME).trim();
       const customerName = String(body.customer_name || '').trim();
       const customerEmail = String(body.customer_email || '').trim();
       const rawDomain = cleanDomainString(body.domain);
-      const licenseType = String(body.license_type || 'Subscription').trim();
+      const plan = String(body.plan || (body.license_type === 'Enterprise' ? 'ENTERPRISE' : (body.license_type === 'Trial' ? 'BASIC' : 'PRO'))).toUpperCase().trim();
+      const licenseType = String(body.license_type || (plan === 'ENTERPRISE' ? 'Enterprise' : (plan === 'BASIC' ? 'Trial' : 'Subscription'))).trim();
       const maxActivation = parseInt(body.max_activation, 10) || 1;
       const expiresAt = body.expires_at ? new Date(body.expires_at).toISOString() : (licenseType === 'Lifetime' ? null : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString());
       const customPrefix = String(body.prefix || 'SMANSA').toUpperCase().slice(0, 4);
@@ -908,10 +1018,11 @@ const server = http.createServer(async (req, res) => {
         license_key: key,
         license_key_hash: keyHash,
         product: product,
+        plan: plan,
         customer_name: customerName,
         customer_email: customerEmail,
         domain: rawDomain || null,
-        status: 'active',
+        status: rawDomain ? 'active' : 'unused',
         license_type: licenseType,
         max_activation: maxActivation,
         activation_count: rawDomain ? 1 : 0,
@@ -926,7 +1037,7 @@ const server = http.createServer(async (req, res) => {
       licensesDB.unshift(newLicense);
       saveData();
 
-      createAuditLog(newLicense.id, 'LICENSE_GENERATED', rawDomain, req, { customer: customerName, key: key });
+      createAuditLog(newLicense.id, 'LICENSE_GENERATED', rawDomain, req, { customer: customerName, key: key, plan: plan });
 
       return sendJSON(res, 201, {
         success: true,
@@ -935,7 +1046,61 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // 8. POST /api/admin/licenses/suspend — Suspend License
+    // 8. POST /api/admin/licenses/change-plan — Change License Plan (BASIC / PRO / ENTERPRISE)
+    if (req.method === 'POST' && pathname === '/api/admin/licenses/change-plan') {
+      const body = await parseRequestBody(req);
+      const licId = String(body.id || '').trim();
+      const newPlan = String(body.plan || 'PRO').toUpperCase().trim();
+      const lic = licensesDB.find(x => x.id === licId);
+
+      if (!lic) return sendJSON(res, 404, { success: false, message: 'Lisensi tidak ditemukan' });
+      if (!['BASIC', 'PRO', 'ENTERPRISE'].includes(newPlan)) {
+        return sendJSON(res, 400, { success: false, message: 'Paket lisensi tidak valid (pilih BASIC, PRO, atau ENTERPRISE)' });
+      }
+
+      const oldPlan = lic.plan || 'PRO';
+      lic.plan = newPlan;
+      lic.updated_at = new Date().toISOString();
+      saveData();
+
+      createAuditLog(lic.id, 'PLAN_CHANGED', lic.domain, req, { old_plan: oldPlan, new_plan: newPlan });
+
+      return sendJSON(res, 200, {
+        success: true,
+        message: `Paket lisensi "${lic.license_key}" berhasil diubah dari ${oldPlan} ke ${newPlan}.`,
+        license: lic,
+        entitlements: getPlanEntitlements(newPlan)
+      });
+    }
+
+    // 9. POST /api/admin/licenses/transfer — Transfer License to New Domain
+    if (req.method === 'POST' && pathname === '/api/admin/licenses/transfer') {
+      const body = await parseRequestBody(req);
+      const licId = String(body.id || '').trim();
+      const newDomain = cleanDomainString(body.new_domain);
+      const reason = String(body.reason || 'Admin domain migration').trim();
+      const lic = licensesDB.find(x => x.id === licId);
+
+      if (!lic) return sendJSON(res, 404, { success: false, message: 'Lisensi tidak ditemukan' });
+      if (!newDomain) return sendJSON(res, 400, { success: false, message: 'Domain tujuan transfer wajib diisi' });
+
+      const oldDomain = lic.domain;
+      lic.domain = newDomain;
+      lic.activation_count = 1;
+      lic.activated_at = new Date().toISOString();
+      lic.updated_at = new Date().toISOString();
+      saveData();
+
+      createAuditLog(lic.id, 'LICENSE_TRANSFERRED', newDomain, req, { old_domain: oldDomain, new_domain: newDomain, reason: reason });
+
+      return sendJSON(res, 200, {
+        success: true,
+        message: `Lisensi "${lic.license_key}" berhasil ditransfer dari ${oldDomain || '(unbound)'} ke ${newDomain}.`,
+        license: lic
+      });
+    }
+
+    // 10. POST /api/admin/licenses/suspend — Suspend License
     if (req.method === 'POST' && pathname === '/api/admin/licenses/suspend') {
       const body = await parseRequestBody(req);
       const licId = String(body.id || '').trim();
@@ -951,8 +1116,8 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { success: true, message: `Lisensi "${lic.license_key}" berhasil di-suspend` });
     }
 
-    // 9. POST /api/admin/licenses/activate-status — Activate/Reactivate License
-    if (req.method === 'POST' && pathname === '/api/admin/licenses/activate-status') {
+    // 11. POST /api/admin/licenses/activate-status — Activate/Reactivate License
+    if (req.method === 'POST' && pathname === '/api/admin/licenses/activate-status' || pathname === '/api/admin/licenses/reactivate') {
       const body = await parseRequestBody(req);
       const licId = String(body.id || '').trim();
       const lic = licensesDB.find(x => x.id === licId);
@@ -967,7 +1132,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { success: true, message: `Lisensi "${lic.license_key}" berhasil diaktifkan kembali` });
     }
 
-    // 10. POST /api/admin/licenses/revoke — Revoke License
+    // 12. POST /api/admin/licenses/revoke — Revoke License
     if (req.method === 'POST' && pathname === '/api/admin/licenses/revoke') {
       const body = await parseRequestBody(req);
       const licId = String(body.id || '').trim();
@@ -983,7 +1148,7 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { success: true, message: `Lisensi "${lic.license_key}" telah dicabut (Revoked)` });
     }
 
-    // 11. POST /api/admin/licenses/reset-domain — Reset Domain
+    // 13. POST /api/admin/licenses/reset-domain — Reset Domain
     if (req.method === 'POST' && pathname === '/api/admin/licenses/reset-domain') {
       const body = await parseRequestBody(req);
       const licId = String(body.id || '').trim();
@@ -993,6 +1158,7 @@ const server = http.createServer(async (req, res) => {
 
       const oldDomain = lic.domain;
       lic.domain = null;
+      lic.status = 'unused';
       lic.activation_count = 0;
       lic.activated_at = null;
       lic.updated_at = new Date().toISOString();
@@ -1005,7 +1171,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // 12. POST /api/admin/licenses/reset-activation — Reset Activation Count
+    // 14. POST /api/admin/licenses/reset-activation — Reset Activation Count
     if (req.method === 'POST' && pathname === '/api/admin/licenses/reset-activation') {
       const body = await parseRequestBody(req);
       const licId = String(body.id || '').trim();
@@ -1024,7 +1190,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // 13. POST /api/admin/licenses/extend — Extend Expiration Date
+    // 15. POST /api/admin/licenses/extend — Extend Expiration Date (+30d, +90d, +180d, +365d, custom)
     if (req.method === 'POST' && pathname === '/api/admin/licenses/extend') {
       const body = await parseRequestBody(req);
       const licId = String(body.id || '').trim();
@@ -1056,7 +1222,43 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    // 14. DELETE /api/admin/licenses/:id — Delete License
+    // 16. GET /api/admin/stats — Detailed Analytics & Monitoring
+    if (req.method === 'GET' && pathname === '/api/admin/stats') {
+      const now = Date.now();
+      const in7d = now + 7 * 24 * 60 * 60 * 1000;
+      const in30d = now + 30 * 24 * 60 * 60 * 1000;
+      const t1d = now - 24 * 60 * 60 * 1000;
+      const t7d = now - 7 * 24 * 60 * 60 * 1000;
+      const t30d = now - 30 * 24 * 60 * 60 * 1000;
+
+      const actLogs = auditLogsDB.filter(x => x.action === 'LICENSE_ACTIVATED');
+      const failLogs = auditLogsDB.filter(x => x.action.includes('FAILED') || x.action === 'DOMAIN_MISMATCH');
+
+      const stats = {
+        total: licensesDB.length,
+        active: licensesDB.filter(x => x.status === 'active').length,
+        unused: licensesDB.filter(x => x.status === 'unused' || (!x.domain && x.status === 'inactive')).length,
+        suspended: licensesDB.filter(x => x.status === 'suspended').length,
+        expired: licensesDB.filter(x => x.status === 'expired' || (x.expires_at && new Date(x.expires_at).getTime() < now)).length,
+        revoked: licensesDB.filter(x => x.status === 'revoked').length,
+        expiring_7d: licensesDB.filter(x => x.expires_at && new Date(x.expires_at).getTime() > now && new Date(x.expires_at).getTime() <= in7d).length,
+        expiring_30d: licensesDB.filter(x => x.expires_at && new Date(x.expires_at).getTime() > now && new Date(x.expires_at).getTime() <= in30d).length,
+        activations: {
+          today: actLogs.filter(x => new Date(x.created_at).getTime() >= t1d).length,
+          last_7d: actLogs.filter(x => new Date(x.created_at).getTime() >= t7d).length,
+          last_30d: actLogs.filter(x => new Date(x.created_at).getTime() >= t30d).length
+        },
+        failed_attempts: {
+          today: failLogs.filter(x => new Date(x.created_at).getTime() >= t1d).length,
+          last_7d: failLogs.filter(x => new Date(x.created_at).getTime() >= t7d).length,
+          last_30d: failLogs.filter(x => new Date(x.created_at).getTime() >= t30d).length
+        }
+      };
+
+      return sendJSON(res, 200, { success: true, stats: stats });
+    }
+
+    // 17. DELETE /api/admin/licenses/:id — Delete License
     if (req.method === 'DELETE' && pathname.startsWith('/api/admin/licenses/')) {
       const licId = pathname.split('/').pop();
       const idx = licensesDB.findIndex(x => x.id === licId);
@@ -1070,12 +1272,27 @@ const server = http.createServer(async (req, res) => {
       return sendJSON(res, 200, { success: true, message: `Lisensi "${deleted.license_key}" berhasil dihapus.` });
     }
 
-    // 15. GET /api/admin/audit-logs — Audit Logs
-    if (req.method === 'GET' && pathname === '/api/admin/audit-logs') {
+    // 18. GET /api/admin/audit-logs or /api/admin/license-logs — Audit Logs with Filters
+    if (req.method === 'GET' && (pathname === '/api/admin/audit-logs' || pathname === '/api/admin/license-logs')) {
       const limit = parseInt(query.limit, 10) || 100;
+      const action = query.action;
+      const licenseId = query.license_id;
+
+      let logs = [...auditLogsDB];
+      if (action) logs = logs.filter(x => x.action === action);
+      if (licenseId) logs = logs.filter(x => x.license_id === licenseId);
+
       return sendJSON(res, 200, {
         success: true,
-        logs: auditLogsDB.slice(0, limit)
+        logs: logs.slice(0, limit)
+      });
+    }
+
+    // 19. GET /api/license/public-keys — Public Keys Rotation Store
+    if (req.method === 'GET' && pathname === '/api/license/public-keys') {
+      return sendJSON(res, 200, {
+        success: true,
+        keys: KEY_STORE.map(k => ({ id: k.id, is_current: k.is_current, public_key: k.publicKey }))
       });
     }
 

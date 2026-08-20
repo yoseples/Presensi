@@ -5466,6 +5466,32 @@ zQIDAQAB
         return { success: true, message: `Masa aktif lisensi "${lic.license_key}" berhasil diperpanjang hingga ${lic.expires_at.slice(0, 10)}.` };
       },
 
+      changeAdminLicensePlan: async (token, id, newPlan) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        const lic = list.find(x => x.id === id);
+        if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
+        const oldPlan = lic.plan || 'PRO';
+        lic.plan = String(newPlan || 'PRO').toUpperCase();
+        lic.updated_at = new Date().toISOString();
+        await setDB('licenses', list);
+        return { success: true, message: `Paket lisensi "${lic.license_key}" berhasil diubah ke ${lic.plan}.` };
+      },
+
+      transferAdminLicense: async (token, id, newDomain, reason) => {
+        AuthSecurity.authorize(['admin', 'developer'], token);
+        let list = await getDB('licenses');
+        const lic = list.find(x => x.id === id);
+        if (!lic) return { success: false, message: 'Lisensi tidak ditemukan.' };
+        const oldDomain = lic.domain;
+        lic.domain = LicenseEngine.cleanDomain(newDomain);
+        lic.activation_count = 1;
+        lic.activated_at = new Date().toISOString();
+        lic.updated_at = new Date().toISOString();
+        await setDB('licenses', list);
+        return { success: true, message: `Lisensi "${lic.license_key}" berhasil ditransfer ke domain "${lic.domain}".` };
+      },
+
       deleteAdminLicense: async (token, id) => {
         AuthSecurity.authorize(['admin', 'developer'], token);
         let list = await getDB('licenses');
