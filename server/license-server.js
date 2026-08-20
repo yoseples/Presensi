@@ -107,32 +107,37 @@ function saveData() {
   }
 }
 
-loadData();
+// Realtime Firebase Synchronization Helper
+async function syncFromFirebase() {
+  if (!serverConfig.FIREBASE_DB_URL) return;
+  try {
+    const fbUrl = `${serverConfig.FIREBASE_DB_URL.replace(/\/$/, '')}/licenses.json`;
+    const resp = await fetch(fbUrl, { signal: AbortSignal.timeout(3000) });
+    if (resp.ok) {
+      const fbData = await resp.json();
+      let list = [];
+      if (Array.isArray(fbData)) list = fbData.filter(Boolean);
+      else if (fbData && typeof fbData === 'object') list = Object.values(fbData);
 
-// Seed initial demo licenses if empty
-if (licensesDB.length === 0) {
-  const initialLicense = {
-    id: 'lic_' + crypto.randomBytes(8).toString('hex'),
-    license_key: 'JRAK-7F4K-9X2M-Q8VP-3N6T',
-    license_key_hash: crypto.createHash('sha256').update('JRAK-7F4K-9X2M-Q8VP-3N6T').digest('hex'),
-    product: 'presensi-smansa-pro',
-    customer_name: 'SMA Negeri 1 Lhoksukon',
-    customer_email: 'smansalhoksukon@sch.id',
-    domain: 'yoseples.github.io',
-    status: 'active',
-    license_type: 'Lifetime',
-    max_activation: 1,
-    activation_count: 1,
-    activated_at: new Date().toISOString(),
-    expires_at: null,
-    last_verified_at: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    notes: 'Lisensi Resmi Default SMA Negeri 1 Lhoksukon'
-  };
-  licensesDB.push(initialLicense);
-  saveData();
+      for (const item of list) {
+        if (!item || !item.license_key) continue;
+        const exists = licensesDB.some(x => x.license_key === item.license_key || x.id === item.id);
+        if (!exists) {
+          licensesDB.unshift({
+            ...item,
+            license_key_hash: item.license_key_hash || crypto.createHash('sha256').update(item.license_key).digest('hex')
+          });
+        }
+      }
+      saveData();
+    }
+  } catch(e) {
+    // Non-blocking sync notice
+  }
 }
+
+// Initial sync on boot
+syncFromFirebase();
 
 // ============================================================================
 // AUDIT LOGGING HELPER
@@ -506,6 +511,11 @@ const server = http.createServer(async (req, res) => {
 
       const keyHash = crypto.createHash('sha256').update(rawKey).digest('hex');
       let lic = licensesDB.find(x => x.license_key === rawKey || x.license_key_hash === keyHash);
+
+      if (!lic) {
+        await syncFromFirebase();
+        lic = licensesDB.find(x => x.license_key === rawKey || x.license_key_hash === keyHash);
+      }
 
       if (!lic) {
         // Auto-recognize valid cryptographic format or developer-generated keys
