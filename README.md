@@ -44,11 +44,19 @@ Aplikasi ini dilengkapi fitur **1-Click Quick Demo Login** pada halaman login un
 
 ---
 
-## 🛡️ Proteksi & Pembatasan Versi Demo (Demo Safeguards)
-1. **Proteksi Password Inti**: Password akun `developer` dan `admin` tidak dapat diubah oleh pengunjung demo untuk mencegah akun terkunci.
-2. **Proteksi Akun Bawaan**: Akun demo bawaan di atas dilindungi dari penghapusan.
-3. **Proteksi Hapus Massal**: Penghapusan massal seluruh siswa/guru dinonaktifkan di mode demo.
-4. **Tombol Reset DB Demo (Developer)**: Developer dapat mengembalikan seluruh database demo ke setelan awal pabrik kapan saja dengan 1 klik.
+## 🛡️ Proteksi Versi Demo vs Full Version Berlisensi
+
+Aplikasi ini menggunakan **Sistem Lisensi Kriptografis Berbasis Domain (1 Domain 1 Kunci & Auto-Detect)**:
+
+1. **Deteksi Domain Otomatis**: Sistem secara otomatis membaca nama domain tempat aplikasi dijalankan (`window.location.hostname`).
+2. **Kunci Lisensi Terikat Domain (Domain-Bound)**:
+   - Kunci berformat `SMANSA-XXXX-XXXX-XXXX-XXXX` dihitung via enkripsi SHA-256 terikat secara unik pada satu nama domain tertentu.
+   - Kunci lisensi untuk domain A tidak dapat digunakan pada domain B.
+3. **Membuka Versi Penuh (Full Version)**:
+   - Masukkan kunci lisensi resmi di menu **Pengaturan & Branding WebApp** $\rightarrow$ **Lisensi Domain**.
+   - Saat lisensi terverifikasi, seluruh pembatasan demo dicabut, banner demo disembunyikan, dan badge berubah menjadi `👑 FULL VERSION (RESMI)`.
+4. **Developer Master Key Generator**:
+   - Akun Developer memiliki alat eksklusif di menu **Manajemen User** untuk meng-generate kunci lisensi resmi bagi sekolah klien.
 
 ---
 

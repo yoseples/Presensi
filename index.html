@@ -148,7 +148,7 @@
     <div class="relative z-10 w-full max-w-[440px] bg-white rounded-[2.5rem] shadow-2xl p-7 sm:p-8 animate-slide-up">
         
         <!-- Demo Mode Notice Banner -->
-        <div class="mb-4 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white p-3 rounded-2xl shadow-sm flex items-center justify-between gap-2 border border-amber-300/30">
+        <div class="demo-only-element mb-4 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white p-3 rounded-2xl shadow-sm flex items-center justify-between gap-2 border border-amber-300/30">
             <div class="flex items-center gap-2">
                 <span class="w-7 h-7 rounded-xl bg-white/20 flex items-center justify-center text-xs shrink-0"><i class="fas fa-sparkles"></i></span>
                 <div>
@@ -173,7 +173,7 @@
         </div>
 
         <!-- Quick 1-Click Demo Login Selector -->
-        <div class="mt-4 p-3.5 bg-slate-50/90 border border-slate-200/80 rounded-2xl">
+        <div class="demo-only-element mt-4 p-3.5 bg-slate-50/90 border border-slate-200/80 rounded-2xl">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
                     <i class="fas fa-bolt text-amber-500"></i> Uji Coba Cepat (1-Klik):
@@ -299,11 +299,9 @@
                   </div>
               </div>
               <div class="flex items-center space-x-2 sm:space-x-3">
-                  <!-- Demo Mode Pill Badge -->
-                  <div class="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 rounded-full text-[10px] font-black tracking-wide">
-                      <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
-                      <span class="hidden sm:inline uppercase">Demo Mode</span>
-                      <span class="sm:hidden">DEMO</span>
+                  <!-- Dynamic License / Demo Status Pill Badge -->
+                  <div id="headerLicenseBadgeContainer">
+                      <span class="license-status-badge"></span>
                   </div>
 
                   <div class="text-right hidden md:block">
@@ -320,7 +318,7 @@
           <div id="mainContentArea" class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 scroll-smooth">
               
               <!-- Demo Top Notice Bar -->
-              <div id="demoTopBanner" class="mb-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+              <div id="demoTopBanner" class="demo-only-element mb-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                   <div class="flex items-center gap-3">
                       <div class="w-8 h-8 rounded-xl bg-amber-500 text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-inner">
                           <i class="fas fa-sparkles"></i>
@@ -2081,6 +2079,48 @@
                       </div>
                   </div>
 
+                  <!-- DEVELOPER MASTER TOOL: GENERATOR KUNCI LISENSI KLIEN -->
+                  <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-5 sm:p-6 shadow-xl border border-indigo-500/30 text-white mb-6 animate-fade-in">
+                      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+                          <div class="flex items-center gap-3">
+                              <div class="w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center text-lg font-black shadow-lg">
+                                  <i class="fas fa-key"></i>
+                              </div>
+                              <div>
+                                  <div class="flex items-center gap-2">
+                                      <h3 class="text-sm font-black text-white tracking-wide">Developer Master: License Key Generator</h3>
+                                      <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/30">1 Domain 1 Kunci</span>
+                                  </div>
+                                  <p class="text-[11px] text-indigo-200 mt-0.5">Generate kunci lisensi resmi Full Version untuk domain sekolah klien (Signature SHA-256).</p>
+                              </div>
+                          </div>
+                          <button type="button" onclick="generateKeyForCurrentDomain()" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                              <i class="fas fa-magic"></i> Buat Kunci Domain Ini
+                          </button>
+                      </div>
+
+                      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                          <div class="md:col-span-5">
+                              <label class="block text-[11px] font-bold text-indigo-200 mb-1">Domain Target Sekolah Klien</label>
+                              <input type="text" id="devGenTargetDomain" placeholder="contoh: smansalhoksukon.sch.id atau yoseples.github.io" class="w-full px-3.5 py-2.5 bg-slate-800/90 border border-indigo-400/30 rounded-xl text-xs font-mono font-bold text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 transition">
+                          </div>
+                          <div class="md:col-span-2">
+                              <button type="button" onclick="handleGenerateDevLicense()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 rounded-xl text-xs font-black transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
+                                  <i class="fas fa-cog fa-spin-hover"></i> Generate
+                              </button>
+                          </div>
+                          <div class="md:col-span-5">
+                              <label class="block text-[11px] font-bold text-indigo-200 mb-1">Kunci Lisensi Dihasilkan</label>
+                              <div class="flex gap-2">
+                                  <input type="text" id="devGenOutputKey" readonly placeholder="SMANSA-XXXX-XXXX-XXXX-XXXX" class="flex-1 px-3.5 py-2.5 bg-black/40 border border-indigo-400/40 rounded-xl text-xs font-mono font-bold text-amber-300 select-all">
+                                  <button type="button" onclick="copyGeneratedLicenseKey()" class="px-3 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition border border-white/10 flex items-center gap-1 cursor-pointer" title="Salin Kunci">
+                                      <i class="fas fa-copy"></i>
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+
                   <!-- Statistik Master User -->
                   <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
                       <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-xs">
@@ -2198,6 +2238,54 @@
                         
                         <!-- KOLOM KIRI (2 Kolom): Formulir Pengaturan -->
                         <div class="lg:col-span-2 space-y-6">
+
+                            <!-- KARTU 0: LISENSI DOMAIN & FULL VERSION (1 DOMAIN 1 KUNCI) -->
+                            <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+                                <div class="p-5 border-b border-slate-100 bg-gradient-to-r from-amber-50/50 via-white to-slate-50 flex items-center justify-between flex-wrap gap-2">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center justify-center text-sm font-bold shadow-inner">
+                                            <i class="fas fa-key"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800 text-sm">Lisensi Domain & Status WebApp</h3>
+                                            <p class="text-[11px] text-slate-400">Sistem Lisensi 1 Domain 1 Kunci Berbasis Enkripsi SHA-256</p>
+                                        </div>
+                                    </div>
+                                    <div id="licenseStatusBadgeHeader">
+                                        <span class="license-status-badge"></span>
+                                    </div>
+                                </div>
+                                <div class="p-5 space-y-4">
+                                    <!-- Auto Detected Domain Info Bar -->
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                                        <div>
+                                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Domain Aktif Terdeteksi Otomatis:</span>
+                                            <div class="flex items-center gap-2 mt-0.5">
+                                                <i class="fas fa-globe text-indigo-500 text-xs"></i>
+                                                <span id="currentDetectedDomain" class="font-mono font-bold text-sm text-indigo-700">localhost</span>
+                                            </div>
+                                        </div>
+                                        <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-lg border border-indigo-100 font-semibold flex items-center gap-1 self-start sm:self-auto">
+                                            <i class="fas fa-shield-alt text-indigo-500"></i> Auto Domain-Bound
+                                        </span>
+                                    </div>
+
+                                    <!-- License Status Output Container -->
+                                    <div id="licenseStatusBox"></div>
+
+                                    <!-- Form Input Aktivasi Lisensi -->
+                                    <div id="licenseActivationForm" class="pt-3 border-t border-slate-100">
+                                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Aktivasi Kunci Lisensi Baru</label>
+                                        <div class="flex flex-col sm:flex-row gap-2">
+                                            <input type="text" id="inputLicenseKey" placeholder="SMANSA-XXXX-XXXX-XXXX-XXXX" class="flex-1 uppercase font-mono px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                            <button type="button" onclick="submitLicenseActivation()" class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer">
+                                                <i class="fas fa-certificate"></i> Aktifkan Full Version
+                                            </button>
+                                        </div>
+                                        <p class="text-[10px] text-slate-400 mt-1.5">Kunci lisensi resmi Full Version dapat diperoleh dari Developer untuk domain aktif sekolah Anda.</p>
+                                    </div>
+                                </div>
+                            </div>
                             
                             <!-- KARTU 1: IDENTITAS SEKOLAH & TITEL WEBAPP -->
                             <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
@@ -2652,9 +2740,12 @@
     initLocalStorage();
 
     // ============================================================================
-    // DEMO MODE CONFIGURATION & SECURITY SAFEGUARDS
+    // DEMO MODE & LICENSE STATUS CONFIGURATION
     // ============================================================================
-    const IS_DEMO_MODE = true;
+    window.APP_IS_FULL_VERSION = false;
+    function isDemoModeActive() {
+      return !window.APP_IS_FULL_VERSION;
+    }
     const DEMO_PROTECTED_USERS = ['developer', 'admin', 'guru1', 'guru2', 'tendik1', '20240101', '20240102', '20240201', '20240202'];
 
     function withTimeout(promise, ms = 2500) {
@@ -2738,6 +2829,23 @@
                   applyGlobalBranding(remoteConf);
                 }
               }
+            }
+          });
+
+          // Realtime Listener untuk sinkronisasi Kunci Lisensi Domain
+          fbDb.ref('license').on('value', snap => {
+            if (snap.exists()) {
+              const remoteLic = snap.val();
+              if (remoteLic && typeof remoteLic === 'object') {
+                localStorage.setItem('absensi_app_license', JSON.stringify(remoteLic));
+              } else {
+                localStorage.removeItem('absensi_app_license');
+              }
+            } else {
+              localStorage.removeItem('absensi_app_license');
+            }
+            if (typeof LicenseEngine !== 'undefined' && LicenseEngine.applyLicenseState) {
+              LicenseEngine.applyLicenseState();
             }
           });
         } catch (err) {
@@ -2991,6 +3099,190 @@
         }
 
         return activeUser;
+      }
+    };
+
+    // ============================================================================
+    // DOMAIN-BOUND CRYPTOGRAPHIC LICENSE ENGINE (1 DOMAIN 1 KUNCI)
+    // ============================================================================
+    const LicenseEngine = {
+      MASTER_SALT: 'KANGYOS_SMANSA_MASTER_LICENSE_KEY_2026',
+
+      getCurrentDomain: () => {
+        let hostname = 'localhost';
+        try {
+          if (typeof window !== 'undefined' && window.location) {
+            hostname = (window.location.hostname || 'localhost').toLowerCase().trim();
+          }
+        } catch(e) {}
+        return hostname || 'localhost';
+      },
+
+      cleanDomain: (domain) => {
+        return String(domain || '')
+          .toLowerCase()
+          .replace(/^https?:\/\//, '')
+          .replace(/\/.*$/, '')
+          .replace(/:\d+$/, '')
+          .trim();
+      },
+
+      computeSignature: async (domain) => {
+        const clean = LicenseEngine.cleanDomain(domain);
+        const raw = `${clean}:::${LicenseEngine.MASTER_SALT}`;
+        const hash = await AuthSecurity.digestHex(raw);
+        const p1 = hash.substring(0, 4).toUpperCase();
+        const p2 = hash.substring(4, 8).toUpperCase();
+        const p3 = hash.substring(8, 12).toUpperCase();
+        const p4 = hash.substring(12, 16).toUpperCase();
+        return `SMANSA-${p1}-${p2}-${p3}-${p4}`;
+      },
+
+      verifyKey: async (domain, key) => {
+        if (!key || typeof key !== 'string') return false;
+        const cleanKey = key.trim().toUpperCase();
+        const expected = await LicenseEngine.computeSignature(domain);
+        return cleanKey === expected;
+      },
+
+      getSavedLicense: async () => {
+        let fbLic = null;
+        try {
+          if (fbDb) {
+            const snap = await withTimeout(fbDb.ref('license').once('value'), 2000);
+            if (snap && snap.exists()) fbLic = snap.val();
+          }
+        } catch(e) {}
+
+        let localLic = null;
+        try {
+          const stored = localStorage.getItem('absensi_app_license');
+          if (stored) localLic = JSON.parse(stored);
+        } catch(e) {}
+
+        return (fbLic && typeof fbLic === 'object') ? fbLic : ((localLic && typeof localLic === 'object') ? localLic : null);
+      },
+
+      checkFullVersionStatus: async () => {
+        const currentDomain = LicenseEngine.getCurrentDomain();
+        const saved = await LicenseEngine.getSavedLicense();
+        if (!saved || !saved.key) return { isFull: false, domain: currentDomain, licenseData: null };
+
+        const valid = await LicenseEngine.verifyKey(currentDomain, saved.key);
+        return {
+          isFull: valid,
+          domain: currentDomain,
+          registeredDomain: saved.domain || '',
+          licenseData: valid ? saved : null
+        };
+      },
+
+      activateLicense: async (key) => {
+        const currentDomain = LicenseEngine.getCurrentDomain();
+        const valid = await LicenseEngine.verifyKey(currentDomain, key);
+        if (!valid) {
+          return {
+            success: false,
+            message: `Kunci lisensi tidak valid untuk domain "${currentDomain}". Pastikan kunci dibuat khusus untuk domain ini.`
+          };
+        }
+
+        const payload = {
+          domain: currentDomain,
+          key: key.trim().toUpperCase(),
+          status: 'FULL_VERSION',
+          activatedAt: new Date().toISOString()
+        };
+
+        localStorage.setItem('absensi_app_license', JSON.stringify(payload));
+        if (fbDb) {
+          try {
+            await withTimeout(fbDb.ref('license').set(payload), 3000);
+          } catch(e) {}
+        }
+
+        await LicenseEngine.applyLicenseState();
+        return {
+          success: true,
+          data: payload,
+          message: `Selamat! Lisensi resmi untuk domain "${currentDomain}" berhasil diaktifkan. Versi Penuh (Full Version) telah aktif!`
+        };
+      },
+
+      deactivateLicense: async () => {
+        localStorage.removeItem('absensi_app_license');
+        if (fbDb) {
+          try {
+            await withTimeout(fbDb.ref('license').set(false), 3000);
+          } catch(e) {}
+        }
+        await LicenseEngine.applyLicenseState();
+        return {
+          success: true,
+          message: 'Lisensi telah dicopot. Sistem kembali ke Mode Demo.'
+        };
+      },
+
+      applyLicenseState: async () => {
+        const status = await LicenseEngine.checkFullVersionStatus();
+        window.APP_IS_FULL_VERSION = status.isFull;
+
+        // Elemen Demo Banners & Login Buttons
+        const demoElements = document.querySelectorAll('.demo-only-element, #demoTopBanner');
+        const licenseBadges = document.querySelectorAll('.license-status-badge');
+
+        if (status.isFull) {
+          demoElements.forEach(el => el.classList.add('hidden'));
+          licenseBadges.forEach(el => {
+            el.className = 'license-status-badge inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs';
+            el.innerHTML = '<i class="fas fa-certificate text-emerald-500"></i> FULL VERSION (RESMI)';
+          });
+        } else {
+          demoElements.forEach(el => el.classList.remove('hidden'));
+          licenseBadges.forEach(el => {
+            el.className = 'license-status-badge inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200';
+            el.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span> DEMO MODE';
+          });
+        }
+
+        // Tampilan di Card Pengaturan
+        const domainDisplay = document.getElementById('currentDetectedDomain');
+        if (domainDisplay) domainDisplay.textContent = status.domain;
+
+        const licStatusDisplay = document.getElementById('licenseStatusBox');
+        if (licStatusDisplay) {
+          if (status.isFull && status.licenseData) {
+            licStatusDisplay.innerHTML = `
+              <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shrink-0 shadow-sm"><i class="fas fa-check-circle"></i></div>
+                  <div>
+                    <h4 class="font-bold text-emerald-950 text-xs flex items-center gap-1.5">
+                      Aplikasi Berlisensi Penuh (Full Version)
+                      <span class="px-1.5 py-0.2 bg-emerald-200/80 text-emerald-800 rounded text-[9px] font-black">TERVERIFIKASI</span>
+                    </h4>
+                    <p class="text-[11px] text-emerald-700 font-mono mt-0.5">Domain: <b>${status.domain}</b> &bull; Kunci: <b>${status.licenseData.key}</b></p>
+                  </div>
+                </div>
+                <button type="button" onclick="promptDeactivateLicense()" class="px-3.5 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold transition self-start sm:self-auto cursor-pointer">
+                  <i class="fas fa-trash-alt mr-1"></i> Copot Lisensi
+                </button>
+              </div>
+            `;
+          } else {
+            licStatusDisplay.innerHTML = `
+              <div class="p-4 bg-amber-50 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg shrink-0 shadow-sm"><i class="fas fa-info-circle"></i></div>
+                  <div>
+                    <h4 class="font-bold text-amber-950 text-xs">Status Saat Ini: Versi Demo Interaktif</h4>
+                    <p class="text-[11px] text-amber-700 mt-0.5">Aplikasi berjalan dalam mode demonstrasi. Aktifkan lisensi untuk membuka fitur penuh tanpa batasan.</p>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        }
       }
     };
 
@@ -3448,7 +3740,7 @@
       deleteSiswa: async (token, nisn) => {
         AuthSecurity.authorize(['admin'], token);
         const clean = String(nisn).replace(/^'/, '').trim();
-        if (IS_DEMO_MODE && DEMO_PROTECTED_USERS.includes(clean)) {
+        if (isDemoModeActive() && DEMO_PROTECTED_USERS.includes(clean)) {
           return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Akun siswa demo bawaan dilindungi dari penghapusan.' };
         }
         let list = await getDB('siswa');
@@ -3459,7 +3751,7 @@
 
       deleteMultipleSiswa: async (token, nisnList) => {
         AuthSecurity.authorize(['admin'], token);
-        if (IS_DEMO_MODE) {
+        if (isDemoModeActive()) {
           return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Penghapusan massal data siswa dinonaktifkan pada versi demo.' };
         }
         if (!Array.isArray(nisnList) || nisnList.length === 0) {
@@ -3538,7 +3830,7 @@
       deleteGuru: async (token, username) => {
         AuthSecurity.authorize(['admin'], token);
         const clean = String(username).replace(/^'/, '').trim().toLowerCase();
-        if (IS_DEMO_MODE && (DEMO_PROTECTED_USERS.includes(clean) || clean === 'admin')) {
+        if (isDemoModeActive() && (DEMO_PROTECTED_USERS.includes(clean) || clean === 'admin')) {
           return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Akun guru/admin demo bawaan dilindungi dari penghapusan.' };
         }
         let list = await getDB('guru');
@@ -3549,7 +3841,7 @@
 
       deleteMultipleGuru: async (token, usernameList) => {
         AuthSecurity.authorize(['admin'], token);
-        if (IS_DEMO_MODE) {
+        if (isDemoModeActive()) {
           return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Penghapusan massal akun guru dinonaktifkan pada versi demo.' };
         }
         if (!Array.isArray(usernameList) || usernameList.length === 0) {
@@ -3630,7 +3922,7 @@
       deleteTendik: async (token, username) => {
         AuthSecurity.authorize(['admin'], token);
         const clean = String(username).replace(/^'/, '').trim().toLowerCase();
-        if (IS_DEMO_MODE && DEMO_PROTECTED_USERS.includes(clean)) {
+        if (isDemoModeActive() && DEMO_PROTECTED_USERS.includes(clean)) {
           return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Akun tendik demo bawaan dilindungi dari penghapusan.' };
         }
         let list = await getDB('tendik');
@@ -3641,7 +3933,7 @@
 
       deleteMultipleTendik: async (token, usernameList) => {
         AuthSecurity.authorize(['admin'], token);
-        if (IS_DEMO_MODE) {
+        if (isDemoModeActive()) {
           return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Penghapusan massal data tendik dinonaktifkan pada versi demo.' };
         }
         if (!Array.isArray(usernameList) || usernameList.length === 0) {
@@ -3683,7 +3975,7 @@
         const newP = String(newPassword || '').trim();
 
         // Mode Demo Guard: Proteksi password akun Developer & Admin utama agar akun demo tidak terkunci bagi penguji lain
-        if (IS_DEMO_MODE && newP && ['developer', 'admin'].includes(oldU)) {
+        if (isDemoModeActive() && newP && ['developer', 'admin'].includes(oldU)) {
           return {
             success: false,
             message: '⛔ Aksi Dibatasi di Mode Demo: Penggantian password akun utama (Developer & Admin) dikunci agar akun demo tetap dapat diakses penguji lain.'
@@ -4506,7 +4798,7 @@
         if (!pass) return { success: false, message: 'Password baru tidak boleh kosong.' };
 
         // Mode Demo Guard
-        if (IS_DEMO_MODE && ['developer', 'admin'].includes(cleanId)) {
+        if (isDemoModeActive() && ['developer', 'admin'].includes(cleanId)) {
           return { success: false, message: '⛔ Aksi Dibatasi di Mode Demo: Reset password akun Developer/Admin utama dikunci pada versi demo.' };
         }
 
@@ -4560,7 +4852,7 @@
         if (cleanId === 'admin') {
           return { success: false, message: 'Proteksi Sistem: Akun Admin Utama tidak boleh dihapus!' };
         }
-        if (IS_DEMO_MODE && DEMO_PROTECTED_USERS.includes(cleanId)) {
+        if (isDemoModeActive() && DEMO_PROTECTED_USERS.includes(cleanId)) {
           return { success: false, message: `⛔ Aksi Dibatasi di Mode Demo: Akun demo bawaan "${cleanId}" dilindungi dan tidak dapat dihapus.` };
         }
 
@@ -11441,6 +11733,9 @@
 
         showView('view-pengaturan-sistem');
         setActiveMenu('Pengaturan');
+        if (typeof LicenseEngine !== 'undefined' && LicenseEngine.applyLicenseState) {
+            LicenseEngine.applyLicenseState();
+        }
         showLoading();
 
         runAPI('getAppConfig', [],
@@ -11793,7 +12088,131 @@
         });
     }
 
+    // ============================================================================
+    // DOMAIN LICENSE CLIENT ACTIONS & DEVELOPER GENERATOR
+    // ============================================================================
+    async function submitLicenseActivation() {
+        const input = document.getElementById('inputLicenseKey');
+        if (!input) return;
+        const key = input.value.trim();
+        if (!key) {
+            showAlert('error', 'Silakan masukkan kunci lisensi domain terlebih dahulu.');
+            input.focus();
+            return;
+        }
+
+        showLoading();
+        try {
+            const res = await LicenseEngine.activateLicense(key);
+            hideLoading();
+            if (res.success) {
+                input.value = '';
+                Swal.fire({
+                    title: 'Full Version Aktif! 🎉',
+                    text: res.message,
+                    icon: 'success',
+                    confirmButtonColor: '#4F46E5',
+                    confirmButtonText: 'Lanjutkan'
+                });
+            } else {
+                showAlert('error', res.message);
+            }
+        } catch(err) {
+            hideLoading();
+            showAlert('error', 'Terjadi kesalahan aktivasi lisensi: ' + err);
+        }
+    }
+
+    function promptDeactivateLicense() {
+        Swal.fire({
+            title: 'Copot Lisensi Domain?',
+            text: 'Aplikasi akan kembali berjalan dalam Mode Demo Interaktif.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#E11D48',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Ya, Copot Lisensi',
+            cancelButtonText: 'Batal'
+        }).then(async result => {
+            if (result.isConfirmed) {
+                showLoading();
+                await LicenseEngine.deactivateLicense();
+                hideLoading();
+                showAlert('info', 'Lisensi dicopot. Aplikasi kembali ke Mode Demo.');
+            }
+        });
+    }
+
+    async function handleGenerateDevLicense() {
+        const input = document.getElementById('devGenTargetDomain');
+        const out = document.getElementById('devGenOutputKey');
+        if (!input || !out) return;
+
+        const domain = input.value.trim();
+        if (!domain) {
+            showAlert('error', 'Masukkan nama domain target terlebih dahulu (contoh: smansalhoksukon.sch.id).');
+            input.focus();
+            return;
+        }
+
+        const generatedKey = await LicenseEngine.computeSignature(domain);
+        out.value = generatedKey;
+
+        if (typeof Swal !== 'undefined') {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+            Toast.fire({
+                icon: 'success',
+                title: `Kunci untuk "${LicenseEngine.cleanDomain(domain)}" berhasil di-generate!`
+            });
+        }
+    }
+
+    function generateKeyForCurrentDomain() {
+        const input = document.getElementById('devGenTargetDomain');
+        if (input) {
+            input.value = LicenseEngine.getCurrentDomain();
+            handleGenerateDevLicense();
+        }
+    }
+
+    function copyGeneratedLicenseKey() {
+        const out = document.getElementById('devGenOutputKey');
+        if (!out || !out.value) {
+            showAlert('error', 'Belum ada kunci lisensi yang di-generate.');
+            return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(out.value);
+        } else {
+            out.select();
+            document.execCommand('copy');
+        }
+
+        if (typeof Swal !== 'undefined') {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            Toast.fire({
+                icon: 'success',
+                title: 'Kunci lisensi disalin ke clipboard!'
+            });
+        }
+    }
+
     checkSession();
+    if (typeof LicenseEngine !== 'undefined' && LicenseEngine.applyLicenseState) {
+        LicenseEngine.applyLicenseState();
+    }
   </script>
 </body>
 </html>
