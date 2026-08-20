@@ -64,7 +64,12 @@ let serverConfig = { ...DEFAULT_CONFIG };
 if (fs.existsSync(CONFIG_PATH)) {
   try {
     const loaded = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-    serverConfig = { ...DEFAULT_CONFIG, ...loaded };
+    serverConfig = {
+      ...DEFAULT_CONFIG,
+      ...loaded,
+      ...(process.env.LICENSE_SERVER_PORT ? { PORT: parseInt(process.env.LICENSE_SERVER_PORT, 10) } : {}),
+      ...(process.env.ADMIN_API_KEY ? { ADMIN_API_KEY: process.env.ADMIN_API_KEY } : {})
+    };
   } catch (e) {
     console.warn('Could not parse config file, using defaults:', e.message);
   }
@@ -187,7 +192,71 @@ function cleanDomainString(rawDomain) {
     .replace(/^https?:\/\//, '')
     .replace(/\/.*$/, '')
     .replace(/:\d+$/, '')
+    .replace(/^www\./, '')
     .trim();
+}
+
+function extractAndNormalizeDomain(req, fallbackDomain) {
+  const origin = req.headers['origin'] || req.headers['referer'];
+  const host = req.headers['host'];
+  if (origin) {
+    try {
+      const u = new URL(origin);
+      return cleanDomainString(u.hostname);
+    } catch (e) {}
+  }
+  if (fallbackDomain) {
+    return cleanDomainString(fallbackDomain);
+  }
+  if (host) {
+    return cleanDomainString(host);
+  }
+  return 'localhost';
+}
+
+function getProductEntitlements(licenseType = 'Lifetime') {
+  if (licenseType === 'Trial') {
+    return {
+      basic_attendance: true,
+      qr_attendance_scan: true,
+      export_advanced_rekap: false,
+      bulk_qr_generator: false,
+      cloud_sync_backup: false,
+      custom_branding_white_label: false,
+      unlimited_user_database: false,
+      realtime_gps_geofencing: true
+    };
+  }
+  return {
+    basic_attendance: true,
+    qr_attendance_scan: true,
+    export_advanced_rekap: true,
+    bulk_qr_generator: true,
+    cloud_sync_backup: true,
+    custom_branding_white_label: true,
+    unlimited_user_database: true,
+    realtime_gps_geofencing: true
+  };
+}
+
+// Sliding window in-memory rate limiter
+const rateLimitMap = new Map();
+function checkRateLimit(ip, endpoint, maxRequests, windowMs) {
+  const key = `${ip}:${endpoint}`;
+  const now = Date.now();
+  if (!rateLimitMap.has(key)) {
+    rateLimitMap.set(key, []);
+  }
+  const timestamps = rateLimitMap.get(key).filter(t => (now - t) < windowMs);
+  if (timestamps.length >= maxRequests) {
+    rateLimitMap.set(key, timestamps);
+    const oldest = timestamps[0];
+    const retryAfter = Math.ceil((windowMs - (now - oldest)) / 1000);
+    return { limited: true, retryAfter };
+  }
+  timestamps.push(now);
+  rateLimitMap.set(key, timestamps);
+  return { limited: false };
 }
 
 function signLicenseToken(payload) {
@@ -205,11 +274,18 @@ function signLicenseToken(payload) {
 
 function verifyLicenseToken(token) {
   try {
+    if (!token || typeof token !== 'string') return { valid: false, reason: 'Token missing' };
     const parts = token.split('.');
     if (parts.length !== 3) return { valid: false, reason: 'Invalid token structure' };
     const [encodedHeader, encodedPayload, signature] = parts;
-    const dataToVerify = `${encodedHeader}.${encodedPayload}`;
 
+    // Strict Algorithm Check: Reject 'none' or unapproved algorithms
+    const header = JSON.parse(Buffer.from(encodedHeader, 'base64url').toString('utf8'));
+    if (!header || header.alg !== 'RS256') {
+      return { valid: false, reason: 'Forbidden or invalid algorithm (strictly RS256 required)' };
+    }
+
+    const dataToVerify = `${encodedHeader}.${encodedPayload}`;
     const verifier = crypto.createVerify('RSA-SHA256');
     verifier.update(dataToVerify);
     const isValid = verifier.verify(PUBLIC_KEY, signature, 'base64url');
@@ -221,6 +297,53 @@ function verifyLicenseToken(token) {
   } catch (e) {
     return { valid: false, reason: e.message };
   }
+}
+
+function authorizePremiumRequest(req, body, requiredFeature) {
+  const authHeader = req.headers['authorization'] || '';
+  const token = (authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '') || req.headers['x-license-token'] || (body && body.token) || '';
+
+  if (!token) {
+    return { authorized: false, statusCode: 403, error: 'LICENSE_REQUIRED', message: 'Fitur premium memerlukan token lisensi resmi yang valid' };
+  }
+
+  const verification = verifyLicenseToken(token);
+  if (!verification.valid) {
+    return { authorized: false, statusCode: 403, error: 'INVALID_LICENSE_TOKEN', message: 'Token lisensi tidak valid: ' + verification.reason };
+  }
+
+  const payload = verification.payload;
+  const reqDomain = extractAndNormalizeDomain(req, body && body.domain);
+
+  // Check Domain
+  if (payload.domain && cleanDomainString(payload.domain) !== cleanDomainString(reqDomain) && reqDomain !== 'localhost' && reqDomain !== '127.0.0.1') {
+    return { authorized: false, statusCode: 403, error: 'DOMAIN_MISMATCH', message: 'Token lisensi terkunci pada domain lain' };
+  }
+
+  // Check Expiration
+  if (payload.expires_at && Date.now() > new Date(payload.expires_at).getTime()) {
+    return { authorized: false, statusCode: 403, error: 'LICENSE_EXPIRED', message: 'Masa aktif lisensi telah berakhir' };
+  }
+
+  // Check Database Revocation / Suspension
+  const lic = licensesDB.find(x => x.id === payload.license_id);
+  if (lic) {
+    if (lic.status === 'revoked') {
+      return { authorized: false, statusCode: 403, error: 'LICENSE_REVOKED', message: 'Lisensi telah dicabut oleh Administrator' };
+    }
+    if (lic.status === 'suspended') {
+      return { authorized: false, statusCode: 403, error: 'LICENSE_SUSPENDED', message: 'Lisensi sedang ditangguhkan' };
+    }
+  }
+
+  // Check Feature Entitlement
+  if (requiredFeature && payload.entitlements) {
+    if (!payload.entitlements[requiredFeature]) {
+      return { authorized: false, statusCode: 403, error: 'FEATURE_NOT_ENTITLED', message: `Fitur "${requiredFeature}" tidak tercakup dalam paket lisensi ini` };
+    }
+  }
+
+  return { authorized: true, payload, license: lic };
 }
 
 // ============================================================================
@@ -288,6 +411,19 @@ const server = http.createServer(async (req, res) => {
 
     // 2. POST /api/license/activate — Client Activation
     if (req.method === 'POST' && pathname === '/api/license/activate') {
+      const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1').split(',')[0].trim();
+      const rl = checkRateLimit(ip, 'activate', 10, 5 * 60 * 1000);
+      if (rl.limited) {
+        createAuditLog(null, 'RATE_LIMIT_EXCEEDED', 'unknown', req, { endpoint: '/api/license/activate' });
+        return sendJSON(res, 429, {
+          success: false,
+          status: 'rate_limited',
+          error: 'RATE_LIMIT_EXCEEDED',
+          retry_after: rl.retryAfter,
+          message: `Terlalu banyak percobaan aktivasi. Silakan coba kembali dalam ${rl.retryAfter} detik.`
+        });
+      }
+
       const body = await parseRequestBody(req);
       const rawKey = String(body.license_key || '').trim().toUpperCase();
       const domain = cleanDomainString(body.domain);
@@ -400,7 +536,7 @@ const server = http.createServer(async (req, res) => {
       lic.updated_at = new Date().toISOString();
       saveData();
 
-      // Sign License Token (Asymmetric RSA-2048)
+      // Sign License Token (Asymmetric RSA-2048 with Entitlements)
       const tokenPayload = {
         license_id: lic.id,
         product: lic.product,
@@ -408,6 +544,7 @@ const server = http.createServer(async (req, res) => {
         customer: lic.customer_name,
         status: lic.status,
         license_type: lic.license_type,
+        entitlements: getProductEntitlements(lic.license_type),
         issued_at: new Date().toISOString(),
         expires_at: lic.expires_at || null,
         app_version: appVersion
@@ -426,6 +563,7 @@ const server = http.createServer(async (req, res) => {
           domain: lic.domain,
           customer_name: lic.customer_name,
           license_type: lic.license_type,
+          entitlements: tokenPayload.entitlements,
           expires_at: lic.expires_at
         },
         token: signedToken
@@ -434,6 +572,18 @@ const server = http.createServer(async (req, res) => {
 
     // 3. POST /api/license/verify — Token & State Verification
     if (req.method === 'POST' && pathname === '/api/license/verify') {
+      const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1').split(',')[0].trim();
+      const rl = checkRateLimit(ip, 'verify', 60, 60 * 1000);
+      if (rl.limited) {
+        return sendJSON(res, 429, {
+          success: false,
+          status: 'rate_limited',
+          error: 'RATE_LIMIT_EXCEEDED',
+          retry_after: rl.retryAfter,
+          message: `Terlalu banyak permintaan verifikasi. Silakan coba kembali dalam ${rl.retryAfter} detik.`
+        });
+      }
+
       const body = await parseRequestBody(req);
       const token = String(body.token || '').trim();
       const domain = cleanDomainString(body.domain);
@@ -517,7 +667,105 @@ const server = http.createServer(async (req, res) => {
           product: payload.product,
           domain: payload.domain,
           customer_name: payload.customer,
-          expires_at: payload.expires_at
+          expires_at: payload.expires_at,
+          entitlements: payload.entitlements || getProductEntitlements(payload.license_type)
+        }
+      });
+    }
+
+    // ========================================================================
+    // PROTECTED PREMIUM BACKEND ENDPOINTS (SERVER-SIDE AUTHORIZATION AUTHORITY)
+    // ========================================================================
+
+    // Premium 1. POST /api/premium/export-rekap — Protected Rekap Export Data
+    if (req.method === 'POST' && pathname === '/api/premium/export-rekap') {
+      const body = await parseRequestBody(req);
+      const auth = authorizePremiumRequest(req, body, 'export_advanced_rekap');
+      if (!auth.authorized) {
+        return sendJSON(res, auth.statusCode, {
+          success: false,
+          error: auth.error,
+          message: auth.message
+        });
+      }
+
+      // Return server-generated premium rekap dataset
+      return sendJSON(res, 200, {
+        success: true,
+        message: 'Otorisasi premium berhasil: Data rekapitulasi presensi digital resmi diterbitkan.',
+        data: {
+          report_id: 'rep_' + crypto.randomBytes(6).toString('hex'),
+          generated_at: new Date().toISOString(),
+          customer: auth.payload.customer,
+          domain: auth.payload.domain,
+          status: 'OFFICIAL_LICENSED_EXPORT'
+        }
+      });
+    }
+
+    // Premium 2. POST /api/premium/bulk-qr-generate — Protected Bulk QR Generation
+    if (req.method === 'POST' && pathname === '/api/premium/bulk-qr-generate') {
+      const body = await parseRequestBody(req);
+      const auth = authorizePremiumRequest(req, body, 'bulk_qr_generator');
+      if (!auth.authorized) {
+        return sendJSON(res, auth.statusCode, {
+          success: false,
+          error: auth.error,
+          message: auth.message
+        });
+      }
+
+      return sendJSON(res, 200, {
+        success: true,
+        message: 'Otorisasi premium berhasil: Modul Bulk QR Generator aktif.',
+        data: {
+          batch_id: 'qr_' + crypto.randomBytes(6).toString('hex'),
+          max_batch_size: 2000,
+          licensed_to: auth.payload.customer
+        }
+      });
+    }
+
+    // Premium 3. POST /api/premium/cloud-sync-backup — Protected Cloud Sync Backup
+    if (req.method === 'POST' && pathname === '/api/premium/cloud-sync-backup') {
+      const body = await parseRequestBody(req);
+      const auth = authorizePremiumRequest(req, body, 'cloud_sync_backup');
+      if (!auth.authorized) {
+        return sendJSON(res, auth.statusCode, {
+          success: false,
+          error: auth.error,
+          message: auth.message
+        });
+      }
+
+      return sendJSON(res, 200, {
+        success: true,
+        message: 'Otorisasi premium berhasil: Cadangan data cloud tersinkronisasi.',
+        data: {
+          backup_timestamp: new Date().toISOString(),
+          licensed_school: auth.payload.customer
+        }
+      });
+    }
+
+    // Premium 4. POST /api/premium/system-branding-update — Protected Custom Branding
+    if (req.method === 'POST' && pathname === '/api/premium/system-branding-update') {
+      const body = await parseRequestBody(req);
+      const auth = authorizePremiumRequest(req, body, 'custom_branding_white_label');
+      if (!auth.authorized) {
+        return sendJSON(res, auth.statusCode, {
+          success: false,
+          error: auth.error,
+          message: auth.message
+        });
+      }
+
+      return sendJSON(res, 200, {
+        success: true,
+        message: 'Otorisasi premium berhasil: Branding sekolah kustom tersimpan.',
+        data: {
+          white_label: true,
+          authorized_domain: auth.payload.domain
         }
       });
     }

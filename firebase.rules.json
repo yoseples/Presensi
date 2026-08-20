@@ -45,6 +45,20 @@
     "perizinan": {
       ".indexOn": ["tanggal", "nisn", "kelas", "statusPersetujuan"],
       ".validate": "newData.hasChildren() || newData.val() == false"
+    },
+    
+    "licenses": {
+      ".indexOn": ["license_key", "domain", "status", "product"],
+      ".validate": "newData.hasChildren() || newData.val() == false"
+    },
+    
+    "license": {
+      ".validate": "newData.hasChildren() || newData.val() == false"
+    },
+    
+    "license_audit_logs": {
+      ".indexOn": ["license_id", "action", "domain", "created_at"],
+      ".validate": "newData.hasChildren() || newData.val() == false"
     }
   }
 }
