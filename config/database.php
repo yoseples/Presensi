@@ -2,7 +2,7 @@
 /**
  * ============================================================================
  * KONFIGURASI KONEKSI DATABASE
- * Aplikasi Presensi Digital - SMANSA Lhoksukon
+ * Aplikasi Presensi Digital WebApp
  * ============================================================================
  *
  * Database : mukk6632_absensi

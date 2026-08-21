@@ -25,8 +25,8 @@
 1. Buka menu **Admin Panel** $\rightarrow$ **Kelola Lisensi**.
 2. Klik tombol **[+ Buat Lisensi Baru]**.
 3. Isi data:
-   - **Nama Instansi / Sekolah**: (Contoh: *SMA Negeri 2 Lhoksukon*).
-   - **Email Pelanggan**: (Contoh: *sman2lhoksukon@sch.id*).
+   - **Nama Instansi / Sekolah**: (Contoh: *SMA Negeri 1 Indonesia / Instansi Klien*).
+   - **Email Pelanggan**: (Contoh: *admin@instansi.sch.id*).
    - **Paket Lisensi**:
      - `BASIC`: Fitur presensi dasar & laporan sederhana.
      - `PRO`: Presensi, laporan, ekspor rekap digital resmi, dan multi-user.

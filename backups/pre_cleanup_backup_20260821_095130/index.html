@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- Primary Meta Tags -->
-  <title>Presensi Digital - Sistem Presensi Online & QR Code</title>
-  <meta name="title" content="Presensi Digital - Sistem Presensi Online & QR Code">
-  <meta name="description" content="Sistem Presensi Digital dengan QR Code, Barcode Scanner, dan GPS Geofencing.">
-  <meta name="author" content="KangYos Presensi">
-  <meta name="keywords" content="Presensi Digital, Sistem Presensi, QR Code, Barcode, GPS, Absensi Online">
+  <title>Presensi - Sistem Absensi SMA Negeri 1 Lhoksukon</title>
+  <meta name="title" content="Presensi - Sistem Absensi SMA Negeri 1 Lhoksukon">
+  <meta name="description" content="Sistem Presensi Digital dengan QR Code dan GPS SMA Negeri 1 Lhoksukon.">
+  <meta name="author" content="SMA Negeri 1 Lhoksukon">
+  <meta name="keywords" content="Presensi, Absensi, SMA Negeri 1 Lhoksukon, SMANSA LHOKSUKON, QR Code, GPS, Presensi Digital">
 
   <!-- PWA & Android Meta -->
   <link rel="manifest" href="manifest.json">
@@ -17,10 +17,10 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Presensi Digital">
+  <meta name="apple-mobile-web-app-title" content="Presensi SMANSA">
 
   <!-- Open Graph / Facebook / WhatsApp -->
-  <!-- Favicon Presensi Digital (GitHub Hosted & Dynamic Config) -->
+  <!-- Favicon SMANSA Lhoksukon (GitHub Hosted & Dynamic Config) -->
   <link id="appFaviconIco" rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.ico">
   <link id="appFaviconPng" rel="icon" type="image/png" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png">
   <link id="appFaviconShortcut" rel="shortcut icon" type="image/png" href="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png">
@@ -29,7 +29,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js?v=3').catch(() => {});
+        navigator.serviceWorker.register('./sw.js?v=2').catch(() => {});
       });
     }
   </script>
@@ -134,7 +134,7 @@
 <body class="bg-slate-900 font-sans antialiased text-slate-800 selection:bg-indigo-500 selection:text-white overflow-x-hidden">
 
   <!-- ========================================== -->
-  <!-- 1. LOGIN PAGE (PRESENSI DIGITAL) -->
+  <!-- 1. LOGIN PAGE (SMANSA LHOKSUKON) -->
   <!-- ========================================== -->
   <div id="loginPage" class="relative min-h-screen flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-gradient-to-b from-[#021B79] via-[#052899] to-[#01145A]">
     
@@ -159,7 +159,7 @@
             <span class="text-[9px] bg-black/30 backdrop-blur-xs text-white font-mono px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">DEMO</span>
         </div>
 
-        <!-- Logo Presensi Digital -->
+        <!-- Logo Sekolah SMANSA Lhoksukon -->
         <div class="flex flex-col items-center text-center">
             <div class="w-20 h-20 flex items-center justify-center mb-2">
                 <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" 
@@ -169,7 +169,7 @@
             </div>
             
             <h1 class="app-brand-title text-xl font-black text-slate-800 tracking-wider uppercase">PRESENSI</h1>
-            <p class="app-school-name text-xs text-slate-600 font-semibold mt-0.5">Presensi Digital WebApp</p>
+            <p class="app-school-name text-xs text-slate-600 font-semibold mt-0.5">SMA Negeri 1 Lhoksukon</p>
         </div>
 
         <!-- Quick 1-Click Demo Login Selector -->
@@ -234,9 +234,9 @@
 
         <!-- Footer Text -->
         <div class="mt-5 text-center">
-            <h4 class="app-school-name text-xs font-bold text-slate-800 tracking-wide">Presensi Digital</h4>
+            <h4 class="app-school-name text-xs font-bold text-slate-800 tracking-wide">SMA Negeri 1 Lhoksukon</h4>
             <p class="app-brand-desc text-[9px] text-slate-400 mt-1 leading-relaxed max-w-[290px] mx-auto">
-                Sistem Presensi Digital dengan QR Code, Barcode Scanner, dan GPS Geofencing.
+                Sistem Presensi Digital dengan QR Code dan GPS SMA Negeri 1 Lhoksukon.
             </p>
         </div>
 
@@ -257,8 +257,8 @@
                       <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" onerror="this.src='https://yoseples.github.io/Presensi/logo.png'" alt="Logo Sekolah" class="app-brand-logo w-full h-full object-contain">
                   </div>
                   <div class="sidebar-label transition-opacity duration-300 whitespace-nowrap overflow-hidden">
-                      <h1 class="app-school-short font-bold text-sm tracking-wide text-white truncate">PRESENSI DIGITAL</h1>
-                      <p class="app-school-name text-[9px] text-indigo-300 uppercase tracking-wider font-semibold truncate">Presensi Digital WebApp</p>
+                      <h1 class="app-school-short font-bold text-sm tracking-wide text-white truncate">SMANSA LHOKSUKON</h1>
+                      <p class="app-school-name text-[9px] text-indigo-300 uppercase tracking-wider font-semibold truncate">SMA Negeri 1 Lhoksukon</p>
                   </div>
               </div>
           </div>
@@ -927,11 +927,12 @@
                                   <i class="fas fa-info-circle text-amber-600"></i>
                                   <span id="guruStatusKetText">-</span>
                               </div>
+                          </div>
                           <div class="mt-4 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl text-xs text-indigo-900 flex items-center gap-3">
                               <i class="fas fa-map-marker-alt text-indigo-600 text-lg"></i>
                               <div>
                                   <p class="font-bold">Informasi Presensi Guru (Anti-Fraud GPS):</p>
-                                  <p class="text-[11px] text-indigo-700">Presensi mandiri guru <b>wajib mengaktifkan GPS lokasi</b> dan berada dalam radius maksimal <b>200 meter</b> dari titik koordinat lokasi instansi yang ditentukan.</p>
+                                  <p class="text-[11px] text-indigo-700">Presensi mandiri guru <b>wajib mengaktifkan GPS lokasi</b> dan berada dalam radius maksimal <b>200 meter</b> dari SMA Negeri 1 Lhoksukon (5°03'02.0"N 97°20'09.1"E).</p>
                               </div>
                           </div>
                       </div>
@@ -1177,7 +1178,7 @@
                   <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
                       <div>
                            <h2 class="text-2xl font-bold text-slate-800 tracking-tight">Dashboard Tenaga Kependidikan</h2>
-                           <p class="text-sm text-slate-500 mt-1">Presensi Digital & Profil Staf Pegawai.</p>
+                           <p class="text-sm text-slate-500 mt-1">Presensi Digital & Profil Staf SMANSA Lhoksukon.</p>
                       </div>
                       <div class="flex items-center gap-3">
                           <span class="text-xs font-bold bg-amber-50 text-amber-700 px-3 py-2 rounded-xl border border-amber-100">
@@ -1254,7 +1255,7 @@
                               <i class="fas fa-map-marker-alt text-amber-600 text-lg"></i>
                               <div>
                                   <p class="font-bold">Info Presensi Staf (Anti-Fraud GPS):</p>
-                                  <p class="text-[11px] text-amber-700">Presensi mandiri staf tendik <b>wajib mengaktifkan GPS lokasi</b> dan berada dalam radius maksimal <b>200 meter</b> dari titik koordinat lokasi instansi yang ditentukan.</p>
+                                  <p class="text-[11px] text-amber-700">Presensi mandiri staf tendik <b>wajib mengaktifkan GPS lokasi</b> dan berada dalam radius maksimal <b>200 meter</b> dari SMA Negeri 1 Lhoksukon (5°03'02.0"N 97°20'09.1"E).</p>
                               </div>
                           </div>
                       </div>
@@ -2120,7 +2121,7 @@
                       <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                           <div class="md:col-span-5">
                               <label class="block text-[11px] font-bold text-indigo-200 mb-1">Domain Target Sekolah Klien</label>
-                              <input type="text" id="devGenTargetDomain" placeholder="contoh: presensi.kangyos.com atau domain-anda.sch.id" class="w-full px-3.5 py-2.5 bg-slate-800/90 border border-indigo-400/30 rounded-xl text-xs font-mono font-bold text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 transition">
+                              <input type="text" id="devGenTargetDomain" placeholder="contoh: smansalhoksukon.sch.id atau yoseples.github.io" class="w-full px-3.5 py-2.5 bg-slate-800/90 border border-indigo-400/30 rounded-xl text-xs font-mono font-bold text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400 transition">
                           </div>
                           <div class="md:col-span-2">
                               <button type="button" onclick="handleGenerateDevLicense()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 rounded-xl text-xs font-black transition shadow-md flex items-center justify-center gap-1.5 cursor-pointer">
@@ -2413,17 +2414,17 @@
                                 <div class="p-5 space-y-4">
                                     <div>
                                         <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Lengkap Sekolah / Instansi</label>
-                                        <input type="text" id="setting_nama_sekolah" name="nama_sekolah" oninput="previewLiveBranding()" required placeholder="Contoh: SMA Negeri 1 Indonesia / Nama Instansi" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                                        <input type="text" id="setting_nama_sekolah" name="nama_sekolah" oninput="previewLiveBranding()" required placeholder="Contoh: SMA Negeri 1 Lhoksukon" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
                                         <p class="text-[10px] text-slate-400 mt-1">Ditampilkan di panel login, kartu digital siswa/guru, dan header laporan.</p>
                                     </div>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-xs font-bold text-slate-700 mb-1.5">Singkatan / Nama Header Sidebar</label>
-                                            <input type="text" id="setting_singkatan_sekolah" name="singkatan_sekolah" oninput="previewLiveBranding()" required placeholder="Contoh: PRESENSI DIGITAL" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                                            <input type="text" id="setting_singkatan_sekolah" name="singkatan_sekolah" oninput="previewLiveBranding()" required placeholder="Contoh: SMANSA LHOKSUKON" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
                                         </div>
                                         <div>
                                             <label class="block text-xs font-bold text-slate-700 mb-1.5">Titel WebApp (Browser Tab Title)</label>
-                                            <input type="text" id="setting_titel_webapp" name="titel_webapp" oninput="previewLiveBranding()" required placeholder="Contoh: Presensi Digital - Sistem Presensi Online" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                                            <input type="text" id="setting_titel_webapp" name="titel_webapp" oninput="previewLiveBranding()" required placeholder="Contoh: Presensi SMANSA - Sistem Absensi Digital" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
                                         </div>
                                     </div>
                                     <div>
@@ -2432,7 +2433,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-xs font-bold text-slate-700 mb-1.5">Alamat Sekolah / Instansi</label>
-                                        <input type="text" id="setting_alamat_sekolah" name="alamat_sekolah" placeholder="Contoh: Jl. Pemuda No. 1, Indonesia" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                                        <input type="text" id="setting_alamat_sekolah" name="alamat_sekolah" placeholder="Contoh: Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
                                     </div>
                                 </div>
                             </div>
@@ -2611,7 +2612,7 @@
                                         <img id="mockupLoginLogo" src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" class="w-full h-full object-contain">
                                     </div>
                                     <h4 id="mockupLoginTitle" class="font-black text-sm uppercase tracking-wider text-slate-800">PRESENSI</h4>
-                                    <p id="mockupLoginSchool" class="text-[11px] font-semibold text-slate-600">Presensi Digital WebApp</p>
+                                    <p id="mockupLoginSchool" class="text-[11px] font-semibold text-slate-600">SMA Negeri 1 Lhoksukon</p>
                                     <div class="mt-3 py-1.5 px-3 bg-slate-50 border border-slate-200 rounded-lg text-[9px] text-slate-400 font-mono">Form Login Pengguna</div>
                                 </div>
                             </div>
@@ -2624,8 +2625,8 @@
                                         <img id="mockupSidebarLogo" src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" class="w-full h-full object-contain">
                                     </div>
                                     <div class="overflow-hidden">
-                                        <h5 id="mockupSidebarShort" class="font-bold text-xs text-white truncate">PRESENSI DIGITAL</h5>
-                                        <p id="mockupSidebarSchool" class="text-[9px] text-indigo-300 truncate">Presensi Digital WebApp</p>
+                                        <h5 id="mockupSidebarShort" class="font-bold text-xs text-white truncate">SMANSA LHOKSUKON</h5>
+                                        <p id="mockupSidebarSchool" class="text-[9px] text-indigo-300 truncate">SMA Negeri 1 Lhoksukon</p>
                                     </div>
                                 </div>
                             </div>
@@ -2637,7 +2638,7 @@
                                     <div class="w-5 h-5 rounded flex items-center justify-center shrink-0 bg-white p-0.5 shadow-2xs">
                                         <img id="mockupTabFavicon" src="https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png" class="w-full h-full object-contain">
                                     </div>
-                                    <div class="truncate text-[11px] font-medium text-slate-700" id="mockupTabTitle">Presensi Digital - Sistem Presensi Online</div>
+                                    <div class="truncate text-[11px] font-medium text-slate-700" id="mockupTabTitle">Presensi - Sistem Absensi SMA Negeri 1 Lhoksukon</div>
                                 </div>
                             </div>
 
@@ -2998,11 +2999,11 @@
         }
       ],
       config: {
-        nama_sekolah: 'Presensi Digital',
-        singkatan_sekolah: 'PRESENSI',
-        titel_webapp: 'Presensi Digital - Sistem Presensi Online & QR Code',
-        deskripsi_webapp: 'Sistem Presensi Digital dengan QR Code, Barcode Scanner, dan GPS Geofencing.',
-        alamat_sekolah: 'Jl. Pemuda No. 1, Indonesia',
+        nama_sekolah: 'SMA Negeri 1 Lhoksukon',
+        singkatan_sekolah: 'SMANSA LHOKSUKON',
+        titel_webapp: 'Presensi SMANSA - Sistem Absensi Digital (Demo)',
+        deskripsi_webapp: 'Sistem Presensi Digital dengan QR Code dan GPS SMA Negeri 1 Lhoksukon.',
+        alamat_sekolah: 'Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara',
         logo_url: '',
         favicon_url: '',
         jam_masuk_mulai: '06:30',
@@ -5671,8 +5672,8 @@ zQIDAQAB
               id: 'lic_default_smansa',
               license_key: 'JRAK-7F4K-9X2M-Q8VP-3N6T',
               product: 'presensi-smansa-pro',
-              customer_name: 'Instansi Presensi Digital',
-              customer_email: 'admin@presensi.kangyos.com',
+              customer_name: 'SMA Negeri 1 Lhoksukon',
+              customer_email: 'smansalhoksukon@sch.id',
               domain: 'yoseples.github.io',
               status: 'active',
               license_type: 'Lifetime',
@@ -5682,7 +5683,7 @@ zQIDAQAB
               expires_at: null,
               created_at: '2026-08-20T00:00:00.000Z',
               updated_at: '2026-08-20T00:00:00.000Z',
-              notes: 'Lisensi Default Resmi'
+              notes: 'Lisensi Resmi Default SMANSA'
             }
           ];
           await setDB('licenses', list);
@@ -9989,10 +9990,10 @@ zQIDAQAB
                                 <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" onerror="this.src='https://yoseples.github.io/Presensi/logo.png'" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));">
                             </div>
                             <div style="font-size: 11px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: #f59e0b; line-height: 1.2;">
-                                ${(activeAppConfig.nama_sekolah || 'PRESENSI DIGITAL').toUpperCase()}
+                                SMA NEGERI 1 LHOKSUKON
                             </div>
                             <div style="font-size: 7px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #cbd5e1; margin-top: 1px;">
-                                SISTEM PRESENSI & KARTU IDENTITAS DIGITAL
+                                PEMERINTAH ACEH • DINAS PENDIDIKAN
                             </div>
                             <div style="margin-top: 5px;">
                                 <span style="display: inline-block; background: rgba(245,158,11,0.2); border: 1px solid rgba(251,191,36,0.5); border-radius: 9999px; padding: 2px 10px; font-size: 7.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #fde68a;">
@@ -10035,15 +10036,15 @@ zQIDAQAB
                                 </div>
                                 <div style="display: flex;">
                                     <span style="width: 65px; color: #64748b; font-weight: 700;">Masa Berlaku</span>
-                                    <span style="color: #0f243a; font-weight: 700;">: T.A. 2026 / 2027</span>
+                                    <span style="color: #0f243a; font-weight: 700;">: T.A. 2025 / 2026</span>
                                 </div>
                             </div>
 
                             <!-- Pengesahan & TTD Kepala Sekolah di Tampak Depan -->
                             <div style="display: flex; justify-content: flex-end; padding: 0 4px 6px;">
                                 <div style="text-align: center; font-size: 7px; color: #1e293b; line-height: 1.25; width: 145px;">
-                                    <div style="color: #64748b; font-size: 6.5px; font-weight: 600;">Indonesia, 15 Juli 2026</div>
-                                    <div style="font-weight: 800; font-size: 7.5px; color: #0f243a;">Kepala Instansi / Sekolah,</div>
+                                    <div style="color: #64748b; font-size: 6.5px; font-weight: 600;">Lhoksukon, 15 Juli 2025</div>
+                                    <div style="font-weight: 800; font-size: 7.5px; color: #0f243a;">Kepala SMAN 1 Lhoksukon,</div>
                                     
                                     <div style="height: 48px; display: flex; align-items: center; justify-content: center; position: relative; margin: 1px 0;">
                                         <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/ttd.png" onerror="this.src='ttd.png'" alt="Tanda Tangan & Stempel Resmi" style="position: absolute; width: 105px; max-width: 105px; height: auto; object-fit: contain; pointer-events: none; z-index: 10; top: -8px; right: 12px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));">
@@ -10066,7 +10067,7 @@ zQIDAQAB
                         <!-- Header Background -->
                         <div style="background: linear-gradient(180deg, #0f243a 0%, #173656 75%, #1e456d 100%); padding: 18px 16px 14px; border-radius: 0 0 28px 28px; box-shadow: 0 4px 12px rgba(15,36,58,0.15);">
                             <h3 style="font-size: 13.5px; font-weight: 900; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.04em; margin: 0; line-height: 1.2;">
-                                ${(activeAppConfig.nama_sekolah || 'PRESENSI DIGITAL').toUpperCase()}
+                                SMA NEGERI 1 LHOKSUKON
                             </h3>
                             <p style="font-size: 8.5px; color: #cbd5e1; font-weight: 700; margin: 3px 0 0;">
                                 Ketentuan Penggunaan Kartu Presensi
@@ -10075,10 +10076,10 @@ zQIDAQAB
 
                         <!-- Compact Rules List (Kotak Putih Ketentuan) -->
                         <div style="background: #ffffff; border-radius: 16px; padding: 10px 14px; font-size: 8.5px; text-align: left; color: #334155; line-height: 1.55; margin: 12px 14px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
-                            <div style="margin-bottom: 2.5px;">• Kartu ini adalah identitas resmi siswa ${activeAppConfig.nama_sekolah || 'Presensi Digital'}.</div>
-                            <div style="margin-bottom: 2.5px;">• Wajib dibawa setiap hari untuk pencatatan presensi digital.</div>
+                            <div style="margin-bottom: 2.5px;">• Kartu ini adalah identitas resmi siswa SMAN 1 Lhoksukon.</div>
+                            <div style="margin-bottom: 2.5px;">• Wajib dibawa setiap hari sekolah untuk presensi digital.</div>
                             <div style="margin-bottom: 2.5px;">• Dilarang meminjamkan kartu ini kepada orang lain.</div>
-                            <div>• Bila hilang/rusak, segera lapor ke Bagian Administrasi / TU.</div>
+                            <div>• Bila hilang/rusak, segera lapor ke Bagian Tata Usaha (TU).</div>
                         </div>
 
                         <!-- QR Code Box Besar (Centered & Outline Orange) -->
@@ -10091,7 +10092,7 @@ zQIDAQAB
 
                     <!-- Bottom Dark Footer -->
                     <div style="background: linear-gradient(180deg, #173656 0%, #0f243a 100%); padding: 9px 14px; color: #cbd5e1; font-size: 8px; font-weight: 600; text-align: center; letter-spacing: 0.02em;">
-                        ${window.location.origin || 'https://presensi.kangyos.com'}
+                        https://absensi.smansalhoksukon.sch.id
                     </div>
                 </div>
 
@@ -10172,10 +10173,10 @@ zQIDAQAB
                                 <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" onerror="this.src='https://yoseples.github.io/Presensi/logo.png'" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));">
                             </div>
                             <div style="font-size: 11px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: #f59e0b; line-height: 1.2;">
-                                ${(activeAppConfig.nama_sekolah || 'PRESENSI DIGITAL').toUpperCase()}
+                                SMA NEGERI 1 LHOKSUKON
                             </div>
                             <div style="font-size: 7px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #e9d5ff; margin-top: 1px;">
-                                SISTEM PRESENSI & KARTU IDENTITAS DIGITAL
+                                PEMERINTAH ACEH • DINAS PENDIDIKAN
                             </div>
                             <div style="margin-top: 5px;">
                                 <span style="display: inline-block; background: rgba(245,158,11,0.2); border: 1px solid rgba(251,191,36,0.5); border-radius: 9999px; padding: 2px 10px; font-size: 7.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #fde68a;">
@@ -10218,15 +10219,15 @@ zQIDAQAB
                                 </div>
                                 <div style="display: flex;">
                                     <span style="width: 65px; color: #64748b; font-weight: 700;">Unit Kerja</span>
-                                    <span style="color: #0f243a; font-weight: 700;">: ${activeAppConfig.nama_sekolah || 'Presensi Digital'}</span>
+                                    <span style="color: #0f243a; font-weight: 700;">: SMAN 1 Lhoksukon</span>
                                 </div>
                             </div>
 
                             <!-- Pengesahan & TTD Kepala Sekolah di Tampak Depan -->
                             <div style="display: flex; justify-content: flex-end; padding: 0 4px 6px;">
                                 <div style="text-align: center; font-size: 7px; color: #1e293b; line-height: 1.25; width: 145px;">
-                                    <div style="color: #64748b; font-size: 6.5px; font-weight: 600;">Indonesia, 15 Juli 2026</div>
-                                    <div style="font-weight: 800; font-size: 7.5px; color: #0f243a;">Kepala Instansi / Sekolah,</div>
+                                    <div style="color: #64748b; font-size: 6.5px; font-weight: 600;">Lhoksukon, 15 Juli 2025</div>
+                                    <div style="font-weight: 800; font-size: 7.5px; color: #0f243a;">Kepala SMAN 1 Lhoksukon,</div>
                                     
                                     <div style="height: 48px; display: flex; align-items: center; justify-content: center; position: relative; margin: 1px 0;">
                                         <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/ttd.png" onerror="this.src='ttd.png'" alt="Tanda Tangan & Stempel Resmi" style="position: absolute; width: 105px; max-width: 105px; height: auto; object-fit: contain; pointer-events: none; z-index: 10; top: -8px; right: 12px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));">
@@ -10249,7 +10250,7 @@ zQIDAQAB
                         <!-- Header Background -->
                         <div style="background: linear-gradient(180deg, #240d38 0%, #3b1756 75%, #4a1e6d 100%); padding: 18px 16px 14px; border-radius: 0 0 28px 28px; box-shadow: 0 4px 12px rgba(59,7,100,0.15);">
                             <h3 style="font-size: 13.5px; font-weight: 900; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.04em; margin: 0; line-height: 1.2;">
-                                ${(activeAppConfig.nama_sekolah || 'PRESENSI DIGITAL').toUpperCase()}
+                                SMA NEGERI 1 LHOKSUKON
                             </h3>
                             <p style="font-size: 8.5px; color: #e9d5ff; font-weight: 700; margin: 3px 0 0;">
                                 Ketentuan Kartu Tanda Pendidik
@@ -10258,10 +10259,10 @@ zQIDAQAB
 
                         <!-- Compact Rules List (Kotak Putih Ketentuan) -->
                         <div style="background: #ffffff; border-radius: 16px; padding: 10px 14px; font-size: 8.5px; text-align: left; color: #334155; line-height: 1.55; margin: 12px 14px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #eedbf2;">
-                            <div style="margin-bottom: 2.5px;">• Kartu identitas resmi Tenaga Pendidik ${activeAppConfig.nama_sekolah || 'Presensi Digital'}.</div>
-                            <div style="margin-bottom: 2.5px;">• Wajib digunakan untuk pencatatan presensi digital harian.</div>
+                            <div style="margin-bottom: 2.5px;">• Kartu identitas resmi Tenaga Pendidik SMAN 1 Lhoksukon.</div>
+                            <div style="margin-bottom: 2.5px;">• Wajib digunakan untuk presensi harian digital guru.</div>
                             <div style="margin-bottom: 2.5px;">• Dilarang meminjamkan kartu ini kepada pihak lain.</div>
-                            <div>• Bila hilang/rusak segera lapor ke Bagian Kepegawaian / TU.</div>
+                            <div>• Bila hilang/rusak segera lapor ke Bagian Kepegawaian TU.</div>
                         </div>
 
                         <!-- QR Code Box Besar (Centered & Outline Orange) -->
@@ -10274,7 +10275,7 @@ zQIDAQAB
 
                     <!-- Bottom Dark Footer -->
                     <div style="background: linear-gradient(180deg, #3b1756 0%, #240d38 100%); padding: 9px 14px; color: #e9d5ff; font-size: 8px; font-weight: 600; text-align: center; letter-spacing: 0.02em;">
-                        ${window.location.origin || 'https://presensi.kangyos.com'}
+                        https://absensi.smansalhoksukon.sch.id
                     </div>
                 </div>
 
@@ -10355,10 +10356,10 @@ zQIDAQAB
                                 <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" onerror="this.src='https://yoseples.github.io/Presensi/logo.png'" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));">
                             </div>
                             <div style="font-size: 11px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: #f59e0b; line-height: 1.2;">
-                                ${(activeAppConfig.nama_sekolah || 'PRESENSI DIGITAL').toUpperCase()}
+                                SMA NEGERI 1 LHOKSUKON
                             </div>
                             <div style="font-size: 7px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #fef3c7; margin-top: 1px;">
-                                SISTEM PRESENSI & KARTU IDENTITAS DIGITAL
+                                PEMERINTAH ACEH • DINAS PENDIDIKAN
                             </div>
                             <div style="margin-top: 5px;">
                                 <span style="display: inline-block; background: rgba(245,158,11,0.25); border: 1px solid rgba(251,191,36,0.6); border-radius: 9999px; padding: 2px 10px; font-size: 7.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #fde68a;">
@@ -10401,15 +10402,15 @@ zQIDAQAB
                                 </div>
                                 <div style="display: flex;">
                                     <span style="width: 65px; color: #64748b; font-weight: 700;">Unit Kerja</span>
-                                    <span style="color: #0f243a; font-weight: 700;">: ${activeAppConfig.nama_sekolah || 'Presensi Digital'}</span>
+                                    <span style="color: #0f243a; font-weight: 700;">: SMAN 1 Lhoksukon</span>
                                 </div>
                             </div>
 
                             <!-- Pengesahan & TTD Kepala Sekolah di Tampak Depan -->
                             <div style="display: flex; justify-content: flex-end; padding: 0 4px 6px;">
                                 <div style="text-align: center; font-size: 7px; color: #1e293b; line-height: 1.25; width: 145px;">
-                                    <div style="color: #64748b; font-size: 6.5px; font-weight: 600;">Indonesia, 15 Juli 2026</div>
-                                    <div style="font-weight: 800; font-size: 7.5px; color: #0f243a;">Kepala Instansi / Sekolah,</div>
+                                    <div style="color: #64748b; font-size: 6.5px; font-weight: 600;">Lhoksukon, 15 Juli 2025</div>
+                                    <div style="font-weight: 800; font-size: 7.5px; color: #0f243a;">Kepala SMAN 1 Lhoksukon,</div>
                                     
                                     <div style="height: 48px; display: flex; align-items: center; justify-content: center; position: relative; margin: 1px 0;">
                                         <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/ttd.png" onerror="this.src='ttd.png'" alt="Tanda Tangan & Stempel Resmi" style="position: absolute; width: 105px; max-width: 105px; height: auto; object-fit: contain; pointer-events: none; z-index: 10; top: -8px; right: 12px; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.05));">
@@ -10432,7 +10433,7 @@ zQIDAQAB
                         <!-- Header Background -->
                         <div style="background: linear-gradient(180deg, #3d1c06 0%, #78350f 75%, #92400e 100%); padding: 18px 16px 14px; border-radius: 0 0 28px 28px; box-shadow: 0 4px 12px rgba(120,53,15,0.15);">
                             <h3 style="font-size: 13.5px; font-weight: 900; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.04em; margin: 0; line-height: 1.2;">
-                                ${(activeAppConfig.nama_sekolah || 'PRESENSI DIGITAL').toUpperCase()}
+                                SMA NEGERI 1 LHOKSUKON
                             </h3>
                             <p style="font-size: 8.5px; color: #fef3c7; font-weight: 700; margin: 3px 0 0;">
                                 Ketentuan Kartu Tenaga Kependidikan
@@ -10441,10 +10442,10 @@ zQIDAQAB
 
                         <!-- Compact Rules List (Kotak Putih Ketentuan) -->
                         <div style="background: #ffffff; border-radius: 16px; padding: 10px 14px; font-size: 8.5px; text-align: left; color: #334155; line-height: 1.55; margin: 12px 14px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #fde68a;">
-                            <div style="margin-bottom: 2.5px;">• Kartu ini adalah identitas resmi Tenaga Kependidikan ${activeAppConfig.nama_sekolah || 'Presensi Digital'}.</div>
+                            <div style="margin-bottom: 2.5px;">• Kartu ini adalah identitas resmi Tenaga Kependidikan SMAN 1 Lhoksukon.</div>
                             <div style="margin-bottom: 2.5px;">• Wajib digunakan untuk pencatatan presensi digital harian.</div>
                             <div style="margin-bottom: 2.5px;">• Dilarang meminjamkan kartu kepada siapapun.</div>
-                            <div>• Bila hilang/rusak segera lapor ke Bagian Administrasi / TU.</div>
+                            <div>• Bila hilang/rusak segera lapor ke Bagian Tata Usaha (TU).</div>
                         </div>
 
                         <!-- QR Code Box Besar (Centered & Outline Orange) -->
@@ -10457,7 +10458,7 @@ zQIDAQAB
 
                     <!-- Bottom Dark Footer -->
                     <div style="background: linear-gradient(180deg, #78350f 0%, #3d1c06 100%); padding: 9px 14px; color: #fde68a; font-size: 8px; font-weight: 600; text-align: center; letter-spacing: 0.02em;">
-                        ${window.location.origin || 'https://presensi.kangyos.com'}
+                        https://absensi.smansalhoksukon.sch.id
                     </div>
                 </div>
 
@@ -11414,7 +11415,7 @@ zQIDAQAB
                 <div class="text-center mb-5">
                     <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl"><i class="fas fa-user-tie"></i></div>
                     <h3 class="font-bold text-lg text-slate-800">Tambah Tendik / Staf Baru</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Presensi Digital</p>
+                    <p class="text-xs text-slate-500 mt-0.5">SMANSA Lhoksukon</p>
                 </div>
                 <form onsubmit="submitAddTendik(event)" class="space-y-3 text-xs">
                     <div>
@@ -11919,10 +11920,10 @@ zQIDAQAB
                                             <img src="https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png" onerror="this.src='https://yoseples.github.io/Presensi/logo.png'" style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));">
                                         </div>
                                         <div style="font-size: 10.5px; font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; color: #f59e0b; line-height: 1.2;">
-                                            ${(activeAppConfig.nama_sekolah || 'PRESENSI DIGITAL').toUpperCase()}
+                                            SMA NEGERI 1 LHOKSUKON
                                         </div>
                                         <div style="font-size: 7px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #cbd5e1; margin-top: 1px;">
-                                            SISTEM PRESENSI & KARTU IDENTITAS DIGITAL
+                                            PEMERINTAH ACEH • DISDIK
                                         </div>
                                         <div style="margin-top: 5px;">
                                             <span style="display: inline-block; background: rgba(245,158,11,0.2); border: 1px solid rgba(251,191,36,0.5); border-radius: 9999px; padding: 2px 10px; font-size: 7.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #fde68a;">
@@ -12829,14 +12830,14 @@ zQIDAQAB
     }
 
     // ============================================================================
-    // PENGATURAN SISTEM & BRANDING WEBAPP (NAMA INSTANSI, LOGO, FAVICON, TITEL)
+    // PENGATURAN SISTEM & BRANDING WEBAPP (NAMA SEKOLAH, LOGO, FAVICON, TITEL)
     // ============================================================================
     const DEFAULT_APP_BRANDING = {
-        nama_sekolah: 'Presensi Digital',
-        singkatan_sekolah: 'PRESENSI',
-        titel_webapp: 'Presensi Digital - Sistem Presensi Online & QR Code',
-        deskripsi_webapp: 'Sistem Presensi Digital dengan QR Code, Barcode Scanner, dan GPS Geofencing.',
-        alamat_sekolah: 'Jl. Pemuda No. 1, Indonesia',
+        nama_sekolah: 'SMA Negeri 1 Lhoksukon',
+        singkatan_sekolah: 'SMANSA LHOKSUKON',
+        titel_webapp: 'Presensi - Sistem Absensi SMA Negeri 1 Lhoksukon',
+        deskripsi_webapp: 'Sistem Presensi Digital dengan QR Code dan GPS SMA Negeri 1 Lhoksukon.',
+        alamat_sekolah: 'Jl. Medan - Banda Aceh, Lhoksukon, Kab. Aceh Utara',
         logo_url: 'https://raw.githubusercontent.com/yoseples/Presensi/main/logo.png',
         favicon_url: 'https://raw.githubusercontent.com/yoseples/Presensi/main/favicon.png'
     };
@@ -13093,7 +13094,7 @@ zQIDAQAB
     function resetBrandingToDefault() {
         Swal.fire({
             title: 'Reset Pengaturan ke Default?',
-            text: 'Nama instansi, logo, favicon, dan titel webapp akan dikembalikan ke setelan awal default Presensi Digital.',
+            text: 'Nama sekolah, logo, favicon, dan titel webapp akan dikembalikan ke setelan awal SMANSA Lhoksukon.',
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#4F46E5',
@@ -13627,11 +13628,11 @@ zQIDAQAB
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Nama Sekolah / Instansi <span class="text-rose-500">*</span></label>
-                                <input type="text" id="genCustomerName" required placeholder="Contoh: SMA Negeri 1 Indonesia / Instansi Pelanggan" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                <input type="text" id="genCustomerName" required placeholder="Contoh: SMAN 2 Lhoksukon" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
                             </div>
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Email Pelanggan</label>
-                                <input type="email" id="genCustomerEmail" placeholder="admin@instansi.sch.id" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                <input type="email" id="genCustomerEmail" placeholder="admin@sman2lhoksukon.sch.id" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
                             </div>
                         </div>
 
@@ -13641,7 +13642,7 @@ zQIDAQAB
                                 <label class="block text-[11px] font-bold text-slate-700">Domain Target (Opsional)</label>
                                 <span class="text-[9px] text-indigo-600 font-bold">Boleh kosong untuk aktivasi pertama</span>
                             </div>
-                            <input type="text" id="genDomain" placeholder="contoh: presensi.kangyos.com (kosongkan jika belum dipasang)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                            <input type="text" id="genDomain" placeholder="contoh: sman2lhoksukon.sch.id (kosongkan jika belum dipasang)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
                         </div>
 
                         <!-- License Type & Max Activation -->

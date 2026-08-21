@@ -40,10 +40,16 @@ async function runAllTests() {
   console.log('=======================================================\n');
 
   // Start HTTP Server on dynamic port for API testing
-  const PORT = 3099;
-  await new Promise((resolve) => server.listen(PORT, resolve));
+  let actualPort = 3001;
+  if (!server.listening) {
+    const PORT = 3099;
+    await new Promise((resolve) => server.listen(PORT, resolve));
+    actualPort = PORT;
+  } else {
+    actualPort = server.address().port || 3001;
+  }
 
-  const BASE_URL = `http://127.0.0.1:${PORT}`;
+  const BASE_URL = `http://127.0.0.1:${actualPort}`;
 
   async function apiCall(endpoint, method = 'POST', body = null) {
     const headers = {
@@ -135,7 +141,7 @@ async function runAllTests() {
     // ------------------------------------------------------------------------
     console.log('\n🔹 SCENARIO 6: Invalid License Key');
     const actInvalid = await apiCall('/api/license/activate', 'POST', {
-      license_key: 'JRAK-FAKE-FAKE-FAKE-FAKE',
+      license_key: 'INVALID_KEY_FORMAT_123',
       domain: 'myschool.sch.id',
       product: 'presensi-smansa-pro'
     });

@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Presensi SMANSA</string>
+    <string name="app_name">Presensi Digital</string>
     <string name="error_offline_title">Koneksi Internet Terputus</string>
-    <string name="error_offline_desc">Pastikan perangkat Anda terhubung ke jaringan internet (WiFi / Data Seluler) untuk mengakses Presensi SMANSA Lhoksukon.</string>
+    <string name="error_offline_desc">Pastikan perangkat Anda terhubung ke jaringan internet (WiFi / Data Seluler) untuk mengakses Presensi Digital WebApp.</string>
     <string name="btn_retry">Coba Lagi</string>
 </resources>

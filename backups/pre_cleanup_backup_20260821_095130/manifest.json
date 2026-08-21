@@ -1,7 +1,7 @@
 {
-  "name": "Presensi Digital WebApp",
-  "short_name": "Presensi Digital",
-  "description": "Sistem Presensi Digital Terintegrasi QR Code & Barcode Scanner",
+  "name": "Presensi Digital SMA Negeri 1 Lhoksukon",
+  "short_name": "Presensi SMANSA",
+  "description": "Sistem Presensi Digital dengan QR Code & GPS SMA Negeri 1 Lhoksukon",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

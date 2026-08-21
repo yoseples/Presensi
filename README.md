@@ -1,12 +1,12 @@
-# Presensi - Sistem Absensi SMA Negeri 1 Lhoksukon
+# Presensi Digital WebApp
 
-**Sistem Presensi Digital dengan QR Code dan GPS SMA Negeri 1 Lhoksukon.**
+**Sistem Presensi Digital dengan QR Code Scanner, Barcode, GPS Geofencing, dan License Management System.**
 
-Aplikasi web presensi siswa dan manajemen kehadiran sekolah modern, responsif, dan siap langsung di-deploy secara gratis ke **GitHub Pages**.
+Aplikasi web presensi siswa, guru, dan pegawai instansi yang modern, responsif, dan siap langsung di-deploy ke **cPanel**, **Hostinger VPS/Cloud**, atau **GitHub Pages**.
 
 ---
 
-## 🌟 Fitur Utama SMANSA LHOKSUKON
+## 🌟 Fitur Utama Presensi Digital
 1. **Multi-Role Login**:
    - **Developer (Master Super Admin)**: Akses eksklusif modul **Manajemen User** lintas seluruh role (Developer, Admin, Guru, Tendik, Siswa), reset password instan dengan enkripsi SHA-256 + Salt, audit status enkripsi, proteksi akun utama, export audit user ke Excel, dan bypass hak akses penuh ke seluruh modul sistem.
    - **Admin (Super Admin)**: Dashboard statistik global seluruh siswa, kelola direktori siswa, kelola akun guru & tendik, pengaturan waktu buka/tutup absensi, kelola tanggal merah/hari libur, serta rekap laporan kehadiran periode + export ke Excel.
@@ -16,8 +16,8 @@ Aplikasi web presensi siswa dan manajemen kehadiran sekolah modern, responsif, d
 2. **Scanner Kamera QR Code (Html5Qrcode)**:
    - Mendukung kamera depan & belakang di smartphone atau laptop.
    - Otomatis mencatat absen datang (terlambat / tepat waktu) dan absen pulang (pulang cepat / selesai).
-3. **Cetak Kartu Pelajar & Pendidik Digital**:
-   - Generator QR Code instan berbasis NISN / NIP khusus SMA Negeri 1 Lhoksukon.
+3. **Cetak Kartu Identitas Digital**:
+   - Generator QR Code instan berbasis NISN / NIP.
    - Dilengkapi tombol cetak kartu siap print / PDF.
 4. **Monitoring & Laporan Excel (SheetJS)**:
    - Export Excel instan langsung terunduh ke perangkat (`.xlsx`).
@@ -96,7 +96,7 @@ Mengaktivasi lisensi pada domain WebApp.
   ```json
   {
     "license_key": "JRAK-7F4K-9X2M-Q8VP-3N6T",
-    "domain": "smansalhoksukon.sch.id",
+    "domain": "presensi.kangyos.com",
     "product": "presensi-smansa-pro"
   }
   ```
@@ -108,8 +108,8 @@ Mengaktivasi lisensi pada domain WebApp.
     "message": "License activated successfully",
     "license": {
       "product": "presensi-smansa-pro",
-      "domain": "smansalhoksukon.sch.id",
-      "customer_name": "SMA Negeri 1 Lhoksukon",
+      "domain": "presensi.kangyos.com",
+      "customer_name": "Instansi Presensi Digital",
       "license_type": "Lifetime",
       "expires_at": null
     },
@@ -123,7 +123,7 @@ Memverifikasi validitas signed token dan status lisensi terkini.
   ```json
   {
     "token": "SIGNED_RSA_TOKEN",
-    "domain": "smansalhoksukon.sch.id",
+    "domain": "presensi.kangyos.com",
     "product": "presensi-smansa-pro"
   }
   ```

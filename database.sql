@@ -1,5 +1,5 @@
 -- ============================================================================
--- DATABASE PRESENSI DIGITAL - SMANSA LHOKSUKON
+-- DATABASE PRESENSI DIGITAL WEBAPP
 -- ============================================================================
 -- Database : mukk6632_absensi
 -- User     : mukk6632_absensi
@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS `license_audit_logs` (
 
 -- Data awal lisensi default
 INSERT INTO `licenses` (`id`, `license_key`, `license_key_hash`, `product`, `customer_name`, `customer_email`, `domain`, `status`, `license_type`, `max_activation`, `activation_count`, `activated_at`, `expires_at`, `notes`) VALUES
-('lic_default_smansa', 'JRAK-7F4K-9X2M-Q8VP-3N6T', '67a84ff105264b3ef816a7516d24f0c4369a3044a04d588523ef21fb47b4e723', 'presensi-smansa-pro', 'SMA Negeri 1 Lhoksukon', 'smansalhoksukon@sch.id', 'yoseples.github.io', 'active', 'Lifetime', 1, 1, NOW(), NULL, 'Lisensi Default Resmi SMA Negeri 1 Lhoksukon');
+('lic_default_smansa', 'JRAK-7F4K-9X2M-Q8VP-3N6T', '67a84ff105264b3ef816a7516d24f0c4369a3044a04d588523ef21fb47b4e723', 'presensi-smansa-pro', 'Instansi Presensi Digital', 'admin@presensi.kangyos.com', 'yoseples.github.io', 'active', 'Lifetime', 1, 1, NOW(), NULL, 'Lisensi Default Resmi Presensi Digital');
 
 -- ============================================================================
 -- SELESAI - Database mukk6632_absensi siap digunakan!

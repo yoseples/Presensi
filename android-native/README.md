@@ -1,6 +1,6 @@
-# Aplikasi Android Presensi SMANSA Lhoksukon
+# Aplikasi Android Presensi Digital WebApp
 
-Aplikasi Android Native (Java) berbasis WebView Modern untuk sistem presensi **SMA Negeri 1 Lhoksukon** (https://absensi.smansalhoksukon.sch.id/).
+Aplikasi Android Native (Java) berbasis WebView Modern untuk sistem presensi **Presensi Digital WebApp** (https://presensi.kangyos.com/).
 
 ---
 

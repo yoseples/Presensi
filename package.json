@@ -1,7 +1,7 @@
 {
-  "name": "presensi-smansa-lhoksukon",
+  "name": "presensi-digital-webapp",
   "version": "1.0.0",
-  "description": "Sistem Presensi Digital SMA Negeri 1 Lhoksukon dengan QR Code dan GPS",
+  "description": "Sistem Presensi Digital dengan QR Code Scanner, GPS Geofencing, dan License Management",
   "main": "index.html",
   "scripts": {
     "build": "echo 'Web assets ready'",
@@ -11,12 +11,12 @@
   "keywords": [
     "presensi",
     "absensi",
-    "smansa",
-    "lhoksukon",
+    "digital",
+    "pwa",
     "android",
     "apk"
   ],
-  "author": "SMA Negeri 1 Lhoksukon",
+  "author": "Presensi Digital",
   "license": "MIT",
   "dependencies": {
     "@capacitor/android": "^6.1.2",

@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Presensi SMANSA Lhoksukon"
+rootProject.name = "Presensi Digital"
 include(":app")

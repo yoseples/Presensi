@@ -1,11 +1,9 @@
-// Service Worker for Presensi Digital
-const CACHE_NAME = 'presensi-kangyos-v3';
+// Service Worker for Presensi SMANSA Lhoksukon
+const CACHE_NAME = 'smansa-presensi-v2';
 const ASSETS_TO_CACHE = [
   './manifest.json',
   './logo.png',
-  './ttd.png',
-  './favicon.ico',
-  './favicon.png'
+  './ttd.png'
 ];
 
 self.addEventListener('install', (event) => {

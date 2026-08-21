@@ -46,7 +46,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String TARGET_URL = "https://absensi.smansalhoksukon.sch.id/";
+    public static final String TARGET_URL = "https://presensi.kangyos.com/";
 
     private WebView webView;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // Domain internal tetap di dalam WebView
-                if (url.contains("absensi.smansalhoksukon.sch.id") || url.contains("smansalhoksukon.sch.id")) {
+                if (url.contains("presensi.kangyos.com") || url.contains("kangyos.com") || url.contains("absensi.smansalhoksukon.sch.id") || url.contains("smansalhoksukon.sch.id")) {
                     return false;
                 }
 
