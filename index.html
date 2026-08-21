@@ -2258,8 +2258,8 @@
                         <!-- KOLOM KIRI (2 Kolom): Formulir Pengaturan -->
                         <div class="lg:col-span-2 space-y-6">
 
-                            <!-- KARTU 0: LISENSI DOMAIN & FULL VERSION (1 DOMAIN 1 KUNCI) -->
-                            <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+                            <!-- KARTU 0: LISENSI DOMAIN & FULL VERSION (CONDITIONAL VISIBILITY) -->
+                            <div id="cardLicenseSettings" class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
                                 <div class="p-5 border-b border-slate-100 bg-gradient-to-r from-amber-50/50 via-white to-slate-50 flex items-center justify-between flex-wrap gap-2">
                                     <div class="flex items-center gap-3">
                                         <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20 flex items-center justify-center text-sm font-bold shadow-inner">
@@ -2267,7 +2267,7 @@
                                         </div>
                                         <div>
                                             <h3 class="font-bold text-slate-800 text-sm">Lisensi Domain & Status WebApp</h3>
-                                            <p class="text-[11px] text-slate-400">Sistem Lisensi 1 Domain 1 Kunci Berbasis Enkripsi SHA-256</p>
+                                            <p class="text-[11px] text-slate-400">Sistem Lisensi 1 Domain 1 Kunci Berbasis Enkripsi RSA-2048</p>
                                         </div>
                                     </div>
                                     <div id="licenseStatusBadgeHeader">
@@ -2302,6 +2302,97 @@
                                             </button>
                                         </div>
                                         <p class="text-[10px] text-slate-400 mt-1.5">Kunci lisensi resmi Full Version dapat diperoleh dari Developer untuk domain aktif sekolah Anda.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- KARTU FIREBASE: KONFIGURASI FIREBASE DATABASE -->
+                            <div id="cardFirebaseSettings" class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden animate-fade-in">
+                                <div class="p-5 border-b border-slate-100 bg-gradient-to-r from-amber-50/40 via-orange-50/20 to-white flex items-center justify-between flex-wrap gap-2">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center text-sm font-bold shadow-sm">
+                                            <i class="fas fa-fire"></i>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h3 class="font-bold text-slate-800 text-sm">Konfigurasi Firebase Database</h3>
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Realtime Cloud DB</span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-400">Sinkronisasi Cloud Realtime & Penyimpanan Multi-Device</p>
+                                        </div>
+                                    </div>
+                                    <div id="firebaseConnectionBadge" class="flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                                        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Standby
+                                    </div>
+                                </div>
+                                
+                                <div class="p-5 space-y-4">
+                                    <!-- Notice / Security banner -->
+                                    <div class="p-3.5 bg-amber-50/60 rounded-xl border border-amber-200/60 flex items-start gap-3">
+                                        <i class="fas fa-shield-alt text-amber-600 text-sm mt-0.5 shrink-0"></i>
+                                        <div class="text-[11px] text-amber-900 leading-relaxed">
+                                            <b>Developer & Super Admin Control:</b> Konfigurasi Firebase Web SDK di bawah digunakan oleh WebApp untuk sinkronisasi Realtime Database. Akses data tetap dikontrol secara ketat oleh <b>Firebase Security Rules</b>.
+                                        </div>
+                                    </div>
+
+                                    <!-- Field Form Firebase -->
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1.5">API Key</label>
+                                            <input type="text" id="fb_apiKey" placeholder="AIzaSy..." class="w-full px-3.5 py-2.5 font-mono border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Project ID</label>
+                                            <input type="text" id="fb_projectId" placeholder="presensi-kangyos" class="w-full px-3.5 py-2.5 font-mono border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                                            Database URL <span class="text-rose-500 font-bold">*</span>
+                                        </label>
+                                        <input type="url" id="fb_databaseURL" placeholder="https://your-project-default-rtdb.asia-southeast1.firebasedatabase.app" class="w-full px-3.5 py-2.5 font-mono border border-slate-200 rounded-xl text-xs font-bold text-indigo-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+                                        <p class="text-[10px] text-slate-400 mt-1">Endpoint utama Firebase Realtime Database. Format wajib diawali dengan <code>https://</code>.</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Auth Domain</label>
+                                            <input type="text" id="fb_authDomain" placeholder="presensi-kangyos.firebaseapp.com" class="w-full px-3.5 py-2.5 font-mono border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Storage Bucket</label>
+                                            <input type="text" id="fb_storageBucket" placeholder="presensi-kangyos.firebasestorage.app" class="w-full px-3.5 py-2.5 font-mono border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Messaging Sender ID</label>
+                                            <input type="text" id="fb_messagingSenderId" placeholder="1234567890" class="w-full px-3.5 py-2.5 font-mono border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1.5">App ID</label>
+                                            <input type="text" id="fb_appId" placeholder="1:1234567890:web:abcdef" class="w-full px-3.5 py-2.5 font-mono border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
+                                        </div>
+                                    </div>
+
+                                    <!-- Live Test Connection Output Box -->
+                                    <div id="firebaseTestResultBox" class="hidden"></div>
+
+                                    <!-- Action Buttons -->
+                                    <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <button type="button" onclick="handleTestFirebaseConnectionUI()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                                                <i class="fas fa-bolt text-amber-400"></i> Test Connection
+                                            </button>
+                                            <button type="button" onclick="handleSaveFirebaseConfigUI()" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 cursor-pointer">
+                                                <i class="fas fa-save"></i> Simpan Konfigurasi
+                                            </button>
+                                        </div>
+                                        <button type="button" onclick="promptResetFirebaseConfig()" class="px-3.5 py-2 text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Kembalikan ke Konfigurasi Default">
+                                            <i class="fas fa-undo text-xs"></i> Reset Firebase
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -2742,27 +2833,67 @@
   <!-- ========================================== -->
   <script>
     /**
-     * FIREBASE REALTIME DATABASE ADAPTER (cPanel & GitHub Pages Ready)
-     * Project: presensi-kangyos (Demo System)
+     * FIREBASE REALTIME DATABASE ADAPTER (cPanel, Hostinger & GitHub Pages Ready)
+     * Project: presensi-kangyos
      */
-    const firebaseConfig = {
+    const DEFAULT_FIREBASE_CONFIG = {
       apiKey: "",
       authDomain: "presensi-kangyos.firebaseapp.com",
       databaseURL: "https://presensi-kangyos-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "presensi-kangyos",
-      storageBucket: "presensi-kangyos.firebasestorage.app"
+      storageBucket: "presensi-kangyos.firebasestorage.app",
+      messagingSenderId: "",
+      appId: ""
     };
+
+    let firebaseConfig = { ...DEFAULT_FIREBASE_CONFIG };
+
+    function loadPersistedFirebaseConfig() {
+      try {
+        const stored = localStorage.getItem('absensi_firebase_config');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && typeof parsed === 'object') {
+            firebaseConfig = { ...DEFAULT_FIREBASE_CONFIG, ...parsed };
+          }
+        }
+      } catch (e) {
+        console.warn('Could not load stored Firebase config:', e);
+      }
+    }
+    loadPersistedFirebaseConfig();
 
     let fbApp = null;
     let fbDb = null;
-    try {
-      if (typeof firebase !== 'undefined' && firebaseConfig.databaseURL) {
-        fbApp = firebase.initializeApp(firebaseConfig);
-        fbDb = firebase.database();
+
+    function initFirebaseInstance(cfg) {
+      if (typeof firebase === 'undefined') {
+        console.warn('Firebase SDK not loaded.');
+        return null;
       }
-    } catch (e) {
-      console.warn("Firebase Init Error:", e);
+      try {
+        if (fbDb) {
+          try { fbDb.ref().off(); } catch(e) {}
+        }
+        if (firebase.apps && firebase.apps.length > 0) {
+          for (let app of [...firebase.apps]) {
+            try { app.delete(); } catch(err) {}
+          }
+        }
+        
+        const effectiveConfig = cfg || firebaseConfig;
+        if (effectiveConfig && effectiveConfig.databaseURL) {
+          fbApp = firebase.initializeApp(effectiveConfig);
+          fbDb = firebase.database();
+          return fbDb;
+        }
+      } catch (e) {
+        console.warn("Firebase Init Error:", e);
+      }
+      return null;
     }
+
+    initFirebaseInstance();
 
     const DEFAULT_GAS_API_URL = '';
 
@@ -3662,8 +3793,23 @@ zQIDAQAB
         if (domainDisplay) domainDisplay.textContent = status.domain;
 
         const licStatusDisplay = document.getElementById('licenseStatusBox');
-        if (licStatusDisplay) {
-          if (status.isFull && status.licenseData) {
+        const actForm = document.getElementById('licenseActivationForm');
+        const licCard = document.getElementById('cardLicenseSettings');
+        const isSuperRole = (currentUser && ['developer', 'super_admin'].includes(currentUser.role));
+
+        if (status.isFull) {
+          // In Full Mode:
+          // For Normal Admin: Hide the activation form or entire license card from normal settings view
+          if (!isSuperRole) {
+            if (actForm) actForm.classList.add('hidden');
+            if (licCard) licCard.classList.add('hidden');
+          } else {
+            // For Developer/Super Admin: Keep license maintenance visible with clean status
+            if (licCard) licCard.classList.remove('hidden');
+            if (actForm) actForm.classList.add('hidden'); // Form input hidden since it's already full, status box has "Copot Lisensi"
+          }
+
+          if (licStatusDisplay) {
             licStatusDisplay.innerHTML = `
               <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
                 <div class="flex items-center gap-3">
@@ -3673,15 +3819,23 @@ zQIDAQAB
                       Aplikasi Berlisensi Penuh (Full Version)
                       <span class="px-1.5 py-0.2 bg-emerald-200/80 text-emerald-800 rounded text-[9px] font-black">TERVERIFIKASI</span>
                     </h4>
-                    <p class="text-[11px] text-emerald-700 font-mono mt-0.5">Domain: <b>${status.domain}</b> &bull; Kunci: <b>${status.licenseData.key}</b></p>
+                    <p class="text-[11px] text-emerald-700 font-mono mt-0.5">Domain: <b>${status.domain}</b> &bull; Kunci: <b>${status.licenseData ? status.licenseData.key : 'Terdaftar'}</b></p>
                   </div>
                 </div>
+                ${isSuperRole ? `
                 <button type="button" onclick="promptDeactivateLicense()" class="px-3.5 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold transition self-start sm:self-auto cursor-pointer">
                   <i class="fas fa-trash-alt mr-1"></i> Copot Lisensi
-                </button>
+                </button>` : ''}
               </div>
             `;
-          } else {
+          }
+        } else {
+          // In Demo / Expired / Revoked Mode:
+          // Always show License Card and Activation Form so license key can be entered
+          if (licCard) licCard.classList.remove('hidden');
+          if (actForm) actForm.classList.remove('hidden');
+
+          if (licStatusDisplay) {
             licStatusDisplay.innerHTML = `
               <div class="p-4 bg-amber-50 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
                 <div class="flex items-center gap-3">
@@ -3695,8 +3849,190 @@ zQIDAQAB
             `;
           }
         }
+
+        // Apply Firebase Card Visibility based on Role (Developer/Super Admin only)
+        const fbCard = document.getElementById('cardFirebaseSettings');
+        if (fbCard) {
+          if (isSuperRole) fbCard.classList.remove('hidden');
+          else fbCard.classList.add('hidden');
+        }
       }
     };
+
+    // ============================================================================
+    // FIREBASE DATABASE UI HANDLERS
+    // ============================================================================
+    function populateFirebaseFormValues() {
+      const elApiKey = document.getElementById('fb_apiKey');
+      const elProjectId = document.getElementById('fb_projectId');
+      const elDatabaseURL = document.getElementById('fb_databaseURL');
+      const elAuthDomain = document.getElementById('fb_authDomain');
+      const elStorageBucket = document.getElementById('fb_storageBucket');
+      const elSenderId = document.getElementById('fb_messagingSenderId');
+      const elAppId = document.getElementById('fb_appId');
+
+      if (elApiKey) elApiKey.value = firebaseConfig.apiKey || '';
+      if (elProjectId) elProjectId.value = firebaseConfig.projectId || '';
+      if (elDatabaseURL) elDatabaseURL.value = firebaseConfig.databaseURL || '';
+      if (elAuthDomain) elAuthDomain.value = firebaseConfig.authDomain || '';
+      if (elStorageBucket) elStorageBucket.value = firebaseConfig.storageBucket || '';
+      if (elSenderId) elSenderId.value = firebaseConfig.messagingSenderId || '';
+      if (elAppId) elAppId.value = firebaseConfig.appId || '';
+
+      updateFirebaseConnectionBadge(fbDb ? 'CONNECTED' : 'STANDBY');
+    }
+
+    function getFirebaseFormValues() {
+      return {
+        apiKey: document.getElementById('fb_apiKey')?.value.trim() || '',
+        projectId: document.getElementById('fb_projectId')?.value.trim() || '',
+        databaseURL: document.getElementById('fb_databaseURL')?.value.trim() || '',
+        authDomain: document.getElementById('fb_authDomain')?.value.trim() || '',
+        storageBucket: document.getElementById('fb_storageBucket')?.value.trim() || '',
+        messagingSenderId: document.getElementById('fb_messagingSenderId')?.value.trim() || '',
+        appId: document.getElementById('fb_appId')?.value.trim() || ''
+      };
+    }
+
+    function updateFirebaseConnectionBadge(status) {
+      const badge = document.getElementById('firebaseConnectionBadge');
+      if (!badge) return;
+      if (status === 'CONNECTED') {
+        badge.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Connected';
+      } else if (status === 'TESTING') {
+        badge.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
+        badge.innerHTML = '<i class="fas fa-spinner fa-spin text-amber-500"></i> Testing...';
+      } else if (status === 'FAILED') {
+        badge.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-rose-500"></span> Failed';
+      } else {
+        badge.className = 'flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200';
+        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-slate-400"></span> Standby';
+      }
+    }
+
+    async function testFirebaseConnection(customConfig) {
+      const targetConfig = customConfig || getFirebaseFormValues();
+      
+      if (!targetConfig.databaseURL || !targetConfig.databaseURL.startsWith('https://')) {
+        return {
+          success: false,
+          status: 'INVALID_URL',
+          message: 'Database URL wajib diisi dengan format https:// (contoh: https://project-id-default-rtdb.asia-southeast1.firebasedatabase.app)'
+        };
+      }
+
+      const testAppName = 'testApp_' + Date.now();
+      let testApp = null;
+      try {
+        testApp = firebase.initializeApp(targetConfig, testAppName);
+        const testDb = testApp.database();
+        
+        const pingPromise = new Promise((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error('Koneksi timeout setelah 3.5 detik')), 3500);
+          testDb.ref('.info/connected').once('value')
+            .then(snap => {
+              clearTimeout(timer);
+              resolve(snap.val() !== null);
+            })
+            .catch(err => {
+              clearTimeout(timer);
+              reject(err);
+            });
+        });
+
+        await pingPromise;
+        await testApp.delete();
+        return {
+          success: true,
+          status: 'CONNECTED',
+          message: 'Koneksi ke Firebase Realtime Database Berhasil! (CONNECTED)'
+        };
+      } catch (err) {
+        if (testApp) {
+          try { await testApp.delete(); } catch(e) {}
+        }
+        let safeMsg = 'Gagal terhubung ke Firebase Realtime Database.';
+        if (err.message && err.message.includes('timeout')) safeMsg = 'Koneksi timeout. Periksa kembali Database URL dan koneksi internet.';
+        else if (err.message && err.message.includes('PERMISSION_DENIED')) safeMsg = 'Izin ditolak (Permission Denied). Periksa Security Rules pada Firebase Database Anda.';
+        else if (err.message) safeMsg = 'Error: ' + err.message.replace(/[\r\n]+/g, ' ').slice(0, 120);
+
+        return {
+          success: false,
+          status: 'CONNECTION_FAILED',
+          message: safeMsg
+        };
+      }
+    }
+
+    async function handleTestFirebaseConnectionUI() {
+      const resultBox = document.getElementById('firebaseTestResultBox');
+      updateFirebaseConnectionBadge('TESTING');
+      if (resultBox) {
+        resultBox.className = 'p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 flex items-center gap-2';
+        resultBox.innerHTML = '<i class="fas fa-spinner fa-spin text-amber-500"></i> Menguji koneksi ke Firebase Realtime Database...';
+      }
+
+      const res = await testFirebaseConnection();
+      if (res.success) {
+        updateFirebaseConnectionBadge('CONNECTED');
+        if (resultBox) {
+          resultBox.className = 'p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center gap-2 animate-fade-in';
+          resultBox.innerHTML = `<i class="fas fa-check-circle text-emerald-600 text-sm"></i> <div><b>CONNECTED:</b> ${res.message}</div>`;
+        }
+        showAlert('success', res.message);
+      } else {
+        updateFirebaseConnectionBadge('FAILED');
+        if (resultBox) {
+          resultBox.className = 'p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold text-rose-800 flex items-center gap-2 animate-fade-in';
+          resultBox.innerHTML = `<i class="fas fa-exclamation-circle text-rose-600 text-sm"></i> <div><b>CONNECTION FAILED:</b> ${res.message}</div>`;
+        }
+        showAlert('error', res.message);
+      }
+    }
+
+    async function handleSaveFirebaseConfigUI() {
+      const cfg = getFirebaseFormValues();
+      if (!cfg.databaseURL || !cfg.databaseURL.startsWith('https://')) {
+        showAlert('warning', 'Database URL wajib diisi dengan format https://');
+        return;
+      }
+
+      showLoading();
+      try {
+        localStorage.setItem('absensi_firebase_config', JSON.stringify(cfg));
+        firebaseConfig = { ...DEFAULT_FIREBASE_CONFIG, ...cfg };
+        initFirebaseInstance(firebaseConfig);
+        await initDatabase();
+        hideLoading();
+        showAlert('success', 'Konfigurasi Firebase Database berhasil disimpan dan diterapkan!');
+        updateFirebaseConnectionBadge(fbDb ? 'CONNECTED' : 'STANDBY');
+      } catch(err) {
+        hideLoading();
+        showAlert('error', 'Gagal menerapkan konfigurasi Firebase: ' + err.message);
+      }
+    }
+
+    async function promptResetFirebaseConfig() {
+      if (confirm('Apakah Anda yakin ingin mereset konfigurasi Firebase ke default?')) {
+        showLoading();
+        try {
+          localStorage.removeItem('absensi_firebase_config');
+          firebaseConfig = { ...DEFAULT_FIREBASE_CONFIG };
+          initFirebaseInstance(firebaseConfig);
+          await initDatabase();
+          populateFirebaseFormValues();
+          hideLoading();
+          showAlert('info', 'Konfigurasi Firebase telah direset ke default.');
+          const resultBox = document.getElementById('firebaseTestResultBox');
+          if (resultBox) resultBox.className = 'hidden';
+        } catch(e) {
+          hideLoading();
+          showAlert('error', 'Gagal mereset: ' + e.message);
+        }
+      }
+    }
 
     async function submitLicenseActivation() {
       const input = document.getElementById('inputLicenseKey');
@@ -12586,6 +12922,9 @@ zQIDAQAB
         setActiveMenu('Pengaturan');
         if (typeof LicenseEngine !== 'undefined' && LicenseEngine.applyLicenseState) {
             LicenseEngine.applyLicenseState();
+        }
+        if (typeof populateFirebaseFormValues === 'function') {
+            populateFirebaseFormValues();
         }
         showLoading();
 
